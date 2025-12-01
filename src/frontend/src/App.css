@@ -1,0 +1,123 @@
+:root {
+  --teal: #2ec4b6;
+  --teal-dark: #1ca99a;
+  --dark: #1a1a1a;
+  --muted: #5d6c7c;
+  --surface: #ffffff;
+  --canvas: #f5f7fa;
+}
+
+.login-page {
+  min-height: 100vh;
+  background-color: var(--canvas);
+  padding: 2rem 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+.login-card {
+  background-color: var(--surface);
+  border-radius: 32px;
+  border: 2px solid #d7e4ec;
+  width: 100%;
+  max-width: 420px;
+  padding: 3rem 2.5rem;
+  box-shadow: 0 25px 60px rgba(23, 94, 116, 0.15);
+}
+
+.logo-row {
+  margin-bottom: 1rem;
+}
+
+.logo-image {
+  width: 82px;
+  height: auto;
+  border-radius: 22px;
+  border: 3px solid var(--dark);
+  padding: 0.35rem;
+  background: linear-gradient(140deg, #e7faf5 0%, rgba(46, 196, 182, 0.35) 100%);
+  box-shadow: 0 15px 30px rgba(46, 196, 182, 0.25);
+}
+
+.welcome-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 0.5rem;
+}
+
+.welcome-subtitle {
+  font-size: 1.1rem;
+  color: var(--muted);
+  margin-bottom: 2.5rem;
+  line-height: 1.5;
+}
+
+.pill-input {
+  border-radius: 999px;
+  padding: 0.85rem 1.5rem;
+  border: 2px solid var(--teal);
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--muted);
+  font-style: italic;
+  background-color: var(--surface);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pill-input:focus {
+  box-shadow: 0 10px 25px rgba(46, 196, 182, 0.3);
+  border-color: var(--teal-dark);
+  outline: none;
+}
+
+.login-btn {
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+  border: 3px solid var(--dark);
+  color: #ffffff;
+  font-size: 1.2rem;
+  font-weight: 600;
+  padding: 0.85rem;
+  box-shadow: 0 15px 35px rgba(46, 196, 182, 0.35);
+}
+
+.login-btn:hover {
+  background: linear-gradient(135deg, var(--teal-dark) 0%, var(--teal) 100%);
+}
+
+.register-section small {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.register-btn {
+  border-radius: 999px;
+  padding: 0.7rem 2.5rem;
+  border: 2px solid var(--dark);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--dark);
+  background-color: #ffffff;
+  box-shadow: 0 8px 20px rgba(46, 196, 182, 0.18);
+}
+
+.register-btn:hover {
+  background-color: var(--teal);
+  color: #ffffff;
+  border-color: var(--dark);
+}
+
+@media (max-width: 576px) {
+  .login-card {
+    padding: 2.5rem 1.5rem;
+  }
+
+  .welcome-title {
+    font-size: 2rem;
+  }
+
+  .welcome-subtitle {
+    font-size: 1rem;
+  }
+}

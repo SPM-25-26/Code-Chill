@@ -1,0 +1,118 @@
+.DS_Store
+*.log
+logs
+
+# Node / React
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+.pnp/
+.pnp.js
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.env
+.env.*.local
+.npmrc
+*.swp
+*.swo
+
+# macOS / IDE
+.idea/
+.vscode/
+
+# .NET
+bin/
+obj/
+.vs/
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+*.cache
+*.dbmdl
+*.jfm
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# ASP.NET generated
+appsettings.*.Development.json
+Properties/launchSettings.json
+
+
+# Build artifacts
+bin/
+obj/
+
+# VS Code / Cursor
+.vscode/
+.cursor/
+
+# User secrets and local settings
+appsettings.*.local.json
+App_Data/
+
+# OS / tooling noise
+.DS_Store
+Thumbs.db
+
+# Dotnet tooling
+*.user
+*.suo
+*.swp
+*.tmp
+*.lock.json
+
+.fake
+
+# Node / React tooling
+node_modules/
+coverage/
+build/
+dist/
+.cache/
+.parcel-cache/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Frontend environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+

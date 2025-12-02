@@ -190,22 +190,9 @@ public class AuthenticationController : ControllerBase
             return false;
         }
 
-        if (registerRequest.Password.Length < 8)
+        if (!IsValidPassword(registerRequest.Password, out var passwordError))
         {
-            validationProblemResult = new BadRequestObjectResult(
-                "Password must be at least 8 characters long."
-            );
-            return false;
-        }
-
-        if (
-            !registerRequest.Password.Any(char.IsLetter)
-            || !registerRequest.Password.Any(char.IsDigit)
-        )
-        {
-            validationProblemResult = new BadRequestObjectResult(
-                "Password must include both letters and numbers."
-            );
+            validationProblemResult = new BadRequestObjectResult(passwordError);
             return false;
         }
 
@@ -238,6 +225,42 @@ public class AuthenticationController : ControllerBase
         }
 
         validationProblemResult = null!;
+        return true;
+    }
+
+    private static bool IsValidPassword(string password, out string errorMessage)
+    {
+        if (password.Length < 8)
+        {
+            errorMessage = "Password must be at least 8 characters long.";
+            return false;
+        }
+
+        if (!password.Any(char.IsLower))
+        {
+            errorMessage = "Password must include at least one lowercase letter.";
+            return false;
+        }
+
+        if (!password.Any(char.IsUpper))
+        {
+            errorMessage = "Password must include at least one uppercase letter.";
+            return false;
+        }
+
+        if (!password.Any(char.IsDigit))
+        {
+            errorMessage = "Password must include at least one number.";
+            return false;
+        }
+
+        if (!password.Any(ch => !char.IsLetterOrDigit(ch)))
+        {
+            errorMessage = "Password must include at least one special character.";
+            return false;
+        }
+
+        errorMessage = string.Empty;
         return true;
     }
 

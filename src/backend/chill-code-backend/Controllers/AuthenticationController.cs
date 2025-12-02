@@ -1,10 +1,9 @@
-using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using ChillCodeBackend.Models.Api;
 using ChillCodeBackend.Models.Entities;
 using ChillCodeBackend.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,18 +16,21 @@ public class AuthenticationController : ControllerBase
     private readonly IUserStore _userStore;
     private readonly IPasswordHasher<User> _passwordHasher;
     private readonly ITokenService _tokenService;
+    private readonly IEmailService _emailService;
     private readonly ILogger<AuthenticationController> _logger;
 
     public AuthenticationController(
         IUserStore userStore,
         IPasswordHasher<User> passwordHasher,
         ITokenService tokenService,
+        IEmailService emailService,
         ILogger<AuthenticationController> logger
     )
     {
         _userStore = userStore;
         _passwordHasher = passwordHasher;
         _tokenService = tokenService;
+        _emailService = emailService;
         _logger = logger;
     }
 
@@ -165,6 +167,72 @@ public class AuthenticationController : ControllerBase
         var response = await IssueTokensAsync(user, cancellationToken);
         return Ok(response);
     }
+
+    [HttpPost("forgot-password")]
+    public async Task<ActionResult> ForgotPassword(
+    [FromBody] PasswordResetRequestDto request,
+    CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.Email))
+            return BadRequest("Email is required.");
+
+        var user = await _userStore.GetByEmailAsync(request.Email.Trim(), cancellationToken);
+        if (user == null)
+            return NotFound("User not found.");
+
+        // Genera token sicuro
+        var tokenBytes = new byte[32];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(tokenBytes);
+        var resetToken = Convert.ToBase64String(tokenBytes);
+
+        user.PasswordResetToken = resetToken;
+        user.PasswordResetExpiresAt = DateTimeOffset.UtcNow.AddMinutes(15); // 15 min
+
+        await _userStore.AddOrUpdateAsync(user, cancellationToken);
+
+        var resetLink = $"https://yourfrontend.com/reset-password?token={Uri.EscapeDataString(resetToken)}&email={Uri.EscapeDataString(user.Email)}";
+
+        await _emailService.SendEmailAsync(
+        user.Email,
+        "Password Reset Request",
+        $"Click the link to reset your password: <a href='{resetLink}'>Reset Password</a>"
+    );
+
+        return Ok("Password reset email sent.");
+    }
+
+
+    [HttpPost("reset-password")]
+    public async Task<ActionResult> ResetPassword(
+        [FromBody] PasswordResetDto request,
+        [FromQuery] string email,
+        CancellationToken cancellationToken
+    )
+    {
+        if (string.IsNullOrWhiteSpace(request.Token) || string.IsNullOrWhiteSpace(request.NewPassword))
+            return BadRequest("Token and new password are required.");
+
+        var user = await _userStore.GetByEmailAsync(email.Trim(), cancellationToken);
+        if (user == null || string.IsNullOrWhiteSpace(user.PasswordResetToken) || user.PasswordResetExpiresAt <= DateTimeOffset.UtcNow)
+            return BadRequest("This link is invalid or has expired.");
+
+        // Confronta hash token
+        var tokenHash = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(request.Token)));
+        if (!string.Equals(user.PasswordResetToken, tokenHash, StringComparison.Ordinal))
+            return BadRequest("This link is invalid or has expired.");
+
+        // Aggiorna la password
+        user.PasswordHash = _passwordHasher.HashPassword(user, request.NewPassword);
+
+        user.PasswordResetToken = null;
+        user.PasswordResetExpiresAt = null;
+
+        await _userStore.AddOrUpdateAsync(user, cancellationToken);
+
+        return Ok("Password reset successful. You can now log in with your new password.");
+    }
+
 
     private bool TryValidateRegistration(
         RegisterRequestDto registerRequest,

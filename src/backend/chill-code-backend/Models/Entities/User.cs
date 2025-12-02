@@ -11,5 +11,9 @@ namespace ChillCodeBackend.Models.Entities
         public bool EmailVerified { get; set; }
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
         public DateTimeOffset ChangedAt { get; set; } = DateTimeOffset.UtcNow;
+
+        // Password reset fields
+        public string? PasswordResetToken { get; set; }
+        public DateTimeOffset? PasswordResetExpiresAt { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using ChillCodeBackend.Data.Repositories;
 using ChillCodeBackend.Models.Api;
 using ChillCodeBackend.Models.Entities;
 using ChillCodeBackend.Services;
@@ -14,19 +15,19 @@ namespace MyWebApi.Controllers;
 [ApiController]
 public class AuthenticationController : ControllerBase
 {
-    private readonly IUserStore _userStore;
+    private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher<User> _passwordHasher;
     private readonly ITokenService _tokenService;
     private readonly ILogger<AuthenticationController> _logger;
 
     public AuthenticationController(
-        IUserStore userStore,
+        IUserRepository userRepository,
         IPasswordHasher<User> passwordHasher,
         ITokenService tokenService,
         ILogger<AuthenticationController> logger
     )
     {
-        _userStore = userStore;
+        _userRepository = userRepository;
         _passwordHasher = passwordHasher;
         _tokenService = tokenService;
         _logger = logger;
@@ -52,7 +53,10 @@ public class AuthenticationController : ControllerBase
             var normalizedEmail = registerRequest.Email.Trim();
             var normalizedUserName = registerRequest.UserName?.Trim() ?? string.Empty;
 
-            var existingUser = await _userStore.GetByEmailAsync(normalizedEmail, cancellationToken);
+            var existingUser = await _userRepository.GetByEmailAsync(
+                normalizedEmail,
+                cancellationToken
+            );
             if (existingUser != null)
             {
                 _logger.LogInformation(
@@ -102,7 +106,7 @@ public class AuthenticationController : ControllerBase
         }
 
         var normalizedEmail = loginRequest.Email.Trim();
-        var user = await _userStore.GetByEmailAsync(normalizedEmail, cancellationToken);
+        var user = await _userRepository.GetByEmailAsync(normalizedEmail, cancellationToken);
         if (user == null)
         {
             return Unauthorized("Invalid email or password.");
@@ -149,7 +153,7 @@ public class AuthenticationController : ControllerBase
         }
 
         var normalizedEmail = request.Email.Trim();
-        var user = await _userStore.GetByEmailAsync(normalizedEmail, cancellationToken);
+        var user = await _userRepository.GetByEmailAsync(normalizedEmail, cancellationToken);
         if (
             user == null
             || string.IsNullOrWhiteSpace(user.RefreshToken)
@@ -284,7 +288,7 @@ public class AuthenticationController : ControllerBase
         }
 
         user.ChangedAt = DateTimeOffset.UtcNow;
-        await _userStore.AddOrUpdateAsync(user, cancellationToken);
+        await _userRepository.AddOrUpdateAsync(user, cancellationToken);
 
         return new AuthResponseDto
         {

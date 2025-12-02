@@ -1,7 +1,13 @@
+using System;
+using ChillCodeBackend.Data;
+using ChillCodeBackend.Data.Api;
+using ChillCodeBackend.Data.Db;
+using ChillCodeBackend.Data.Repositories;
 using ChillCodeBackend.Models.Entities;
 using ChillCodeBackend.Models.Options;
 using ChillCodeBackend.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChillCodeBackend;
 
@@ -37,10 +43,26 @@ public class Startup
 
     private void DependencyInjection(IServiceCollection services)
     {
-        services.AddSingleton<IUserStore, FileUserStore>();
+        services.AddDbContext<ChillCodeDbContext>(options =>
+        {
+            var connectionString =
+                _configuration.GetConnectionString("DefaultConnection")
+                ?? "Data Source=App_Data/chillcode.db";
+            options.UseSqlite(connectionString);
+        });
+
+        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         services.Configure<JwtOptions>(_configuration.GetSection(JwtOptions.SectionName));
         services.AddSingleton<ITokenService, JwtTokenService>();
+        services.AddHttpClient<IUnicamApiProxy, UnicamApiProxy>(client =>
+        {
+            var baseUrl = _configuration["ExternalApi:BaseUrl"];
+            if (!string.IsNullOrWhiteSpace(baseUrl))
+            {
+                client.BaseAddress = new Uri(baseUrl);
+            }
+        });
     }
 
     public void Configure(WebApplication app)

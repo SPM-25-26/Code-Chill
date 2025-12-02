@@ -14,7 +14,7 @@ import {
     Alert
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import axios from 'axios';
+import instance from '../../utilities/Utilities.js';
 
 function RegistrationPage() {
     const navigate = useNavigate();
@@ -68,7 +68,7 @@ function RegistrationPage() {
         setLoading(true);
         setErrorMessage('');
         try {
-            const response = await axios.post('/api/auth/register', {
+            const response = await instance.post('/api/Authentication/register', {
                 email,
                 password
             });

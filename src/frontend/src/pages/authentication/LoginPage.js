@@ -13,13 +13,15 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 import logoPng from '../../assets/SPM-Logo.png';
 import logoWebp from '../../assets/SPM-Logo.webp';
-import instance from '../../utilities/Utilities.js'; // axios instance
-import './AuthenticationPage.css';
+import instance from '../../utilities/Utilities.js';
+import '../styles/AuthenticationPage.css';
 
-// Schema di validazione: email o username, password
+/**
+ * Validation schema for login form
+ */
 const schema = yup.object({
-  identifier: yup.string().required('Email or Username is required'),
-  password: yup.string().required('Password is required').min(8, 'Password must be at least 8 characters'),
+  email: yup.string().email('Enter a valid email').required('Email is required'),
+  password: yup.string().required('Password is required')
 }).required();
 
 export default function LoginPage() {
@@ -33,14 +35,13 @@ export default function LoginPage() {
     resolver: yupResolver(schema),
   });
 
+
   const onSubmit = async (data) => {
     setLoading(true);
     setErrorMessage('');
     try {
-      // login endpoint (same as register for now)
       const response = await instance.post('/api/Authentication/login', {
-        email: data.identifier.includes('@') ? data.identifier : undefined,
-        userName: !data.identifier.includes('@') ? data.identifier : undefined,
+        email: data.email,
         password: data.password
       });
 
@@ -49,7 +50,7 @@ export default function LoginPage() {
         localStorage.setItem('refreshToken', response.data.refreshToken);
         localStorage.setItem('refreshTokenExpiresAt', response.data.refreshTokenExpiresAt);
 
-        navigate('/home'); // redirect to home
+        navigate('/login/dashboard'); // redirect to the home page after login
       } else {
         setErrorMessage(response.data.message || 'Login failed');
       }
@@ -61,8 +62,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login-page d-flex justify-content-center align-items-center min-vh-100">
-      <div className="login-card text-center shadow-sm">
+    <div className="-page-container d-flex justify-content-center align-items-center min-vh-100">
+      <div className="page-card text-center shadow-sm">
 
         {/* Logo */}
         <div className="logo-row text-center w-100 mb-3">
@@ -79,17 +80,17 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit(onSubmit)} className="login-form w-100">
           <Controller
-            name="identifier"
+            name="email"
             control={control}
             render={({ field }) => (
               <TextField
                 {...field}
-                label="Email or Username"
+                label="Email"
                 variant="outlined"
                 fullWidth
                 className="mb-3"
-                error={!!errors.identifier}
-                helperText={errors.identifier?.message}
+                error={!!errors.email}
+                helperText={errors.email?.message}
               />
             )}
           />

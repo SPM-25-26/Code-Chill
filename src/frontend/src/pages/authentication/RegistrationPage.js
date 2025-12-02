@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logoPng from '../../assets/SPM-Logo.png';
 import logoWebp from '../../assets/SPM-Logo.webp';
-import './AuthenticationPage.css';
+import '../styles/AuthenticationPage.css';
 import {
     TextField,
     IconButton,
@@ -69,33 +69,39 @@ function RegistrationPage() {
         setLoading(true);
         setErrorMessage('');
         try {
-            const response = await instance.post('/api/Authentication/register', {
+            const payload = {
                 email,
                 password,
-                ...(username && { userName: username })
-            });
+            };
+            if (username.trim() !== '') {
+                payload.userName = username;
+            }
+
+            const response = await instance.post('/api/Authentication/register', payload);
 
             if (response.status === 201 || response.data.token) {
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('refreshToken', response.data.refreshToken);
                 localStorage.setItem('refreshTokenExpiresAt', response.data.refreshTokenExpiresAt);
+                if (username.trim() !== '') {
+                    localStorage.setItem('username', username);
+                }
 
                 setSuccessMessage('Registration successful! Redirecting to Home...');
-                setTimeout(() => navigate('/home'), 1000);
+                setTimeout(() => navigate('/login/dashboard'), 1000);
             } else {
                 setErrorMessage(response.data.message || 'Registration failed');
             }
         } catch (err) {
-            const msg =
-                err.response?.data?.message || 'Something went wrong. Please try again.';
+            const msg = err.response?.data?.message || 'Something went wrong. Please try again.';
             setErrorMessage(msg);
         }
         setLoading(false);
     };
 
     return (
-        <div className="login-page d-flex justify-content-center align-items-center min-vh-100">
-            <div className="login-card text-center shadow-sm">
+        <div className="page-container d-flex justify-content-center align-items-center min-vh-100">
+            <div className="page-card text-center shadow-sm">
                 {/* Logo */}
                 <div className="logo-row text-center w-100 mb-3">
                     <picture>
@@ -225,7 +231,7 @@ function RegistrationPage() {
                         variant="outlined"
                         fullWidth
                         className="register-btn"
-                        onClick={() => navigate('/')}
+                        onClick={() => navigate('/login')}
                     >
                         Login
                     </Button>

@@ -119,6 +119,11 @@ public class AuthenticationController : ControllerBase
             return Unauthorized("Invalid email or password.");
         }
 
+        // if (!user.EmailVerified)
+        // {
+        //     return Unauthorized("Email not verified.");
+        // }
+
         if (string.IsNullOrWhiteSpace(user.UserName))
         {
             user.UserName = GenerateUserName();

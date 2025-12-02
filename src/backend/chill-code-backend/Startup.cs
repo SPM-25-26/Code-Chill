@@ -51,6 +51,7 @@ public class Startup
         }
 
         app.UseHttpsRedirection();
+        app.UseCors("Dev");
         app.UseAuthorization();
 
         app.UseSwaggerUI(options =>

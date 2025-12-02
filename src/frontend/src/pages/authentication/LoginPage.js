@@ -13,26 +13,51 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 import logoPng from '../../assets/SPM-Logo.png';
 import logoWebp from '../../assets/SPM-Logo.webp';
+import instance from '../../utilities/Utilities.js'; // axios instance
 import './AuthenticationPage.css';
 
-// Schema di validazione
+// Schema di validazione: email o username, password
 const schema = yup.object({
-  username: yup.string().required('Username is required'),
+  identifier: yup.string().required('Email or Username is required'),
   password: yup.string().required('Password is required').min(8, 'Password must be at least 8 characters'),
 }).required();
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const { control, handleSubmit, formState: { errors, isValid } } = useForm({
     mode: 'onChange',
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = (data) => {
-    console.log('Login data:', data);
-    // qui chiamerai la tua API login
+  const onSubmit = async (data) => {
+    setLoading(true);
+    setErrorMessage('');
+    try {
+      // login endpoint (same as register for now)
+      const response = await instance.post('/api/Authentication/login', {
+        email: data.identifier.includes('@') ? data.identifier : undefined,
+        userName: !data.identifier.includes('@') ? data.identifier : undefined,
+        password: data.password
+      });
+
+      if (response.status === 201 || response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('refreshToken', response.data.refreshToken);
+        localStorage.setItem('refreshTokenExpiresAt', response.data.refreshTokenExpiresAt);
+
+        navigate('/home'); // redirect to home
+      } else {
+        setErrorMessage(response.data.message || 'Login failed');
+      }
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Something went wrong. Please try again.';
+      setErrorMessage(msg);
+    }
+    setLoading(false);
   };
 
   return (
@@ -48,23 +73,23 @@ export default function LoginPage() {
         </div>
 
         <h1 className="welcome-title">Welcome!</h1>
-        <p className="welcome-subtitle">
-          Tell us your preferences and get the best recommendations!
-        </p>
+        <p className="welcome-subtitle">Tell us your preferences and get the best recommendations!</p>
+
+        {errorMessage && <div style={{ color: 'red', marginBottom: '1rem' }}>{errorMessage}</div>}
 
         <form onSubmit={handleSubmit(onSubmit)} className="login-form w-100">
           <Controller
-            name="username"
+            name="identifier"
             control={control}
             render={({ field }) => (
               <TextField
                 {...field}
-                label="Username"
+                label="Email or Username"
                 variant="outlined"
                 fullWidth
                 className="mb-3"
-                error={!!errors.username}
-                helperText={errors.username?.message}
+                error={!!errors.identifier}
+                helperText={errors.identifier?.message}
               />
             )}
           />
@@ -101,19 +126,16 @@ export default function LoginPage() {
           <Button
             type="submit"
             variant="contained"
-            color="primary"
             fullWidth
-            disabled={!isValid}
             className="login-btn"
+            disabled={!isValid || loading}
           >
-            Login
+            {loading ? 'Logging in...' : 'Login'}
           </Button>
         </form>
 
         <div className="register-section w-100 mt-3">
-          <small className="text-muted d-block mb-2">
-            Don’t have an account yet?
-          </small>
+          <small className="text-muted d-block mb-2">Don’t have an account yet?</small>
           <Button
             variant="outlined"
             fullWidth

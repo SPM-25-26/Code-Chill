@@ -41,6 +41,7 @@ public class Startup
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         services.Configure<JwtOptions>(_configuration.GetSection(JwtOptions.SectionName));
         services.AddSingleton<ITokenService, JwtTokenService>();
+        services.AddScoped<IEmailService, EmailService>();
     }
 
     public void Configure(WebApplication app)

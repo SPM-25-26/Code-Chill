@@ -9,12 +9,12 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegistrationPage />} />
 
         {/* Route protetta */}
         <Route
-          path="/home"
+          path="/login/dashboard"
           element={
             <ProtectedRoute>
               <HomePage />

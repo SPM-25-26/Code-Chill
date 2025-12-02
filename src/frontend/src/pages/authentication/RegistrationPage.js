@@ -29,7 +29,6 @@ function RegistrationPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    // Feedback
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [loading, setLoading] = useState(false);
@@ -63,7 +62,12 @@ function RegistrationPage() {
 
     const isFormValid = emailValid && passwordValid && confirmValid;
 
-    // Handle submit
+    /**
+     * Handle registration form submission
+     * Sends registration request to backend and stores tokens on success
+     * Redirects user to the login/dashboard page
+     * @returns 
+     */
     const handleRegister = async () => {
         if (!isFormValid) return;
         setLoading(true);

@@ -16,8 +16,11 @@ import logoWebp from '../../assets/SPM-Logo.webp';
 import instance from '../../utilities/Utilities.js';
 import '../styles/AuthenticationPage.css';
 
+
 /**
- * Validation schema for login form
+ * Validation schema for the login form
+ * - Ensures the email is a valid format and required
+ * - Ensures password is required
  */
 const schema = yup.object({
   email: yup.string().email('Enter a valid email').required('Email is required'),
@@ -35,7 +38,11 @@ export default function LoginPage() {
     resolver: yupResolver(schema),
   });
 
-
+  /**
+     * Handle form submission
+     * Sends login request to backend and stores tokens on success
+     * Redirects user to the login/dashboard page
+     */
   const onSubmit = async (data) => {
     setLoading(true);
     setErrorMessage('');
@@ -49,13 +56,31 @@ export default function LoginPage() {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('refreshToken', response.data.refreshToken);
         localStorage.setItem('refreshTokenExpiresAt', response.data.refreshTokenExpiresAt);
+        if (response.data.userName) {
+          localStorage.setItem('username', response.data.userName);
+        }
 
         navigate('/login/dashboard'); // redirect to the home page after login
       } else {
         setErrorMessage(response.data.message || 'Login failed');
       }
-    } catch (err) {
-      const msg = err.response?.data?.message || 'Something went wrong. Please try again.';
+    } catch (error) {
+      let msg = 'Something went wrong. Please try again.';
+      if (error.response) {
+        switch (error.response.status) {
+          case 401:
+            msg = 'Invalid credentials. Please try again.';
+            break;
+          case 403:
+            msg = 'Your account is not verified.';
+            break;
+          case 500:
+            msg = 'Server error. Please try again later.';
+            break;
+          default:
+            msg = error.response.data?.message || msg;
+        }
+      }
       setErrorMessage(msg);
     }
     setLoading(false);

@@ -123,98 +123,90 @@ function RegistrationPage() {
 
                 <form className="login-form w-100" noValidate>
                     {/* Username */}
-                    <div className="mb-3">
-                        <TextField
-                            variant="outlined"
-                            placeholder="Username (optional)"
-                            fullWidth
-                            className="pill-input"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            InputProps={{ style: { fontStyle: 'italic', fontWeight: 500 } }}
-                        />
-                    </div>
+                    <TextField
+                        variant="outlined"
+                        label="Username (optional)"
+                        fullWidth
+                        className="mb-3"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        InputProps={{ style: { fontStyle: 'italic', fontWeight: 500 } }}
+                    />
 
                     {/* Email */}
-                    <div className="mb-3">
-                        <TextField
-                            variant="outlined"
-                            placeholder="Email"
-                            fullWidth
-                            className="pill-input"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            error={email !== '' && !emailValid}
-                            helperText={email !== '' && !emailValid ? 'Enter a valid email' : ''}
-                            InputProps={{ style: { fontStyle: 'italic', fontWeight: 500 } }}
-                        />
-                    </div>
+                    <TextField
+                        variant="outlined"
+                        label="Email"
+                        fullWidth
+                        className="mb-3"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        error={email !== '' && !emailValid}
+                        helperText={email !== '' && !emailValid ? 'Enter a valid email' : ''}
+                        InputProps={{ style: { fontStyle: 'italic', fontWeight: 500 } }}
+                    />
 
                     {/* Password */}
-                    <div className="mb-3">
-                        <TextField
-                            variant="outlined"
-                            placeholder="Password"
-                            type={showPassword ? 'text' : 'password'}
-                            fullWidth
-                            className="pill-input"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            error={password !== '' && !passwordValid}
-                            helperText={password !== '' && !passwordValid ? 'Password does not meet requirements' : ''}
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                ),
-                                style: { fontStyle: 'italic', fontWeight: 500 }
-                            }}
-                        />
-                        {password && (
-                            <Box sx={{ mt: 1 }}>
-                                <LinearProgress
-                                    variant="determinate"
-                                    value={passwordStrength}
-                                    color={getStrengthColor()}
-                                    sx={{ height: 8, borderRadius: 4 }}
-                                />
-                                <Typography variant="caption" color="textSecondary">
-                                    Password strength: {Math.round(passwordStrength)}%
-                                </Typography>
-                            </Box>
-                        )}
-                    </div>
+                    <TextField
+                        variant="outlined"
+                        label="Password"
+                        type={showPassword ? 'text' : 'password'}
+                        fullWidth
+                        className="mb-3"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        error={password !== '' && !passwordValid}
+                        helperText={password !== '' && !passwordValid ? 'Password does not meet requirements' : ''}
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                            style: { fontStyle: 'italic', fontWeight: 500 }
+                        }}
+                    />
+                    {password && (
+                        <Box sx={{ mt: 1, mb: 2 }}>
+                            <LinearProgress
+                                variant="determinate"
+                                value={passwordStrength}
+                                color={getStrengthColor()}
+                                sx={{ height: 8, borderRadius: 4 }}
+                            />
+                            <Typography variant="caption" color="textSecondary">
+                                Password strength: {Math.round(passwordStrength)}%
+                            </Typography>
+                        </Box>
+                    )}
 
                     {/* Confirm Password */}
-                    <div className="mb-4">
-                        <TextField
-                            variant="outlined"
-                            placeholder="Confirm Password"
-                            type={showConfirmPassword ? 'text' : 'password'}
-                            fullWidth
-                            className="pill-input"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            error={confirmPassword !== '' && !confirmValid}
-                            helperText={confirmPassword !== '' && !confirmValid ? 'Passwords do not match' : ''}
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                            edge="end"
-                                        >
-                                            {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                ),
-                                style: { fontStyle: 'italic', fontWeight: 500 }
-                            }}
-                        />
-                    </div>
+                    <TextField
+                        variant="outlined"
+                        label="Confirm Password"
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        fullWidth
+                        className="mb-3"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        error={confirmPassword !== '' && !confirmValid}
+                        helperText={confirmPassword !== '' && !confirmValid ? 'Passwords do not match' : ''}
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        edge="end"
+                                    >
+                                        {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                            style: { fontStyle: 'italic', fontWeight: 500 }
+                        }}
+                    />
 
                     {/* Register Button */}
                     <Button

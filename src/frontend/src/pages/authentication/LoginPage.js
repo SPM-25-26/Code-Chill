@@ -158,6 +158,16 @@ export default function LoginPage() {
           >
             {loading ? 'Logging in...' : 'Login'}
           </Button>
+
+          {/* Forgot password link */}
+          <Button
+            variant="text"
+            fullWidth
+            className="mt-2"
+            onClick={() => navigate('/reset-password')}
+          >
+            Forgot your password?
+          </Button>
         </form>
 
         <div className="register-section w-100 mt-3">

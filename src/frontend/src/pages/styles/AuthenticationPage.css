@@ -68,6 +68,21 @@
   border-color: var(--dark);
 }
 
+.reset-btn {
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+  border: 3px solid var(--dark);
+  color: #ffffff;
+  font-size: 1.2rem;
+  font-weight: 600;
+  padding: 0.85rem;
+  box-shadow: 0 15px 35px rgba(46, 196, 182, 0.35);
+}
+
+.reset-btn:hover {
+  background: linear-gradient(135deg, var(--teal-dark) 0%, var(--teal) 100%);
+}
+
 .register-section small {
   font-weight: 600;
   color: var(--muted);

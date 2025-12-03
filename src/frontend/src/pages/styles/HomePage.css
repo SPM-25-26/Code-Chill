@@ -1,0 +1,24 @@
+.logo-row {
+  margin-bottom: 1rem;
+}
+
+.logout-btn {
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+  border: 3px solid var(--dark);
+  color: #ffffff;
+  font-size: 1.2rem;
+  font-weight: 600;
+  padding: 0.85rem;
+  box-shadow: 0 15px 35px rgba(46, 196, 182, 0.35);
+}
+
+.logout-btn:hover {
+  background: linear-gradient(135deg, var(--teal-dark) 0%, var(--teal) 100%);
+}
+
+@media (max-width: 576px) {
+  .home-card {
+    padding: 2.5rem 1.5rem;
+  }
+}

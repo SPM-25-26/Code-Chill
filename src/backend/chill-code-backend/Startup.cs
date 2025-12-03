@@ -54,7 +54,10 @@ namespace ChillCodeBackend
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.Configure<JwtOptions>(_configuration.GetSection(JwtOptions.SectionName));
+            services.Configure<EmailOptions>(_configuration.GetSection(EmailOptions.SectionName));
             services.AddSingleton<ITokenService, JwtTokenService>();
+            services.AddScoped<IEmailService, SmtpEmailService>();
+            services.AddScoped<IEmailTemplateService, EmailTemplateService>();
             services.AddHttpClient<IUnicamApiProxy, UnicamApiProxy>(client =>
             {
                 var baseUrl = _configuration["ExternalApi:BaseUrl"];

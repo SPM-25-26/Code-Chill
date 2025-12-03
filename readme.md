@@ -49,6 +49,9 @@ export Email__SmtpPassword="smtp-pass"
 export Email__FromEmail="no-reply@example.com"
 export Email__FromName="ChillCode"
 export Email__VerificationBaseUrl="https://app.example.com/verify"
+
+
+unset Email__SmtpHost # for removing
 ```
 
 Then run the API:

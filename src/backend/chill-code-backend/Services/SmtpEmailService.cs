@@ -16,6 +16,16 @@ namespace ChillCodeBackend.Services
         {
             _options = options.Value;
             _logger = logger;
+            _logger.LogInformation(
+                "SMTP configured: host={Host}, port={Port}, useEncryption={UseEncryption}, from={FromEmail}, "
+                    + "user={User}, disableCertRevocationCheck={DisableRevocation}",
+                _options.SmtpHost,
+                _options.SmtpPort,
+                _options.UseEncryption,
+                _options.FromEmail,
+                _options.SmtpUser,
+                _options.DisableCertificateRevocationCheck
+            );
         }
 
         public async Task SendAsync(
@@ -37,9 +47,13 @@ namespace ChillCodeBackend.Services
             using var client = new SmtpClient();
             try
             {
-                var secureSocket = _options.UseStartTls
-                    ? SecureSocketOptions.StartTls
-                    : SecureSocketOptions.Auto;
+                client.CheckCertificateRevocation = !_options.DisableCertificateRevocationCheck;
+                // WARNING: Temporary bypass for certificate validation issues. Do NOT leave this enabled in production.
+                client.ServerCertificateValidationCallback = (_, _, _, _) => true;
+
+                var secureSocket = _options.UseEncryption
+                    ? SecureSocketOptions.Auto
+                    : SecureSocketOptions.None;
                 await client.ConnectAsync(
                     _options.SmtpHost,
                     _options.SmtpPort,

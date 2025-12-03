@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logoPng from '../../assets/SPM-Logo.png';
 import logoWebp from '../../assets/SPM-Logo.webp';
-import './AuthenticationPage.css';
+import '../styles/AuthenticationPage.css';
 import {
     TextField,
     IconButton,
@@ -14,12 +14,13 @@ import {
     Alert
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import axios from 'axios';
+import instance from '../../utilities/Utilities.js';
 
 function RegistrationPage() {
     const navigate = useNavigate();
 
     // Form fields
+    const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -28,7 +29,6 @@ function RegistrationPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    // Feedback
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [loading, setLoading] = useState(false);
@@ -62,33 +62,50 @@ function RegistrationPage() {
 
     const isFormValid = emailValid && passwordValid && confirmValid;
 
-    // Handle submit
+    /**
+     * Handle registration form submission
+     * Sends registration request to backend and stores tokens on success
+     * Redirects user to the login/dashboard page
+     * @returns 
+     */
     const handleRegister = async () => {
         if (!isFormValid) return;
         setLoading(true);
         setErrorMessage('');
         try {
-            const response = await axios.post('/api/auth/register', {
+            const payload = {
                 email,
-                password
-            });
-            if (response.status === 201 || response.data.success) {
-                setSuccessMessage('Registration successful! Redirecting to login...');
-                setTimeout(() => navigate('/'), 2000);
+                password,
+            };
+            if (username.trim() !== '') {
+                payload.userName = username;
+            }
+
+            const response = await instance.post('/api/Authentication/register', payload);
+
+            if (response.status === 201 || response.data.token) {
+                localStorage.setItem('token', response.data.token);
+                localStorage.setItem('refreshToken', response.data.refreshToken);
+                localStorage.setItem('refreshTokenExpiresAt', response.data.refreshTokenExpiresAt);
+                if (username.trim() !== '') {
+                    localStorage.setItem('username', username);
+                }
+
+                setSuccessMessage('Registration successful! Redirecting to Home...');
+                setTimeout(() => navigate('/login/dashboard'), 1000);
             } else {
                 setErrorMessage(response.data.message || 'Registration failed');
             }
         } catch (err) {
-            const msg =
-                err.response?.data?.message || 'Something went wrong. Please try again.';
+            const msg = err.response?.data?.message || 'Something went wrong. Please try again.';
             setErrorMessage(msg);
         }
         setLoading(false);
     };
 
     return (
-        <div className="login-page d-flex justify-content-center align-items-center min-vh-100">
-            <div className="login-card text-center shadow-sm">
+        <div className="page-container d-flex justify-content-center align-items-center min-vh-100">
+            <div className="page-card text-center shadow-sm">
                 {/* Logo */}
                 <div className="logo-row text-center w-100 mb-3">
                     <picture>
@@ -100,11 +117,24 @@ function RegistrationPage() {
                 <h1 className="welcome-title">Create Account</h1>
                 <p className="welcome-subtitle">Fill in your details to get started!</p>
 
-                {/* Error / Success Alerts */}
+                {/* Alerts */}
                 {errorMessage && <Alert severity="error" sx={{ mb: 2 }}>{errorMessage}</Alert>}
                 {successMessage && <Alert severity="success" sx={{ mb: 2 }}>{successMessage}</Alert>}
 
                 <form className="login-form w-100" noValidate>
+                    {/* Username */}
+                    <div className="mb-3">
+                        <TextField
+                            variant="outlined"
+                            placeholder="Username (optional)"
+                            fullWidth
+                            className="pill-input"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            InputProps={{ style: { fontStyle: 'italic', fontWeight: 500 } }}
+                        />
+                    </div>
+
                     {/* Email */}
                     <div className="mb-3">
                         <TextField
@@ -205,7 +235,7 @@ function RegistrationPage() {
                         variant="outlined"
                         fullWidth
                         className="register-btn"
-                        onClick={() => navigate('/')}
+                        onClick={() => navigate('/login')}
                     >
                         Login
                     </Button>

@@ -50,7 +50,12 @@ public class Startup
             app.MapOpenApi();
         }
 
-        app.UseHttpsRedirection();
+        if (!app.Environment.IsDevelopment())
+        {
+            app.UseHttpsRedirection();
+        }
+
+        app.UseCors("Dev");
         app.UseAuthorization();
 
         app.UseSwaggerUI(options =>

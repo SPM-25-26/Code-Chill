@@ -1,3 +1,4 @@
-namespace ChillCodeBackend.Services;
-
-public record RefreshTokenResult(string Token, DateTimeOffset ExpiresAt);
+namespace ChillCodeBackend.Services
+{
+    public record RefreshTokenResult(string Token, DateTimeOffset ExpiresAt);
+}

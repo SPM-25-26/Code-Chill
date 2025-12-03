@@ -1,7 +1,8 @@
-namespace ChillCodeBackend.Services;
-
-public interface ITokenService
+namespace ChillCodeBackend.Services
 {
-    string CreateToken(string userName);
-    RefreshTokenResult CreateRefreshToken();
+    public interface ITokenService
+    {
+        string CreateToken(string userName);
+        RefreshTokenResult CreateRefreshToken();
+    }
 }

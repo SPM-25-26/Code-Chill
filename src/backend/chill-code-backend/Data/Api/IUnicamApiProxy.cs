@@ -1,6 +1,10 @@
-namespace ChillCodeBackend.Data.Api;
-
-public interface IUnicamApiProxy
+namespace ChillCodeBackend.Data.Api
 {
-    Task<string> FetchRawAsync(string relativePath, CancellationToken cancellationToken = default);
+    public interface IUnicamApiProxy
+    {
+        Task<string> FetchRawAsync(
+            string relativePath,
+            CancellationToken cancellationToken = default
+        );
+    }
 }

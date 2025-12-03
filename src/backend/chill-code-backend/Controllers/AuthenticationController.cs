@@ -1,10 +1,7 @@
-using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using ChillCodeBackend.Models.Api;
 using ChillCodeBackend.Models.Entities;
 using ChillCodeBackend.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -165,6 +162,35 @@ public class AuthenticationController : ControllerBase
         var response = await IssueTokensAsync(user, cancellationToken);
         return Ok(response);
     }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword(
+    [FromBody] ResetPasswordRequest request,
+    CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.NewPassword))
+            return BadRequest("Email and new password are required.");
+
+        var user = await _userStore.GetByEmailAsync(request.Email.Trim(), cancellationToken);
+
+        if (user == null)
+            return NotFound("No account found with this email.");
+
+        if (request.NewPassword.Length < 8)
+            return BadRequest("Password must be at least 8 characters long.");
+
+        if (!request.NewPassword.Any(char.IsLetter) || !request.NewPassword.Any(char.IsDigit))
+            return BadRequest("Password must contain letters and numbers.");
+
+        // Hash the new password
+        user.PasswordHash = _passwordHasher.HashPassword(user, request.NewPassword);
+        user.ChangedAt = DateTimeOffset.UtcNow;
+
+        await _userStore.AddOrUpdateAsync(user, cancellationToken);
+
+        return Ok("Password updated successfully.");
+    }
+
 
     private bool TryValidateRegistration(
         RegisterRequestDto registerRequest,

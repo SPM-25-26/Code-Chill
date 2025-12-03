@@ -10,10 +10,12 @@ namespace ChillCodeBackend.Data.Db.Configurations
         {
             builder.HasKey(u => u.Id);
             builder.HasIndex(u => u.Email).IsUnique();
-            builder.Property(u => u.Email).IsRequired();
-            builder.Property(u => u.PasswordHash).IsRequired();
-            builder.Property(u => u.CreatedAt).IsRequired();
-            builder.Property(u => u.ChangedAt).IsRequired();
-        }
+        builder.Property(u => u.Email).IsRequired();
+        builder.Property(u => u.PasswordHash).IsRequired();
+        builder.Property(u => u.CreatedAt).IsRequired();
+        builder.Property(u => u.ChangedAt).IsRequired();
+        builder.Property(u => u.EmailVerificationToken).HasMaxLength(200);
+        builder.Property(u => u.EmailVerificationExpiresAt);
     }
+}
 }

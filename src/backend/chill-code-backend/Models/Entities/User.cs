@@ -9,6 +9,8 @@ namespace ChillCodeBackend.Models.Entities
         public string RefreshToken { get; set; } = string.Empty;
         public DateTimeOffset? RefreshTokenExpiresAt { get; set; }
         public bool EmailVerified { get; set; }
+        public string EmailVerificationToken { get; set; } = string.Empty;
+        public DateTimeOffset? EmailVerificationExpiresAt { get; set; }
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
         public DateTimeOffset ChangedAt { get; set; } = DateTimeOffset.UtcNow;
     }

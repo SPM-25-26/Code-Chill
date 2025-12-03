@@ -33,6 +33,14 @@ namespace chill_code_backend.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTimeOffset?>("EmailVerificationExpiresAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EmailVerificationToken")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("EmailVerified")
                         .HasColumnType("INTEGER");
 

@@ -12,6 +12,11 @@ dotnet run
 
 The API exposes auth endpoints at `/api/auth` (login/register/refresh). Update `appsettings.json` or `appsettings.Development.json` (or env vars/user-secrets) to set JWT/DB/email settings.
 
+Email flows:
+- `POST /api/auth/register` sends a verification email (requires SMTP config).
+- `POST /api/auth/verify` with `{ "email": "...", "token": "..." }` marks the email verified.
+- `POST /api/test-email` sends a test message using the configured SMTP settings.
+
 ## Frontend (dev/test)
 
 ```bash

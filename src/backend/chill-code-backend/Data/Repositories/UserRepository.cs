@@ -58,6 +58,8 @@ namespace ChillCodeBackend.Data.Repositories
                 existingUser.EmailVerified = user.EmailVerified;
                 existingUser.RefreshToken = user.RefreshToken;
                 existingUser.RefreshTokenExpiresAt = user.RefreshTokenExpiresAt;
+                existingUser.EmailVerificationToken = user.EmailVerificationToken;
+                existingUser.EmailVerificationExpiresAt = user.EmailVerificationExpiresAt;
                 existingUser.ChangedAt = DateTimeOffset.UtcNow;
             }
 

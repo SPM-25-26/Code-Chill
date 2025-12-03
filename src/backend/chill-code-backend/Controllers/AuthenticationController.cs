@@ -4,10 +4,12 @@ using System.Linq;
 using ChillCodeBackend.Data.Repositories;
 using ChillCodeBackend.Models.Api;
 using ChillCodeBackend.Models.Entities;
+using ChillCodeBackend.Models.Options;
 using ChillCodeBackend.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace MyWebApi.Controllers
 {
@@ -18,18 +20,27 @@ namespace MyWebApi.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly ITokenService _tokenService;
+        private readonly IEmailService _emailService;
+        private readonly IEmailTemplateService _emailTemplateService;
+        private readonly EmailOptions _emailOptions;
         private readonly ILogger<AuthenticationController> _logger;
 
         public AuthenticationController(
             IUserRepository userRepository,
             IPasswordHasher<User> passwordHasher,
             ITokenService tokenService,
+            IEmailService emailService,
+            IEmailTemplateService emailTemplateService,
+            IOptions<EmailOptions> emailOptions,
             ILogger<AuthenticationController> logger
         )
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
             _tokenService = tokenService;
+            _emailService = emailService;
+            _emailTemplateService = emailTemplateService;
+            _emailOptions = emailOptions.Value;
             _logger = logger;
         }
 
@@ -76,6 +87,8 @@ namespace MyWebApi.Controllers
                     EmailVerified = false,
                     CreatedAt = now,
                     ChangedAt = now,
+                    EmailVerificationToken = GenerateVerificationToken(),
+                    EmailVerificationExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
                 };
 
                 user.PasswordHash = _passwordHasher.HashPassword(user, registerRequest.Password);
@@ -85,6 +98,8 @@ namespace MyWebApi.Controllers
                     "User registered successfully with email {Email}",
                     normalizedEmail
                 );
+
+                await SendVerificationEmailAsync(user, cancellationToken);
                 return StatusCode(StatusCodes.Status201Created, response);
             }
             catch (Exception ex)
@@ -127,10 +142,10 @@ namespace MyWebApi.Controllers
                 return Unauthorized("Invalid email or password.");
             }
 
-            // if (!user.EmailVerified)
-            // {
-            //     return Unauthorized("Email not verified.");
-            // }
+            if (!user.EmailVerified)
+            {
+                return Unauthorized("Email not verified.");
+            }
 
             if (string.IsNullOrWhiteSpace(user.UserName))
             {
@@ -177,6 +192,54 @@ namespace MyWebApi.Controllers
 
             var response = await IssueTokensAsync(user, cancellationToken);
             return Ok(response);
+        }
+
+        [HttpGet("verify")]
+        public async Task<ActionResult> VerifyEmail(
+            [FromQuery] string email,
+            [FromQuery] string token,
+            CancellationToken cancellationToken
+        )
+        {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
+            {
+                return BadRequest("Email and token are required.");
+            }
+
+            var normalizedEmail = email.Trim();
+            var user = await _userRepository.GetByEmailAsync(normalizedEmail, cancellationToken);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            if (user.EmailVerified)
+            {
+                return Ok("Email already verified.");
+            }
+
+            if (
+                string.IsNullOrWhiteSpace(user.EmailVerificationToken)
+                || !string.Equals(user.EmailVerificationToken, token, StringComparison.Ordinal)
+            )
+            {
+                return Unauthorized("Invalid verification token.");
+            }
+
+            if (
+                user.EmailVerificationExpiresAt is not null
+                && user.EmailVerificationExpiresAt <= DateTimeOffset.UtcNow
+            )
+            {
+                return Unauthorized("Verification token expired.");
+            }
+
+            user.EmailVerified = true;
+            user.EmailVerificationToken = string.Empty;
+            user.EmailVerificationExpiresAt = null;
+            await _userRepository.AddOrUpdateAsync(user, cancellationToken);
+
+            return Ok("Email verified successfully.");
         }
 
         private bool TryValidateRegistration(
@@ -301,6 +364,47 @@ namespace MyWebApi.Controllers
                 RefreshToken = refreshTokenResult.Token,
                 RefreshTokenExpiresAt = refreshTokenResult.ExpiresAt,
             };
+        }
+
+        private string GenerateVerificationToken()
+        {
+            return Guid.NewGuid().ToString("N");
+        }
+
+        private string BuildVerificationLink(User user)
+        {
+            var emailEncoded = Uri.EscapeDataString(user.Email);
+            var tokenEncoded = Uri.EscapeDataString(user.EmailVerificationToken);
+            var separator = _emailOptions.VerificationBaseUrl.Contains("?") ? "&" : "?";
+            return $"{_emailOptions.VerificationBaseUrl}{separator}email={emailEncoded}&token={tokenEncoded}";
+        }
+
+        private async Task SendVerificationEmailAsync(
+            User user,
+            CancellationToken cancellationToken
+        )
+        {
+            if (string.IsNullOrWhiteSpace(_emailOptions.VerificationBaseUrl))
+            {
+                _logger.LogWarning(
+                    "Verification email not sent: VerificationBaseUrl not configured."
+                );
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(user.EmailVerificationToken))
+            {
+                _logger.LogWarning("Verification email not sent: no verification token present.");
+                return;
+            }
+
+            var verificationLink = BuildVerificationLink(user);
+            var (subject, html, text) = _emailTemplateService.BuildVerificationEmail(
+                user.Email,
+                verificationLink
+            );
+
+            await _emailService.SendAsync(user.Email, subject, html, text, cancellationToken);
         }
 
         private string GenerateUserName()

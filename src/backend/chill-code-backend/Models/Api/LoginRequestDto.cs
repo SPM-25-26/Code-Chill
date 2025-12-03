@@ -1,7 +1,8 @@
-namespace ChillCodeBackend.Models.Api;
-
-public class LoginRequestDto
+namespace ChillCodeBackend.Models.Api
 {
-    public string Email { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
+    public class LoginRequestDto
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
 }

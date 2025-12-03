@@ -142,7 +142,7 @@ namespace MyWebApi.Controllers
 
             if (!user.EmailVerified)
             {
-                return Unauthorized("Email not verified.");
+                return Unauthorized("Email not verified. Please verify your email before logging in.");
             }
 
             if (string.IsNullOrWhiteSpace(user.UserName))
@@ -188,40 +188,44 @@ namespace MyWebApi.Controllers
                 return Unauthorized("Refresh token expired.");
             }
 
-        var response = await IssueTokensAsync(user, cancellationToken);
-        return Ok(response);
-    }
-
-    [HttpPost("reset-password")]
-    public async Task<IActionResult> ResetPassword(
-    [FromBody] ResetPasswordRequest request,
-    CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.NewPassword))
-            return BadRequest("Email and new password are required.");
-
-        var user = await _userStore.GetByEmailAsync(request.Email.Trim(), cancellationToken);
-
-        if (user == null)
-            return NotFound("No account found with this email.");
-
-        if (request.NewPassword.Length < 8)
-            return BadRequest("Password must be at least 8 characters long.");
-
-        if (!request.NewPassword.Any(char.IsLetter) || !request.NewPassword.Any(char.IsDigit))
-            return BadRequest("Password must contain letters and numbers.");
-
-        // Hash the new password
-        user.PasswordHash = _passwordHasher.HashPassword(user, request.NewPassword);
-        user.ChangedAt = DateTimeOffset.UtcNow;
-
-        await _userStore.AddOrUpdateAsync(user, cancellationToken);
-
-        return Ok("Password updated successfully.");
-    }
-
             var response = await IssueTokensAsync(user, cancellationToken);
             return Ok(response);
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword(
+            [FromBody] ResetPasswordRequestDto request,
+            CancellationToken cancellationToken
+        )
+        {
+            if (
+                string.IsNullOrWhiteSpace(request.Email)
+                || string.IsNullOrWhiteSpace(request.NewPassword)
+            )
+            {
+                return BadRequest("Email and new password are required.");
+            }
+
+            var user = await _userRepository.GetByEmailAsync(
+                request.Email.Trim(),
+                cancellationToken
+            );
+
+            if (user == null)
+            {
+                return NotFound("No account found with this email.");
+            }
+
+            if (!IsValidPassword(request.NewPassword, out var passwordError))
+            {
+                return BadRequest(passwordError);
+            }
+
+            user.PasswordHash = _passwordHasher.HashPassword(user, request.NewPassword);
+            user.ChangedAt = DateTimeOffset.UtcNow;
+            await _userRepository.AddOrUpdateAsync(user, cancellationToken);
+
+            return Ok("Password updated successfully.");
         }
 
         [HttpGet("verify")]

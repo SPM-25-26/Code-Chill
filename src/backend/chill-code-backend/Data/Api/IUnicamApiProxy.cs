@@ -6,5 +6,10 @@ namespace ChillCodeBackend.Data.Api
             string relativePath,
             CancellationToken cancellationToken = default
         );
+
+        Task<T?> FetchAsAsync<T>(
+            string relativePath,
+            CancellationToken cancellationToken = default
+        );
     }
 }

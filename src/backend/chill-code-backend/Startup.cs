@@ -58,6 +58,7 @@ namespace ChillCodeBackend
             services.AddSingleton<ITokenService, JwtTokenService>();
             services.AddScoped<IEmailService, SmtpEmailService>();
             services.AddScoped<IEmailTemplateService, EmailTemplateService>();
+            services.AddScoped<IUnicamApiService, UnicamApiService>();
             services.AddHttpClient<IUnicamApiProxy, UnicamApiProxy>(client =>
             {
                 var baseUrl = _configuration["ExternalApi:BaseUrl"];

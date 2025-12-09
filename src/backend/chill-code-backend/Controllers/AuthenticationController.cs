@@ -142,7 +142,9 @@ namespace MyWebApi.Controllers
 
             if (!user.EmailVerified)
             {
-                return Unauthorized("Email not verified. Please verify your email before logging in.");
+                return Unauthorized(
+                    "Email not verified. Please verify your email before logging in."
+                );
             }
 
             if (string.IsNullOrWhiteSpace(user.UserName))

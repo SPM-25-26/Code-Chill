@@ -1,56 +1,27 @@
-using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json;
 using ChillCodeBackend.Models.Unicam;
 using Microsoft.Extensions.Logging;
 
 namespace ChillCodeBackend.Data.Api
 {
-    public interface IUnicamApiService
-    {
-        Task<IReadOnlyList<UnicamPoiCard>> GetPoiCardsAsync(
-            UnicamPoiCategory category,
-            string municipality,
-            string language = "it",
-            CancellationToken cancellationToken = default
-        );
-
-        Task<IReadOnlyList<UnicamEventCard>> GetEventsAsync(
-            string municipality,
-            string? title = null,
-            DateOnly? date = null,
-            string language = "it",
-            CancellationToken cancellationToken = default
-        );
-
-        Task<IReadOnlyList<UnicamOrganizationCard>> GetOrganizationsAsync(
-            string municipality,
-            string language = "it",
-            CancellationToken cancellationToken = default
-        );
-
-        Task<IReadOnlyList<UnicamRouteCard>> GetRoutesAsync(
-            string municipality,
-            string language = "it",
-            CancellationToken cancellationToken = default
-        );
-    }
-
     public class UnicamApiService : IUnicamApiService
     {
         private const string DefaultLanguage = "it";
 
-        private static readonly IReadOnlyDictionary<UnicamPoiCategory, string> PoiEndpoints =
+        private readonly IReadOnlyDictionary<UnicamPoiCategory, string> PoiDetailEndpoints =
             new Dictionary<UnicamPoiCategory, string>
             {
-                [UnicamPoiCategory.ArtCulture] = "/api/art-culture/card-list",
-                [UnicamPoiCategory.EatAndDrink] = "/api/eat-and-drink/card-list",
-                [UnicamPoiCategory.EntertainmentLeisure] = "/api/entertainment-leisure/card-list",
-                [UnicamPoiCategory.Nature] = "/api/nature/card-list",
-                [UnicamPoiCategory.Services] = "/api/services/card-list",
-                [UnicamPoiCategory.Shopping] = "/api/shopping/card-list",
-                [UnicamPoiCategory.Sleep] = "/api/sleep/card-list",
-                [UnicamPoiCategory.TypicalProducts] = "/api/typical-products/card-list",
+                [UnicamPoiCategory.ArtCulture] = "/api/art-culture/detail/",
+                [UnicamPoiCategory.EatAndDrink] = "/api/eat-and-drink/detail/",
+                [UnicamPoiCategory.EntertainmentLeisure] = "/api/entertainment-leisure/detail/",
+                [UnicamPoiCategory.Nature] = "/api/nature/detail/",
+                [UnicamPoiCategory.Services] = "/api/services/detail/",
+                [UnicamPoiCategory.Shopping] = "/api/shopping/detail/",
+                [UnicamPoiCategory.Sleep] = "/api/sleep/detail/",
+                [UnicamPoiCategory.TypicalProducts] = "/api/typical-products/detail/",
             };
 
         private readonly IUnicamApiProxy _proxy;
@@ -62,103 +33,89 @@ namespace ChillCodeBackend.Data.Api
             _logger = logger;
         }
 
-        public Task<IReadOnlyList<UnicamPoiCard>> GetPoiCardsAsync(
+        public Task<JsonElement> GetPoiDetailAsync(
             UnicamPoiCategory category,
+            string identifier,
+            string language = DefaultLanguage,
+            CancellationToken cancellationToken = default
+        ) =>
+            FetchDetailAsync(PoiDetailEndpoints[category], identifier, language, cancellationToken);
+
+        public Task<JsonElement> GetEventDetailAsync(
+            string identifier,
+            string language = DefaultLanguage,
+            CancellationToken cancellationToken = default
+        ) => FetchDetailAsync("/api/events/detail/", identifier, language, cancellationToken);
+
+        public Task<JsonElement> GetOrganizationDetailAsync(
+            string taxCode,
+            string language = DefaultLanguage,
+            CancellationToken cancellationToken = default
+        ) => FetchDetailAsync("/api/organizations/detail/", taxCode, language, cancellationToken);
+
+        public Task<JsonElement> GetRouteDetailAsync(
+            string identifier,
+            string language = DefaultLanguage,
+            CancellationToken cancellationToken = default
+        ) => FetchDetailAsync("/api/routes/detail/", identifier, language, cancellationToken);
+
+        public Task<JsonElement> GetArticleDetailAsync(
+            string identifier,
+            string language = DefaultLanguage,
+            CancellationToken cancellationToken = default
+        ) => FetchDetailAsync("/api/articles/detail/", identifier, language, cancellationToken);
+
+        public Task<UnicamMunicipalityVisit> GetMunicipalityVisitAsync(
             string municipality,
             string language = DefaultLanguage,
             CancellationToken cancellationToken = default
         )
         {
-            municipality = ValidateMunicipality(municipality);
+            if (string.IsNullOrWhiteSpace(municipality))
+            {
+                throw new ArgumentException("Municipality is required", nameof(municipality));
+            }
+
+            municipality = municipality.Trim();
             language = NormalizeLanguage(language);
 
             var relativePath = BuildQueryPath(
-                PoiEndpoints[category],
-                new Dictionary<string, string?>
-                {
-                    ["municipality"] = municipality,
-                    ["language"] = language,
-                }
+                "/api/organizations/municipalities/visit",
+                new Dictionary<string, string?> { ["city"] = municipality, ["language"] = language }
             );
 
-            return FetchListAsync<UnicamPoiCard>(relativePath, cancellationToken);
+            return FetchAndHandleAsync<UnicamMunicipalityVisit>(relativePath, cancellationToken);
         }
 
-        public Task<IReadOnlyList<UnicamEventCard>> GetEventsAsync(
-            string municipality,
-            string? title = null,
-            DateOnly? date = null,
-            string language = DefaultLanguage,
-            CancellationToken cancellationToken = default
+        private Task<JsonElement> FetchDetailAsync(
+            string basePath,
+            string identifier,
+            string language,
+            CancellationToken cancellationToken
         )
         {
-            municipality = ValidateMunicipality(municipality);
-            language = NormalizeLanguage(language);
+            if (string.IsNullOrWhiteSpace(identifier))
+            {
+                throw new ArgumentException("Identifier is required", nameof(identifier));
+            }
 
+            language = NormalizeLanguage(language);
             var relativePath = BuildQueryPath(
-                "/api/events/card-list",
-                new Dictionary<string, string?>
-                {
-                    ["municipality"] = municipality,
-                    ["language"] = language,
-                    ["title"] = string.IsNullOrWhiteSpace(title) ? null : title,
-                    ["date"] = date?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-                }
+                basePath + identifier.Trim(),
+                new Dictionary<string, string?> { ["language"] = language }
             );
 
-            return FetchListAsync<UnicamEventCard>(relativePath, cancellationToken);
+            return FetchAndHandleAsync<JsonElement>(relativePath, cancellationToken);
         }
 
-        public Task<IReadOnlyList<UnicamOrganizationCard>> GetOrganizationsAsync(
-            string municipality,
-            string language = DefaultLanguage,
-            CancellationToken cancellationToken = default
-        )
-        {
-            municipality = ValidateMunicipality(municipality);
-            language = NormalizeLanguage(language);
-
-            var relativePath = BuildQueryPath(
-                "/api/organizations/card-list",
-                new Dictionary<string, string?>
-                {
-                    ["municipality"] = municipality,
-                    ["language"] = language,
-                }
-            );
-
-            return FetchListAsync<UnicamOrganizationCard>(relativePath, cancellationToken);
-        }
-
-        public Task<IReadOnlyList<UnicamRouteCard>> GetRoutesAsync(
-            string municipality,
-            string language = DefaultLanguage,
-            CancellationToken cancellationToken = default
-        )
-        {
-            municipality = ValidateMunicipality(municipality);
-            language = NormalizeLanguage(language);
-
-            var relativePath = BuildQueryPath(
-                "/api/routes/card-list",
-                new Dictionary<string, string?>
-                {
-                    ["municipality"] = municipality,
-                    ["language"] = language,
-                }
-            );
-
-            return FetchListAsync<UnicamRouteCard>(relativePath, cancellationToken);
-        }
-
-        private async Task<IReadOnlyList<T>> FetchListAsync<T>(
+        private async Task<T> FetchAndHandleAsync<T>(
             string relativePath,
             CancellationToken cancellationToken
         )
         {
             try
             {
-                var result = await _proxy.FetchAsAsync<List<T>>(relativePath, cancellationToken);
+                var result = await _proxy.FetchAsAsync<T>(relativePath, cancellationToken);
                 if (result is null)
                 {
                     throw new UnicamApiException(
@@ -167,20 +124,7 @@ namespace ChillCodeBackend.Data.Api
                     );
                 }
 
-                if (result.Count == 0)
-                {
-                    return Array.Empty<T>();
-                }
-
-                if (result.Any(item => item is null))
-                {
-                    throw new UnicamApiException(
-                        "Received null items from Unicam API.",
-                        relativePath
-                    );
-                }
-
-                return result!;
+                return result;
             }
             catch (HttpRequestException ex)
             {
@@ -215,7 +159,7 @@ namespace ChillCodeBackend.Data.Api
             }
         }
 
-        private static string BuildQueryPath(string route, IDictionary<string, string?> queryParams)
+        private string BuildQueryPath(string route, IDictionary<string, string?> queryParams)
         {
             var usable = queryParams
                 .Where(kv => !string.IsNullOrWhiteSpace(kv.Value))
@@ -233,17 +177,7 @@ namespace ChillCodeBackend.Data.Api
             return route + separator + string.Join("&", usable);
         }
 
-        private static string ValidateMunicipality(string municipality)
-        {
-            if (string.IsNullOrWhiteSpace(municipality))
-            {
-                throw new ArgumentException("Municipality is required", nameof(municipality));
-            }
-
-            return municipality.Trim();
-        }
-
-        private static string NormalizeLanguage(string language)
+        private string NormalizeLanguage(string language)
         {
             if (string.IsNullOrWhiteSpace(language))
             {

@@ -10,6 +10,11 @@ namespace ChillCodeBackend.Data.Db
             : base(options) { }
 
         public DbSet<User> Users => Set<User>();
+        public DbSet<Municipality> Municipalities => Set<Municipality>();
+        public DbSet<Event> Events => Set<Event>();
+        public DbSet<Article> Articles => Set<Article>();
+
+        public DbSet<Models.Entities.Route> Routes => Set<Models.Entities.Route>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

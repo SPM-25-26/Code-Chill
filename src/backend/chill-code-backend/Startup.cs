@@ -60,7 +60,7 @@ namespace ChillCodeBackend
             services.AddScoped<IEmailService, SmtpEmailService>();
             services.AddScoped<IEmailTemplateService, EmailTemplateService>();
             services.AddScoped<IUnicamApiService, UnicamApiService>();
-            services.AddScoped<IIngestionPersistence, NoOpIngestionPersistence>();
+            services.AddScoped<IIngestionPersistence, IngestionPersistence>();
             services.AddScoped<IIngestionOrchestrator, IngestionOrchestrator>();
             services.AddHttpClient<IUnicamApiProxy, UnicamApiProxy>(client =>
             {

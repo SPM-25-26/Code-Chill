@@ -6,6 +6,7 @@ using ChillCodeBackend.Data.Repositories;
 using ChillCodeBackend.Models.Entities;
 using ChillCodeBackend.Models.Options;
 using ChillCodeBackend.Services;
+using ChillCodeBackend.Services.Ingestion;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -58,6 +59,9 @@ namespace ChillCodeBackend
             services.AddSingleton<ITokenService, JwtTokenService>();
             services.AddScoped<IEmailService, SmtpEmailService>();
             services.AddScoped<IEmailTemplateService, EmailTemplateService>();
+            services.AddScoped<IUnicamApiService, UnicamApiService>();
+            services.AddScoped<IIngestionPersistence, NoOpIngestionPersistence>();
+            services.AddScoped<IIngestionOrchestrator, IngestionOrchestrator>();
             services.AddHttpClient<IUnicamApiProxy, UnicamApiProxy>(client =>
             {
                 var baseUrl = _configuration["ExternalApi:BaseUrl"];

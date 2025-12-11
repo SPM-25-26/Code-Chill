@@ -3,7 +3,7 @@ using ChillCodeBackend.Models.Entities;
 namespace ChillCodeBackend.Data.Repositories.Municipalities
 {
 
-    public interface IMunicipalityStore
+    public interface IMunicipalityRepository
     {
         Task<Municipality?> GetByNameAsync(string name, CancellationToken cancellationToken = default);
         Task AddOrUpdateAsync(Municipality municipality, CancellationToken cancellationToken = default);

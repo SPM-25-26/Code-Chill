@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChillCodeBackend.Data.Repositories.Municipalities
 {
 
-    public class RouteRepository : IRouteStore
+    public class RouteRepository : IRouteRepository
     {
         private readonly ChillCodeDbContext _dbContext;
 

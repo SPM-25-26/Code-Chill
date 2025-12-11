@@ -3,7 +3,7 @@ using ChillCodeBackend.Models.Entities;
 namespace ChillCodeBackend.Data.Repositories.Municipalities
 {
 
-    public interface IArticleStore
+    public interface IArticleRepository
     {
         Task<Article?> GetByIdentifierAsync(string identifier, CancellationToken cancellationToken = default);
 

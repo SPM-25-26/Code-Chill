@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ChillCodeBackend.Data.Repositories.Municipalities
 {
 
-    public class ArticleRepository : IArticleStore
+    public class ArticleRepository : IArticleRepository
     {
         private readonly ChillCodeDbContext _dbContext;
 

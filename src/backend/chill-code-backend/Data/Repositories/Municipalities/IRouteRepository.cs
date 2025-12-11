@@ -1,7 +1,7 @@
 namespace ChillCodeBackend.Data.Repositories.Municipalities
 {
 
-    public interface IRouteStore
+    public interface IRouteRepository
     {
         Task<Models.Entities.Route?> GetByNameAsync(string name, CancellationToken cancellationToken = default);
         Task AddOrUpdateAsync(Models.Entities.Route route, CancellationToken cancellationToken = default);

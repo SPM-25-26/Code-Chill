@@ -1,11 +1,8 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace ChillCodeBackend.Models.Entities
 {
     public class Municipality
     {
-        [Key]
-        public string Name { get; set; } = default!;
+        public string Name { get; set; } = string.Empty;
 
         public string LegalName { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
@@ -43,9 +40,7 @@ namespace ChillCodeBackend.Models.Entities
     {
         public string EntityId { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
-
-        // Sleep, Eat, Experience, ecc.
-        public string Category { get; set; } = string.Empty;
+        public MobileCategory Category { get; set; }
 
         public string ImagePath { get; set; } = string.Empty;
         public string ExtraInfo { get; set; } = string.Empty;
@@ -55,5 +50,21 @@ namespace ChillCodeBackend.Models.Entities
     {
         public string Name { get; set; } = string.Empty;
         public string LogoPath { get; set; } = string.Empty;
+    }
+
+    public enum MobileCategory
+    {
+        Sleep,
+        EatAndDrink,
+        Events,
+        ArtCulture,
+        Nature,
+        TypicalProducts,
+        Routes,
+        Services,
+        EntertainmentLeisure,
+        Organizations,
+        Articles,
+        Shopping
     }
 }

@@ -4,8 +4,7 @@ namespace ChillCodeBackend.Models.Entities
 {
     public class Event
     {
-        [Key]
-        public string Identifier { get; set; } = default!;
+        public string Identifier { get; set; } = string.Empty;
 
         public string Title { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;

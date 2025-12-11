@@ -4,8 +4,7 @@ namespace ChillCodeBackend.Models.Entities
 {
     public class Article
     {
-        [Key]
-        public string Identifier { get; set; } = default!;
+        public string Identifier { get; set; } = string.Empty;
 
         public string Title { get; set; } = string.Empty;
         public string Script { get; set; } = string.Empty;
@@ -16,6 +15,8 @@ namespace ChillCodeBackend.Models.Entities
 
         public string ImagePath { get; set; } = string.Empty;
         public List<ArticleParagraph>? Paragraphs { get; set; }
+
+        public string UpdateAt { get; set; } = string.Empty;
 
         public List<string> Themes { get; set; } = [];
 

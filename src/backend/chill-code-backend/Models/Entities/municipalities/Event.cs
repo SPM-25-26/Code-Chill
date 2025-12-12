@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace ChillCodeBackend.Models.Entities
 {
     public class Event

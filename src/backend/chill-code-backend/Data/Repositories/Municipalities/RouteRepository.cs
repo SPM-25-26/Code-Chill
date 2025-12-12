@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChillCodeBackend.Data.Repositories.Municipalities
 {
-
     public class RouteRepository : IRouteRepository
     {
         private readonly ChillCodeDbContext _dbContext;
@@ -14,7 +13,10 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
             _dbContext = dbContext;
         }
 
-        public async Task<Models.Entities.Route?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+        public async Task<Models.Entities.Route?> GetByNameAsync(
+            string name,
+            CancellationToken cancellationToken = default
+        )
         {
             return await _dbContext.Routes.FirstOrDefaultAsync(
                 r => r.Name == name,
@@ -22,7 +24,10 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
             );
         }
 
-        public async Task AddOrUpdateAsync(Models.Entities.Route route, CancellationToken cancellationToken = default)
+        public async Task AddOrUpdateAsync(
+            Models.Entities.Route route,
+            CancellationToken cancellationToken = default
+        )
         {
             var existingRoute = await _dbContext.Routes.FirstOrDefaultAsync(
                 r => r.Name == route.Name,
@@ -55,10 +60,11 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
             }
         }
 
-        public async Task<IReadOnlyCollection<Models.Entities.Route>> GetAllAsync(CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyCollection<Models.Entities.Route>> GetAllAsync(
+            CancellationToken cancellationToken = default
+        )
         {
             return await _dbContext.Routes.ToListAsync(cancellationToken);
         }
-
     }
 }

@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChillCodeBackend.Data.Repositories.Municipalities
 {
-
     public class ArticleRepository : IArticleRepository
     {
         private readonly ChillCodeDbContext _dbContext;
@@ -14,7 +13,10 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
             _dbContext = dbContext;
         }
 
-        public async Task<Article?> GetByIdentifierAsync(string identifier, CancellationToken cancellationToken = default)
+        public async Task<Article?> GetByIdentifierAsync(
+            string identifier,
+            CancellationToken cancellationToken = default
+        )
         {
             return await _dbContext.Articles.FirstOrDefaultAsync(
                 a => a.Identifier == identifier,
@@ -22,7 +24,10 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
             );
         }
 
-        public async Task AddOrUpdateAsync(Article article, CancellationToken cancellationToken = default)
+        public async Task AddOrUpdateAsync(
+            Article article,
+            CancellationToken cancellationToken = default
+        )
         {
             var existingArticle = await _dbContext.Articles.FirstOrDefaultAsync(
                 a => a.Identifier == article.Identifier,
@@ -55,7 +60,9 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
             }
         }
 
-        public async Task<IReadOnlyCollection<Article>> GetAllAsync(CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyCollection<Article>> GetAllAsync(
+            CancellationToken cancellationToken = default
+        )
         {
             return await _dbContext.Articles.ToListAsync(cancellationToken);
         }

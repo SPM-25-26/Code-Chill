@@ -8,7 +8,7 @@ namespace ChillCodeBackend.Services.Ingestion.Mappers
     /// </summary>
     public class RouteMapper : JsonMapperBase
     {
-        public IEnumerable<Route> MapRoutes(IEnumerable<JsonElement> items)
+        public IEnumerable<Models.Entities.Route> MapRoutes(IEnumerable<JsonElement> items)
         {
             foreach (var item in items)
             {
@@ -17,7 +17,7 @@ namespace ChillCodeBackend.Services.Ingestion.Mappers
                     continue;
                 }
 
-                yield return new Route
+                yield return new Models.Entities.Route
                 {
                     Name = name,
                     ImagePath = GetString(item, "imagePath", "primaryImage"),
@@ -29,7 +29,7 @@ namespace ChillCodeBackend.Services.Ingestion.Mappers
                     OrganizationWebsite = GetString(item, "organizationWebsite"),
                     OrganizationEmail = GetString(item, "organizationEmail"),
                     OrganizationFacebook = GetString(item, "organizationFacebook"),
-                    OrganizationInstragram = GetString(
+                    OrganizationInstagram = GetString(
                         item,
                         "organizationInstragram",
                         "organizationInstagram"
@@ -45,22 +45,21 @@ namespace ChillCodeBackend.Services.Ingestion.Mappers
             }
         }
 
-        private Municipality MapMunicipality(JsonElement root)
+        private MunicipalityInfo MapMunicipality(JsonElement root)
         {
             if (
                 root.TryGetProperty("municipality", out var muni)
                 && muni.ValueKind != JsonValueKind.Null
             )
             {
-                return new Municipality
+                return new MunicipalityInfo
                 {
                     Name = GetString(muni, "name"),
-                    LegalName = GetString(muni, "legalName"),
                     LogoPath = GetString(muni, "logoPath"),
                 };
             }
 
-            return new Municipality();
+            return new MunicipalityInfo();
         }
     }
 }

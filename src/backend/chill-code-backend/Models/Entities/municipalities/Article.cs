@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace ChillCodeBackend.Models.Entities
 {
     public class Article
@@ -14,13 +12,10 @@ namespace ChillCodeBackend.Models.Entities
         public string TimeToRead { get; set; } = string.Empty;
 
         public string ImagePath { get; set; } = string.Empty;
-        public List<ArticleParagraph>? Paragraphs { get; set; }
-
-        public string UpdateAt { get; set; } = string.Empty;
-
-        public List<string> Themes { get; set; } = [];
-
-        public MunicipalityInfo? MunicipalityData { get; set; }
+        public List<ArticleParagraph> Paragraphs { get; set; } = new();
+        public DateTime? UpdatedAt { get; set; }
+        public List<string> Themes { get; set; } = new();
+        public MunicipalityInfo MunicipalityData { get; set; } = new();
     }
 
     public class ArticleParagraph

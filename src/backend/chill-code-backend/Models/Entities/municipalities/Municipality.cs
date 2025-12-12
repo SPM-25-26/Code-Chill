@@ -65,6 +65,6 @@ namespace ChillCodeBackend.Models.Entities
         EntertainmentLeisure,
         Organizations,
         Articles,
-        Shopping
+        Shopping,
     }
 }

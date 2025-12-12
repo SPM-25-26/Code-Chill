@@ -3,6 +3,7 @@ using ChillCodeBackend.Data;
 using ChillCodeBackend.Data.Api;
 using ChillCodeBackend.Data.Db;
 using ChillCodeBackend.Data.Repositories;
+using ChillCodeBackend.Data.Repositories.Municipalities;
 using ChillCodeBackend.Models.Entities;
 using ChillCodeBackend.Models.Options;
 using ChillCodeBackend.Services;
@@ -23,19 +24,7 @@ namespace ChillCodeBackend
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddOpenApi(options =>
-            {
-                options.AddDocumentTransformer(
-                    (document, context, cancellationToken) =>
-                    {
-                        document.Info.Title = "MyWeb API Test";
-                        document.Info.Version = "v1";
-                        document.Info.Description = "This API powers my awesome WebApi app.";
-                        return Task.CompletedTask;
-                    }
-                );
-            });
-
+            services.AddOpenApi();
             services.AddControllers();
             services.AddAuthorization();
 
@@ -59,9 +48,17 @@ namespace ChillCodeBackend
             services.AddSingleton<ITokenService, JwtTokenService>();
             services.AddScoped<IEmailService, SmtpEmailService>();
             services.AddScoped<IEmailTemplateService, EmailTemplateService>();
-            services.AddScoped<IUnicamApiService, UnicamApiService>();
+
+            // DB
             services.AddScoped<IIngestionPersistence, IngestionPersistence>();
             services.AddScoped<IIngestionOrchestrator, IngestionOrchestrator>();
+            services.AddScoped<IArticleRepository, ArticleRepository>();
+            services.AddScoped<IEventRepository, EventRepository>();
+            services.AddScoped<IMunicipalityRepository, MunicipalityRepository>();
+            services.AddScoped<IRouteRepository, RouteRepository>();
+
+            // Data Api
+            services.AddScoped<IUnicamApiService, UnicamApiService>();
             services.AddHttpClient<IUnicamApiProxy, UnicamApiProxy>(client =>
             {
                 var baseUrl = _configuration["ExternalApi:BaseUrl"];

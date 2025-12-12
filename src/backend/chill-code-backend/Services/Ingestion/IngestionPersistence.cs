@@ -149,7 +149,7 @@ namespace ChillCodeBackend.Services.Ingestion
         }
 
         private async Task PersistRoutesAsync(
-            IEnumerable<Route> routes,
+            IEnumerable<Models.Entities.Route> routes,
             CancellationToken cancellationToken
         )
         {

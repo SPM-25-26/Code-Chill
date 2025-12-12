@@ -1,7 +1,6 @@
-using ChillCodeBackend.Models.Entities;
 using ChillCodeBackend.Data.Db;
+using ChillCodeBackend.Models.Entities;
 using Microsoft.EntityFrameworkCore;
-
 
 namespace ChillCodeBackend.Data.Repositories.Municipalities
 {
@@ -14,7 +13,10 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
             _dbContext = dbContext;
         }
 
-        public async Task<Municipality?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+        public async Task<Municipality?> GetByNameAsync(
+            string name,
+            CancellationToken cancellationToken = default
+        )
         {
             return await _dbContext.Municipalities.FirstOrDefaultAsync(
                 m => m.Name == name,
@@ -22,7 +24,10 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
             );
         }
 
-        public async Task AddOrUpdateAsync(Municipality municipality, CancellationToken cancellationToken = default)
+        public async Task AddOrUpdateAsync(
+            Municipality municipality,
+            CancellationToken cancellationToken = default
+        )
         {
             var existingMunicipality = await _dbContext.Municipalities.FirstOrDefaultAsync(
                 m => m.Name == municipality.Name,
@@ -41,7 +46,9 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<IReadOnlyCollection<Municipality>> GetAllAsync(CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyCollection<Municipality>> GetAllAsync(
+            CancellationToken cancellationToken = default
+        )
         {
             return await _dbContext.Municipalities.ToListAsync(cancellationToken);
         }

@@ -1,3 +1,4 @@
+using System;
 using ChillCodeBackend.Models.Entities;
 using ChillCodeBackend.Models.Unicam;
 
@@ -57,7 +58,7 @@ namespace ChillCodeBackend.Services.Ingestion.Mappers
                     {
                         EntityId = item.EntityId!,
                         Title = item.Title ?? string.Empty,
-                        Category = item.Category ?? string.Empty,
+                        Category = MapCategory(item.Category),
                         ImagePath = item.ImagePath ?? string.Empty,
                         ExtraInfo = item.ExtraInfo ?? string.Empty,
                     }
@@ -65,6 +66,18 @@ namespace ChillCodeBackend.Services.Ingestion.Mappers
             }
 
             return result;
+        }
+
+        private static MobileCategory MapCategory(string? category)
+        {
+            if (string.IsNullOrWhiteSpace(category))
+            {
+                return MobileCategory.Articles;
+            }
+
+            return Enum.TryParse<MobileCategory>(category, true, out var parsed)
+                ? parsed
+                : MobileCategory.Articles;
         }
     }
 }

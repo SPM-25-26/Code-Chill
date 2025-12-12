@@ -1,16 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace ChillCodeBackend.Models.Entities
 {
     public class Route
     {
+        public string Name { get; set; } = string.Empty;
+
         public string ImagePath { get; set; } = string.Empty;
 
         public string Number { get; set; } = string.Empty;
-
-        public string Name { get; set; } = string.Empty;
 
         public string Description { get; set; } = string.Empty;
 
@@ -63,40 +62,28 @@ namespace ChillCodeBackend.Models.Entities
 
     public class StageMobile
     {
-        [Required]
-        public string Category { get; set; }
+        public string Category { get; set; } = string.Empty;
 
-        [Required]
-        public string PoiIdentifier { get; set; }
+        public string PoiIdentifier { get; set; } = string.Empty;
 
-        [Required]
-        public string PoiOfficialName { get; set; }
+        public string PoiOfficialName { get; set; } = string.Empty;
 
-        [Required]
-        public string PoiImagePath { get; set; }
+        public string PoiImagePath { get; set; } = string.Empty;
 
-        [Required]
-        public string PoiImageThumbPath { get; set; }
+        public string PoiImageThumbPath { get; set; } = string.Empty;
 
-        [Required]
-        public string Signposting { get; set; }
+        public string Signposting { get; set; } = string.Empty;
 
-        [Required]
-        public string SupportService { get; set; }
+        public string SupportService { get; set; } = string.Empty;
 
-        [Required]
         public double PoiLatitude { get; set; }
 
-        [Required]
         public double PoiLongitude { get; set; }
 
-        [Required]
-        public string PoiAddress { get; set; }
+        public string PoiAddress { get; set; } = string.Empty;
 
-        [Required]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
-        [Required]
         public int Number { get; set; }
 
         public string? Description { get; set; }
@@ -117,35 +104,10 @@ namespace ChillCodeBackend.Models.Entities
 
     public class Point
     {
-        [Required]
         public double Latitude { get; set; }
 
-        [Required]
         public double Longitude { get; set; }
 
         public string? Address { get; set; }
-    }
-
-    public class MunicipalityForLocalStorageSetting
-    {
-        public string? Name { get; set; }
-
-        public string? LogoPath { get; set; }
-    }
-
-    public enum MobileCategory
-    {
-        Sleep,
-        EatAndDrink,
-        Events,
-        ArtCulture,
-        Nature,
-        TypicalProducts,
-        Routes,
-        Services,
-        EntertainmentLeisure,
-        Organizations,
-        Articles,
-        Shopping
     }
 }

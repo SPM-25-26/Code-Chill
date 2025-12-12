@@ -1,10 +1,9 @@
-using ChillCodeBackend.Models.Entities;
 using ChillCodeBackend.Data.Db;
+using ChillCodeBackend.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChillCodeBackend.Data.Repositories.Municipalities
 {
-
     public class EventRepository : IEventRepository
     {
         private readonly ChillCodeDbContext _dbContext;
@@ -14,7 +13,10 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
             _dbContext = dbContext;
         }
 
-        public async Task<Event?> GetByIdentifierAsync(string identifier, CancellationToken cancellationToken = default)
+        public async Task<Event?> GetByIdentifierAsync(
+            string identifier,
+            CancellationToken cancellationToken = default
+        )
         {
             return await _dbContext.Events.FirstOrDefaultAsync(
                 e => e.Identifier == identifier,
@@ -41,7 +43,10 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task DeleteByIdAsync(string identifier, CancellationToken cancellationToken = default)
+        public async Task DeleteByIdAsync(
+            string identifier,
+            CancellationToken cancellationToken = default
+        )
         {
             var existingEvent = await _dbContext.Events.FirstOrDefaultAsync(
                 e => e.Identifier == identifier,
@@ -55,7 +60,9 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
             }
         }
 
-        public async Task<IReadOnlyCollection<Event>> GetAllAsync(CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyCollection<Event>> GetAllAsync(
+            CancellationToken cancellationToken = default
+        )
         {
             return await _dbContext.Events.ToListAsync(cancellationToken);
         }

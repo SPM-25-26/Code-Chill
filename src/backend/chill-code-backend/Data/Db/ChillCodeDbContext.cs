@@ -18,7 +18,7 @@ namespace ChillCodeBackend.Data.Db
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new UserConfiguration());
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ChillCodeDbContext).Assembly);
         }
     }
 }

@@ -29,18 +29,19 @@ namespace ChillCodeBackend.Services.Ingestion.Mappers
                     Themes = GetStringList(item, "themes"),
                     MunicipalityData = MapMunicipalityInfo(item),
                     Paragraphs = MapParagraphs(item),
+                    UpdatedAt = GetDateTime(item, "updatedAt"),
                 };
             }
         }
 
-        private MunicipalityInfo? MapMunicipalityInfo(JsonElement root)
+        private MunicipalityInfo MapMunicipalityInfo(JsonElement root)
         {
             if (
                 !root.TryGetProperty("municipality", out var muni)
                 || muni.ValueKind == JsonValueKind.Null
             )
             {
-                return null;
+                return new MunicipalityInfo();
             }
 
             return new MunicipalityInfo
@@ -50,14 +51,14 @@ namespace ChillCodeBackend.Services.Ingestion.Mappers
             };
         }
 
-        private List<ArticleParagraph>? MapParagraphs(JsonElement root)
+        private List<ArticleParagraph> MapParagraphs(JsonElement root)
         {
             if (
                 !root.TryGetProperty("paragraphs", out var paragraphsElement)
                 || paragraphsElement.ValueKind != JsonValueKind.Array
             )
             {
-                return null;
+                return new List<ArticleParagraph>();
             }
 
             var paragraphs = new List<ArticleParagraph>();

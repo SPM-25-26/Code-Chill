@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -10,6 +10,7 @@ import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Alert from '@mui/material/Alert';
 
 import logoPng from '../../assets/SPM-Logo.png';
 import logoWebp from '../../assets/SPM-Logo.webp';
@@ -29,8 +30,10 @@ const schema = yup.object({
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const registrationMessage = location.state?.message || '';
   const [loading, setLoading] = useState(false);
 
   const { control, handleSubmit, formState: { errors, isValid } } = useForm({
@@ -101,6 +104,11 @@ export default function LoginPage() {
         <h1 className="welcome-title">Welcome!</h1>
         <p className="welcome-subtitle">Tell us your preferences and get the best recommendations!</p>
 
+        {registrationMessage && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {registrationMessage}
+          </Alert>
+        )}
         {errorMessage && <div style={{ color: 'red', marginBottom: '1rem' }}>{errorMessage}</div>}
 
         <form onSubmit={handleSubmit(onSubmit)} className="login-form w-100">

@@ -87,7 +87,9 @@ namespace MyWebApi.Controllers
                     CreatedAt = now,
                     ChangedAt = now,
                     EmailVerificationToken = GenerateVerificationToken(),
-                    EmailVerificationExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
+                    EmailVerificationExpiresAt = DateTimeOffset.UtcNow.AddHours(
+                        Math.Max(1, _emailOptions.VerificationTokenExpiryHours)
+                    ),
                 };
 
                 user.PasswordHash = _passwordHasher.HashPassword(user, registerRequest.Password);

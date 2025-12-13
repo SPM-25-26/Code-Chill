@@ -66,6 +66,20 @@ namespace ChillCodeBackend.Data.Repositories
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
+        public async Task DeleteAsync(User user, CancellationToken cancellationToken = default)
+        {
+            var existingUser = await _dbContext.Users.FirstOrDefaultAsync(
+                u => u.Id == user.Id || u.Email == user.Email,
+                cancellationToken
+            );
+
+            if (existingUser is not null)
+            {
+                _dbContext.Users.Remove(existingUser);
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            }
+        }
+
         public async Task<IReadOnlyCollection<User>> GetAllAsync(
             CancellationToken cancellationToken = default
         )

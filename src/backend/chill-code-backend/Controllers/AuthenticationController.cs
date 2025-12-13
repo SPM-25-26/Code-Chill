@@ -48,6 +48,7 @@ namespace MyWebApi.Controllers
             CancellationToken cancellationToken
         )
         {
+            User? createdUser = null;
             try
             {
                 if (!TryValidateRegistration(registerRequest, out var validationProblemResult))
@@ -86,22 +87,47 @@ namespace MyWebApi.Controllers
                     CreatedAt = now,
                     ChangedAt = now,
                     EmailVerificationToken = GenerateVerificationToken(),
-                    EmailVerificationExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
+                    EmailVerificationExpiresAt = DateTimeOffset.UtcNow.AddHours(
+                        Math.Max(1, _emailOptions.VerificationTokenExpiryHours)
+                    ),
                 };
 
                 user.PasswordHash = _passwordHasher.HashPassword(user, registerRequest.Password);
-
-                var response = await IssueTokensAsync(user, cancellationToken);
+                await _userRepository.AddOrUpdateAsync(user, cancellationToken);
+                createdUser = user;
                 _logger.LogInformation(
                     "User registered successfully with email {Email}",
                     normalizedEmail
                 );
 
                 await SendVerificationEmailAsync(user, cancellationToken);
-                return StatusCode(StatusCodes.Status201Created, response);
+                return StatusCode(
+                    StatusCodes.Status201Created,
+                    new { message = "Please check your email to verify your account." }
+                );
             }
             catch (Exception ex)
             {
+                if (createdUser is not null)
+                {
+                    try
+                    {
+                        await _userRepository.DeleteAsync(createdUser, cancellationToken);
+                        _logger.LogInformation(
+                            "Rolled back user creation for email {Email} after registration failure",
+                            createdUser.Email
+                        );
+                    }
+                    catch (Exception cleanupEx)
+                    {
+                        _logger.LogError(
+                            cleanupEx,
+                            "Failed to rollback user creation for email {Email}",
+                            createdUser.Email
+                        );
+                    }
+                }
+
                 _logger.LogError(
                     ex,
                     "Registration failed for email {Email}",

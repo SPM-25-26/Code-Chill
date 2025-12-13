@@ -64,14 +64,17 @@ function RegistrationPage() {
 
     /**
      * Handle registration form submission
-     * Sends registration request to backend and stores tokens on success
-     * Redirects user to the login/dashboard page
+     * Sends registration request to backend and redirects to login with a verification prompt
      * @returns 
      */
     const handleRegister = async () => {
         if (!isFormValid) return;
         setLoading(true);
         setErrorMessage('');
+        // Ensure no auth tokens are present after registration
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('refreshTokenExpiresAt');
         try {
             const payload = {
                 email,
@@ -83,16 +86,17 @@ function RegistrationPage() {
 
             const response = await instance.post('/api/Authentication/register', payload);
 
-            if (response.status === 201 || response.data.token) {
-                localStorage.setItem('token', response.data.token);
-                localStorage.setItem('refreshToken', response.data.refreshToken);
-                localStorage.setItem('refreshTokenExpiresAt', response.data.refreshTokenExpiresAt);
-                if (username.trim() !== '') {
-                    localStorage.setItem('username', username);
-                }
-
-                setSuccessMessage('Registration successful! Redirecting to Home...');
-                setTimeout(() => navigate('/login/dashboard'), 1000);
+            if (response.status === 201) {
+                setSuccessMessage('Registration successful! Please verify your email before logging in.');
+                // Redirect to login with a clear message to verify email
+                setTimeout(() => {
+                    navigate('/login', {
+                        state: {
+                            registrationSuccess: true,
+                            message: 'Registration successful! Please check your email to verify your account before logging in.'
+                        }
+                    });
+                }, 800);
             } else {
                 setErrorMessage(response.data.message || 'Registration failed');
             }

@@ -16,5 +16,6 @@ namespace ChillCodeBackend.Models.Options
         public string SupportEmail { get; set; } = "chilAndCode@gmx.ch";
         public string UnsubscribeUrl { get; set; } = "https://example.com/unsubscribe";
         public string VerificationBaseUrl { get; set; } = "https://example.com/verify";
+        public int VerificationTokenExpiryHours { get; set; } = 24;
     }
 }

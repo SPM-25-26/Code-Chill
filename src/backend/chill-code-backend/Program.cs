@@ -1,4 +1,6 @@
 using ChillCodeBackend;
+using ChillCodeBackend.Data.Db;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +23,14 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// Ensure database is created and migrations are applied at startup
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ChillCodeDbContext>();
+    dbContext.Database.Migrate();
+}
+
 startup.Configure(app);
 
 app.Run();

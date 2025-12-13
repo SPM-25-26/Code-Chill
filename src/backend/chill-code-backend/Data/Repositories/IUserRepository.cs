@@ -10,6 +10,7 @@ namespace ChillCodeBackend.Data.Repositories
         );
         Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default);
         Task AddOrUpdateAsync(User user, CancellationToken cancellationToken = default);
+        Task DeleteAsync(User user, CancellationToken cancellationToken = default);
         Task<IReadOnlyCollection<User>> GetAllAsync(CancellationToken cancellationToken = default);
     }
 }

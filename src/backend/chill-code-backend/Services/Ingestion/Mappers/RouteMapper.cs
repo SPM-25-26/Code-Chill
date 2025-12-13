@@ -38,8 +38,8 @@ namespace ChillCodeBackend.Services.Ingestion.Mappers
                     Website = GetString(item, "website"),
                     Duration = GetString(item, "duration"),
                     RouteLength = GetString(item, "routeLength", "length"),
-                    StartDate = GetDateTime(item, "startDate") ?? default,
-                    EndDate = GetDateTime(item, "endDate") ?? default,
+                    StartDate = GetDateTime(item, "startDate"),
+                    EndDate = GetDateTime(item, "endDate"),
                     MunicipalityData = MapMunicipality(item),
                 };
             }

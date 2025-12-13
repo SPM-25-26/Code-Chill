@@ -52,6 +52,7 @@ namespace ChillCodeBackend.Services.Ingestion
             CancellationToken cancellationToken
         )
         {
+            // Intentionally omitted: current municipality does not expose POI detail data; add mapping/persistence when needed for other cities.
             _logger.LogInformation(
                 "Skipping persistence for {Count} POI detail records (no-op).",
                 items.Count()
@@ -73,6 +74,7 @@ namespace ChillCodeBackend.Services.Ingestion
             CancellationToken cancellationToken
         )
         {
+            // Intentionally omitted: current municipality does not expose organization detail data; add mapping/persistence when needed for other cities.
             _logger.LogInformation(
                 "Skipping persistence for {Count} organization detail records (no-op).",
                 items.Count()

@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   CardContent,
+  CardMedia,
   Chip,
   CircularProgress,
   MenuItem,
@@ -14,6 +15,14 @@ import {
 } from '@mui/material';
 import instance from '../utilities/Utilities.js';
 import './styles/ContentBrowserPage.css';
+
+const MEDIA_BASE = 'https://eppoi.io';
+
+function buildMediaUrl(path) {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  return `${MEDIA_BASE}${path}`;
+}
 
 function ContentSection({ title, items, renderItem, emptyText }) {
   return (
@@ -155,6 +164,14 @@ function ContentBrowserPage() {
                 variant="outlined"
                 className="content-card"
               >
+                {buildMediaUrl(item.imagePath ?? item.ImagePath) && (
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image={buildMediaUrl(item.imagePath ?? item.ImagePath)}
+                    alt={item.title ?? item.Title}
+                  />
+                )}
                 <CardContent>
                   <Typography variant="subtitle1" sx={{ mb: 0.5 }}>
                     {item.title ?? item.Title}
@@ -184,6 +201,14 @@ function ContentBrowserPage() {
                 variant="outlined"
                 className="content-card"
               >
+                {buildMediaUrl(item.primaryImage ?? item.PrimaryImage) && (
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image={buildMediaUrl(item.primaryImage ?? item.PrimaryImage)}
+                    alt={item.title ?? item.Title}
+                  />
+                )}
                 <CardContent>
                   <Typography variant="subtitle1" sx={{ mb: 0.5 }}>
                     {item.title ?? item.Title}
@@ -214,6 +239,14 @@ function ContentBrowserPage() {
                 variant="outlined"
                 className="content-card"
               >
+                {buildMediaUrl(item.imagePath ?? item.ImagePath) && (
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image={buildMediaUrl(item.imagePath ?? item.ImagePath)}
+                    alt={item.name ?? item.Name}
+                  />
+                )}
                 <CardContent>
                   <Typography variant="subtitle1" sx={{ mb: 0.5 }}>
                     {item.name ?? item.Name}

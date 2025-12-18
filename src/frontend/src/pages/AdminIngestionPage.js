@@ -30,7 +30,8 @@ function formatDateTime(value) {
 function AdminIngestionPage() {
   const navigate = useNavigate();
   const [municipalities, setMunicipalities] = useState([]);
-  const [municipality, setMunicipality] = useState('');
+  const [selectedMunicipality, setSelectedMunicipality] = useState('');
+  const [customMunicipality, setCustomMunicipality] = useState('');
   const [language, setLanguage] = useState('it');
 
   const [loadingMunicipalities, setLoadingMunicipalities] = useState(false);
@@ -77,15 +78,16 @@ function AdminIngestionPage() {
   const loadSummary = async () => {
     setError('');
 
-    if (!municipality.trim()) {
-      setError('Municipality is required.');
+    const muni = (customMunicipality || selectedMunicipality).trim();
+    if (!muni) {
+      setError('Select a municipality or enter a new one.');
       return;
     }
 
     setLoadingSummary(true);
     try {
       const response = await instance.get(
-        `/api/admin/ingestion/municipalities/${encodeURIComponent(municipality.trim())}/summary`
+        `/api/admin/ingestion/municipalities/${encodeURIComponent(muni)}/summary`
       );
       setResult(response.data);
     } catch (e) {
@@ -103,15 +105,16 @@ function AdminIngestionPage() {
   const triggerIngestion = async () => {
     setError('');
 
-    if (!municipality.trim()) {
-      setError('Municipality is required.');
+    const muni = (customMunicipality || selectedMunicipality).trim();
+    if (!muni) {
+      setError('Select a municipality or enter a new one.');
       return;
     }
 
     setLoadingIngest(true);
     try {
       await instance.post('/api/admin/ingest', {
-        municipality: municipality.trim(),
+        municipality: muni,
         language,
       });
       await loadSummary();
@@ -145,29 +148,30 @@ function AdminIngestionPage() {
       <Card variant="outlined" className="ingestion-controls">
         <CardContent>
           <Box className="ingestion-controls-grid">
-            {municipalities.length > 0 ? (
-              <TextField
-                label="Municipality"
-                value={municipality}
-                onChange={(e) => setMunicipality(e.target.value)}
-                select
-                fullWidth
-              >
-                {municipalities.map((m) => (
-                  <MenuItem key={m} value={m}>
-                    {m}
-                  </MenuItem>
-                ))}
-              </TextField>
-            ) : (
-              <TextField
-                label="Municipality"
-                value={municipality}
-                onChange={(e) => setMunicipality(e.target.value)}
-                placeholder="e.g. Ascoli Piceno"
-                fullWidth
-              />
-            )}
+            <TextField
+              label="Ingested municipalities"
+              value={selectedMunicipality}
+              onChange={(e) => setSelectedMunicipality(e.target.value)}
+              select
+              fullWidth
+              helperText="Pick an already ingested city (optional)"
+            >
+              <MenuItem value="">(none)</MenuItem>
+              {municipalities.map((m) => (
+                <MenuItem key={m} value={m}>
+                  {m}
+                </MenuItem>
+              ))}
+            </TextField>
+
+            <TextField
+              label="Or enter a new municipality"
+              value={customMunicipality}
+              onChange={(e) => setCustomMunicipality(e.target.value)}
+              placeholder="e.g. Ascoli Piceno"
+              fullWidth
+              helperText="Used for ingestion if provided"
+            />
 
             <TextField
               label="Language"

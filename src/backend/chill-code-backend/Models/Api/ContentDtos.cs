@@ -1,0 +1,43 @@
+namespace ChillCodeBackend.Models.Api
+{
+    public class MunicipalityContentDto
+    {
+        public string Municipality { get; set; } = string.Empty;
+        public List<ArticleDto> Articles { get; set; } = new();
+        public List<EventDto> Events { get; set; } = new();
+        public List<RouteDto> Routes { get; set; } = new();
+    }
+
+    public class ArticleDto
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string Subtitle { get; set; } = string.Empty;
+        public string Region { get; set; } = string.Empty;
+        public string ImagePath { get; set; } = string.Empty;
+    }
+
+    public class EventDto
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string PrimaryImage { get; set; } = string.Empty;
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+    }
+
+    public class RouteDto
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string PathTheme { get; set; } = string.Empty;
+        public string TravellingMethod { get; set; } = string.Empty;
+        public string Duration { get; set; } = string.Empty;
+        public string RouteLength { get; set; } = string.Empty;
+        public string ImagePath { get; set; } = string.Empty;
+    }
+}
+

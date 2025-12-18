@@ -5,6 +5,12 @@ namespace ChillCodeBackend.Models.Entities
 {
     public class Route
     {
+        public string ExternalId { get; set; } = string.Empty;
+
+        public DateTimeOffset CreatedAt { get; set; }
+        public DateTimeOffset UpdatedAt { get; set; }
+        public DateTime? SourceLastUpdated { get; set; }
+
         public string Name { get; set; } = string.Empty;
 
         public string ImagePath { get; set; } = string.Empty;

@@ -12,6 +12,11 @@ namespace ChillCodeBackend.Services.Ingestion.Mappers
         {
             foreach (var item in items)
             {
+                if (!TryGetString(item, out var externalId, "id", "identifier", "entityId"))
+                {
+                    continue;
+                }
+
                 if (!TryGetString(item, out var name, "name", "title"))
                 {
                     continue;
@@ -19,6 +24,7 @@ namespace ChillCodeBackend.Services.Ingestion.Mappers
 
                 yield return new Models.Entities.Route
                 {
+                    ExternalId = externalId,
                     Name = name,
                     ImagePath = GetString(item, "imagePath", "primaryImage"),
                     Number = GetString(item, "number"),
@@ -41,6 +47,12 @@ namespace ChillCodeBackend.Services.Ingestion.Mappers
                     StartDate = GetDateTime(item, "startDate"),
                     EndDate = GetDateTime(item, "endDate"),
                     MunicipalityData = MapMunicipality(item),
+                    SourceLastUpdated = GetDateTime(
+                        item,
+                        "updatedAt",
+                        "lastUpdatedAt",
+                        "lastUpdated"
+                    ),
                 };
             }
         }

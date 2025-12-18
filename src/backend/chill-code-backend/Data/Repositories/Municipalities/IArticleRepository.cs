@@ -1,3 +1,4 @@
+using ChillCodeBackend.Data.Repositories;
 using ChillCodeBackend.Models.Entities;
 
 namespace ChillCodeBackend.Data.Repositories.Municipalities
@@ -10,6 +11,11 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
         );
 
         Task AddOrUpdateAsync(Article article, CancellationToken cancellationToken = default);
+
+        Task<UpsertBatchResult> UpsertManyAsync(
+            IEnumerable<Article> articles,
+            CancellationToken cancellationToken = default
+        );
 
         Task DeleteByIdAsync(string identifier, CancellationToken ct = default);
 

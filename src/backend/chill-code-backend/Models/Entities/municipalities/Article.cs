@@ -4,6 +4,10 @@ namespace ChillCodeBackend.Models.Entities
     {
         public string Identifier { get; set; } = string.Empty;
 
+        public DateTimeOffset CreatedAt { get; set; }
+        public DateTimeOffset UpdatedAt { get; set; }
+        public DateTime? SourceLastUpdated { get; set; }
+
         public string Title { get; set; } = string.Empty;
         public string Script { get; set; } = string.Empty;
         public string Region { get; set; } = string.Empty;
@@ -13,7 +17,6 @@ namespace ChillCodeBackend.Models.Entities
 
         public string ImagePath { get; set; } = string.Empty;
         public List<ArticleParagraph> Paragraphs { get; set; } = new();
-        public DateTime? UpdatedAt { get; set; }
         public List<string> Themes { get; set; } = new();
         public MunicipalityInfo MunicipalityData { get; set; } = new();
     }

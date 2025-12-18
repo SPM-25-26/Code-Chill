@@ -19,6 +19,9 @@ namespace chill_code_backend.Migrations
 
             modelBuilder.Entity("ChillCodeBackend.Models.Entities.Article", b =>
                 {
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Identifier")
                         .HasColumnType("TEXT");
 
@@ -39,6 +42,9 @@ namespace chill_code_backend.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("SourceLastUpdated")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Subtitle")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -57,7 +63,7 @@ namespace chill_code_backend.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime?>("UpdatedAt")
+                    b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Identifier");
@@ -67,6 +73,9 @@ namespace chill_code_backend.Migrations
 
             modelBuilder.Entity("ChillCodeBackend.Models.Entities.Event", b =>
                 {
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Identifier")
                         .HasColumnType("TEXT");
 
@@ -123,6 +132,9 @@ namespace chill_code_backend.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("SourceLastUpdated")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("StartDate")
                         .HasColumnType("TEXT");
 
@@ -141,6 +153,9 @@ namespace chill_code_backend.Migrations
 
                     b.Property<string>("Typology")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("VirtualTours")
@@ -207,6 +222,13 @@ namespace chill_code_backend.Migrations
 
             modelBuilder.Entity("ChillCodeBackend.Models.Entities.Municipality", b =>
                 {
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ExternalId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
 
@@ -249,10 +271,19 @@ namespace chill_code_backend.Migrations
                     b.Property<int?>("PanoramaWidth")
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime?>("SourceLastUpdated")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("VirtualTourUrls")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Name");
+
+                    b.HasIndex("ExternalId")
+                        .IsUnique();
 
                     b.HasIndex("Name")
                         .IsUnique();
@@ -262,6 +293,13 @@ namespace chill_code_backend.Migrations
 
             modelBuilder.Entity("ChillCodeBackend.Models.Entities.Route", b =>
                 {
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ExternalId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
 
@@ -334,6 +372,9 @@ namespace chill_code_backend.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("SourceLastUpdated")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Stages")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -349,6 +390,9 @@ namespace chill_code_backend.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("VirtualTours")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -358,6 +402,9 @@ namespace chill_code_backend.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Name");
+
+                    b.HasIndex("ExternalId")
+                        .IsUnique();
 
                     b.ToTable("Routes");
                 });

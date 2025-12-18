@@ -17,6 +17,13 @@ namespace ChillCodeBackend.Data.Db.Configurations
         {
             builder.HasKey(m => m.Name);
             builder.HasIndex(m => m.Name).IsUnique();
+            builder.Property(m => m.ExternalId).IsRequired();
+            builder.HasIndex(m => m.ExternalId).IsUnique();
+
+            builder.Property(m => m.CreatedAt).IsRequired();
+            builder.Property(m => m.UpdatedAt).IsRequired();
+            builder.Property(m => m.SourceLastUpdated);
+
             builder.Property(m => m.LegalName).IsRequired();
             builder.Property(m => m.Description).IsRequired();
             builder.Property(m => m.Latitude).IsRequired();

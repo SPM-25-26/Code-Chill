@@ -20,10 +20,13 @@ namespace ChillCodeBackend.Data.Db.Configurations
             builder.Property(a => a.Script).IsRequired();
             builder.Property(a => a.ImagePath).IsRequired();
 
+            builder.Property(a => a.CreatedAt).IsRequired();
+            builder.Property(a => a.UpdatedAt).IsRequired();
+            builder.Property(a => a.SourceLastUpdated);
+
             builder.Property(a => a.Region).HasMaxLength(200);
             builder.Property(a => a.Subtitle).HasMaxLength(500);
             builder.Property(a => a.TimeToRead).HasMaxLength(100);
-            builder.Property(a => a.UpdatedAt);
 
             builder
                 .Property(a => a.Themes)

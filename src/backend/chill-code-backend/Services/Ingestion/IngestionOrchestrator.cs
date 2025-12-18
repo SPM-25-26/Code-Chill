@@ -53,7 +53,14 @@ namespace ChillCodeBackend.Services.Ingestion
                     language,
                     cancellationToken
                 );
+                // Persisted entities use the municipality "display name" (from the API payload),
+                // so we align the result to that as well (useful for verification/logging).
+                if (!string.IsNullOrWhiteSpace(municipalityVisit.Name))
+                {
+                    result.Municipality = municipalityVisit.Name!;
+                }
                 await _persistence.PersistMunicipalityVisitAsync(
+                    municipality,
                     municipalityVisit,
                     cancellationToken
                 );
@@ -157,6 +164,7 @@ namespace ChillCodeBackend.Services.Ingestion
         )
         {
             var details = new List<JsonElement>();
+            var skipped = 0;
             foreach (var item in highlights)
             {
                 if (string.IsNullOrWhiteSpace(item.EntityId))
@@ -165,8 +173,43 @@ namespace ChillCodeBackend.Services.Ingestion
                 }
 
                 cancellationToken.ThrowIfCancellationRequested();
-                var detail = await detailFetcher(item.EntityId);
-                details.Add(detail);
+                try
+                {
+                    var detail = await detailFetcher(item.EntityId);
+                    details.Add(detail);
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (UnicamApiException ex)
+                {
+                    skipped++;
+                    _logger.LogWarning(
+                        ex,
+                        "Skipping detail for EntityId {EntityId} (Category {Category}) due to Unicam API error.",
+                        item.EntityId,
+                        item.Category ?? "unknown"
+                    );
+                }
+                catch (Exception ex)
+                {
+                    skipped++;
+                    _logger.LogWarning(
+                        ex,
+                        "Skipping detail for EntityId {EntityId} (Category {Category}) due to unexpected error.",
+                        item.EntityId,
+                        item.Category ?? "unknown"
+                    );
+                }
+            }
+
+            if (skipped > 0)
+            {
+                _logger.LogInformation(
+                    "Skipped {Skipped} highlight detail requests due to errors.",
+                    skipped
+                );
             }
 
             return details;

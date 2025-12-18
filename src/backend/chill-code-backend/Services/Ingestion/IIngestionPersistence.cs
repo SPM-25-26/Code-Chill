@@ -7,10 +7,14 @@ namespace ChillCodeBackend.Services.Ingestion
     public interface IIngestionPersistence
     {
         Task PersistMunicipalityVisitAsync(
+            string municipalityExternalId,
             UnicamMunicipalityVisit municipalityVisit,
             CancellationToken cancellationToken
         );
-        Task PersistPoiDetailsAsync(IEnumerable<JsonElement> items, CancellationToken cancellationToken);
+        Task PersistPoiDetailsAsync(
+            IEnumerable<JsonElement> items,
+            CancellationToken cancellationToken
+        );
         Task PersistEventDetailsAsync(
             IEnumerable<JsonElement> items,
             MunicipalityInfo municipalityInfo,

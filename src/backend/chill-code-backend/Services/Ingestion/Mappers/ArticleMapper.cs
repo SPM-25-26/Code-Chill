@@ -29,7 +29,12 @@ namespace ChillCodeBackend.Services.Ingestion.Mappers
                     Themes = GetStringList(item, "themes"),
                     MunicipalityData = MapMunicipalityInfo(item),
                     Paragraphs = MapParagraphs(item),
-                    UpdatedAt = GetDateTime(item, "updatedAt"),
+                    SourceLastUpdated = GetDateTime(
+                        item,
+                        "updatedAt",
+                        "lastUpdatedAt",
+                        "lastUpdated"
+                    ),
                 };
             }
         }

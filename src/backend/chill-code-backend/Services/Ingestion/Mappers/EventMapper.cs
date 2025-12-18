@@ -20,6 +20,12 @@ namespace ChillCodeBackend.Services.Ingestion.Mappers
                 yield return new Event
                 {
                     Identifier = identifier,
+                    SourceLastUpdated = GetDateTime(
+                        item,
+                        "updatedAt",
+                        "lastUpdatedAt",
+                        "lastUpdated"
+                    ),
                     Title = GetString(item, "title"),
                     Address = GetString(item, "address"),
                     Description = GetString(item, "description"),

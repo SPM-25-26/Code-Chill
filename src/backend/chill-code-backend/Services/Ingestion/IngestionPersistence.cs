@@ -39,11 +39,12 @@ namespace ChillCodeBackend.Services.Ingestion
         }
 
         public Task PersistMunicipalityVisitAsync(
+            string municipalityExternalId,
             UnicamMunicipalityVisit municipalityVisit,
             CancellationToken cancellationToken
         )
         {
-            var municipality = _municipalityMapper.Map(municipalityVisit);
+            var municipality = _municipalityMapper.Map(municipalityExternalId, municipalityVisit);
             return PersistMunicipalityAsync(municipality, cancellationToken);
         }
 
@@ -157,17 +158,11 @@ namespace ChillCodeBackend.Services.Ingestion
             CancellationToken cancellationToken
         )
         {
-            var persisted = 0;
-            foreach (var article in articles)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                await _articleStoreRepository.AddOrUpdateAsync(article, cancellationToken);
-                persisted++;
-            }
-
+            var result = await _articleStoreRepository.UpsertManyAsync(articles, cancellationToken);
             _logger.LogInformation(
-                "Persisted {Count} article detail records to the database.",
-                persisted
+                "Persisted article detail records to the database. Added {Added}, Updated {Updated}.",
+                result.Inserted,
+                result.Updated
             );
         }
 
@@ -176,10 +171,11 @@ namespace ChillCodeBackend.Services.Ingestion
             CancellationToken cancellationToken
         )
         {
-            await _municipalityRepository.AddOrUpdateAsync(municipality, cancellationToken);
+            var inserted = await _municipalityRepository.UpsertAsync(municipality, cancellationToken);
             _logger.LogInformation(
-                "Persisted municipality visit data for {MunicipalityName}.",
-                municipality.Name
+                "Persisted municipality visit data for {MunicipalityName}. {Operation}.",
+                municipality.Name,
+                inserted ? "Added" : "Updated"
             );
         }
 
@@ -188,17 +184,11 @@ namespace ChillCodeBackend.Services.Ingestion
             CancellationToken cancellationToken
         )
         {
-            var persisted = 0;
-            foreach (var evt in events)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                await _eventRepository.AddOrUpdateAsync(evt, cancellationToken);
-                persisted++;
-            }
-
+            var result = await _eventRepository.UpsertManyAsync(events, cancellationToken);
             _logger.LogInformation(
-                "Persisted {Count} event detail records to the database.",
-                persisted
+                "Persisted event detail records to the database. Added {Added}, Updated {Updated}.",
+                result.Inserted,
+                result.Updated
             );
         }
 
@@ -207,17 +197,11 @@ namespace ChillCodeBackend.Services.Ingestion
             CancellationToken cancellationToken
         )
         {
-            var persisted = 0;
-            foreach (var route in routes)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                await _routeRepository.AddOrUpdateAsync(route, cancellationToken);
-                persisted++;
-            }
-
+            var result = await _routeRepository.UpsertManyAsync(routes, cancellationToken);
             _logger.LogInformation(
-                "Persisted {Count} route detail records to the database.",
-                persisted
+                "Persisted route detail records to the database. Added {Added}, Updated {Updated}.",
+                result.Inserted,
+                result.Updated
             );
         }
     }

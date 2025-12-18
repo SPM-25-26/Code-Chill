@@ -42,6 +42,15 @@ function HomePage() {
                         Admin: Ingestion Verification
                     </Button>
                 </div>
+                <div className="mt-3">
+                    <Button
+                        variant="outlined"
+                        fullWidth
+                        onClick={() => navigate('/login/content')}
+                    >
+                        View Ingested Content
+                    </Button>
+                </div>
 
                 {/* Logout button */}
                 <div className="mt-4">

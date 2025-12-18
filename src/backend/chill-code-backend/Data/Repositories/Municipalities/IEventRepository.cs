@@ -1,3 +1,4 @@
+using ChillCodeBackend.Data.Repositories;
 using ChillCodeBackend.Models.Entities;
 
 namespace ChillCodeBackend.Data.Repositories.Municipalities
@@ -9,6 +10,10 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
             CancellationToken cancellationToken = default
         );
         Task AddOrUpdateAsync(Event evt, CancellationToken cancellationToken = default);
+        Task<UpsertBatchResult> UpsertManyAsync(
+            IEnumerable<Event> events,
+            CancellationToken cancellationToken = default
+        );
         Task DeleteByIdAsync(string identifier, CancellationToken ct = default);
         Task<IReadOnlyCollection<Event>> GetAllAsync(CancellationToken cancellationToken = default);
     }

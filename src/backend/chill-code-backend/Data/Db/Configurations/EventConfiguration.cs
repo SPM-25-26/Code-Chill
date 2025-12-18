@@ -20,6 +20,10 @@ namespace ChillCodeBackend.Data.Db.Configurations
             builder.Property(e => e.Typology).IsRequired();
             builder.Property(e => e.PrimaryImage).IsRequired();
 
+            builder.Property(e => e.CreatedAt).IsRequired();
+            builder.Property(e => e.UpdatedAt).IsRequired();
+            builder.Property(e => e.SourceLastUpdated);
+
             builder.Property(e => e.Address).HasMaxLength(500);
             builder.Property(e => e.Audience).HasMaxLength(200);
             builder.Property(e => e.Email).HasMaxLength(200);

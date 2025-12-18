@@ -4,6 +4,10 @@ namespace ChillCodeBackend.Models.Entities
     {
         public string Identifier { get; set; } = string.Empty;
 
+        public DateTimeOffset CreatedAt { get; set; }
+        public DateTimeOffset UpdatedAt { get; set; }
+        public DateTime? SourceLastUpdated { get; set; }
+
         public string Title { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;

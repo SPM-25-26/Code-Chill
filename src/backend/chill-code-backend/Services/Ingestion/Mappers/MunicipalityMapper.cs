@@ -9,7 +9,7 @@ namespace ChillCodeBackend.Services.Ingestion.Mappers
     /// </summary>
     public class MunicipalityMapper
     {
-        public Municipality Map(UnicamMunicipalityVisit visit)
+        public Municipality Map(string externalId, UnicamMunicipalityVisit visit)
         {
             var name = !string.IsNullOrWhiteSpace(visit.Name)
                 ? visit.Name!
@@ -17,6 +17,7 @@ namespace ChillCodeBackend.Services.Ingestion.Mappers
 
             return new Municipality
             {
+                ExternalId = externalId,
                 Name = name,
                 LegalName = visit.LegalName ?? string.Empty,
                 Description = visit.Description ?? string.Empty,

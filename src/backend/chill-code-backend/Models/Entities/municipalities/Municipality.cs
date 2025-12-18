@@ -2,6 +2,12 @@ namespace ChillCodeBackend.Models.Entities
 {
     public class Municipality
     {
+        public string ExternalId { get; set; } = string.Empty;
+
+        public DateTimeOffset CreatedAt { get; set; }
+        public DateTimeOffset UpdatedAt { get; set; }
+        public DateTime? SourceLastUpdated { get; set; }
+
         public string Name { get; set; } = string.Empty;
 
         public string LegalName { get; set; } = string.Empty;

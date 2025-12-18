@@ -1,4 +1,5 @@
 using ChillCodeBackend.Data.Db;
+using ChillCodeBackend.Data.Repositories;
 using ChillCodeBackend.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,21 +30,63 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
             CancellationToken cancellationToken = default
         )
         {
-            var existingArticle = await _dbContext.Articles.FirstOrDefaultAsync(
-                a => a.Identifier == article.Identifier,
-                cancellationToken
-            );
+            await UpsertManyAsync(new[] { article }, cancellationToken);
+        }
 
-            if (existingArticle is null)
+        public async Task<UpsertBatchResult> UpsertManyAsync(
+            IEnumerable<Article> articles,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var incoming = articles.Where(a => !string.IsNullOrWhiteSpace(a.Identifier)).ToList();
+            if (incoming.Count == 0)
             {
-                await _dbContext.Articles.AddAsync(article, cancellationToken);
+                return new UpsertBatchResult(0, 0);
             }
-            else
+
+            var identifiers = incoming.Select(a => a.Identifier).Distinct().ToList();
+            var existing = await _dbContext
+                .Articles.Where(a => identifiers.Contains(a.Identifier))
+                .ToListAsync(cancellationToken);
+
+            var existingById = existing.ToDictionary(a => a.Identifier);
+            var now = DateTimeOffset.UtcNow;
+            var inserted = 0;
+            var updated = 0;
+
+            var previousAutoDetectChanges = _dbContext.ChangeTracker.AutoDetectChangesEnabled;
+            _dbContext.ChangeTracker.AutoDetectChangesEnabled = false;
+            try
             {
-                _dbContext.Entry(existingArticle).CurrentValues.SetValues(article);
+                foreach (var article in incoming)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    if (!existingById.TryGetValue(article.Identifier, out var existingArticle))
+                    {
+                        article.CreatedAt = article.CreatedAt == default ? now : article.CreatedAt;
+                        article.UpdatedAt = now;
+                        await _dbContext.Articles.AddAsync(article, cancellationToken);
+                        inserted++;
+                        continue;
+                    }
+
+                    var createdAt = existingArticle.CreatedAt;
+                    _dbContext.Entry(existingArticle).CurrentValues.SetValues(article);
+                    existingArticle.MunicipalityData = article.MunicipalityData;
+                    existingArticle.CreatedAt = createdAt == default ? now : createdAt;
+                    existingArticle.UpdatedAt = now;
+                    _dbContext.Entry(existingArticle).Property(a => a.CreatedAt).IsModified = false;
+                    updated++;
+                }
+            }
+            finally
+            {
+                _dbContext.ChangeTracker.AutoDetectChangesEnabled = previousAutoDetectChanges;
             }
 
             await _dbContext.SaveChangesAsync(cancellationToken);
+            return new UpsertBatchResult(inserted, updated);
         }
 
         public async Task DeleteByIdAsync(string identifier, CancellationToken ct = default)

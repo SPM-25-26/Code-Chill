@@ -1,5 +1,7 @@
 using System.Text.Json;
+using ChillCodeBackend.Data.Db;
 using ChillCodeBackend.Models.Api;
+using ChillCodeBackend.Models.Entities;
 using ChillCodeBackend.Models.Ingestion;
 using ChillCodeBackend.Models.Unicam;
 using ChillCodeBackend.Services.Ingestion;
@@ -12,10 +14,15 @@ namespace ChillCodeBackend.Controllers
     public class AdminIngestionController : ControllerBase
     {
         private readonly IIngestionOrchestrator _orchestrator;
+        private readonly ChillCodeDbContext _dbContext;
 
-        public AdminIngestionController(IIngestionOrchestrator orchestrator)
+        public AdminIngestionController(
+            IIngestionOrchestrator orchestrator,
+            ChillCodeDbContext dbContext
+        )
         {
             _orchestrator = orchestrator;
+            _dbContext = dbContext;
         }
 
         [HttpPost]
@@ -33,12 +40,44 @@ namespace ChillCodeBackend.Controllers
                 request.Language ?? "it"
             );
 
+            await PersistIngestionRunAsync(result, HttpContext.RequestAborted);
+
             if (result.Errors.Count > 0)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, Map(result));
             }
 
             return Ok(Map(result));
+        }
+
+        private async Task PersistIngestionRunAsync(
+            IngestionResult result,
+            CancellationToken cancellationToken
+        )
+        {
+            try
+            {
+                var run = new IngestionRun
+                {
+                    Municipality = result.Municipality,
+                    Language = result.Language,
+                    StartedAt = result.StartedAt,
+                    CompletedAt = result.CompletedAt,
+                    TotalPoiCount = result.TotalPoiCount,
+                    EventCount = result.EventCount,
+                    OrganizationCount = result.OrganizationCount,
+                    RouteCount = result.RouteCount,
+                    ArticleCount = result.ArticleCount,
+                    Errors = new List<string>(result.Errors),
+                };
+
+                _dbContext.IngestionRuns.Add(run);
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            }
+            catch
+            {
+                // Logging/auditing should never fail the ingestion response.
+            }
         }
 
         private IngestionResponseDto Map(IngestionResult result)

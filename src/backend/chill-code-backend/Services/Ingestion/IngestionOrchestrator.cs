@@ -63,13 +63,23 @@ namespace ChillCodeBackend.Services.Ingestion
                     municipalityVisit.Name ?? municipality
                 );
 
+                var municipalityInfo = new Models.Entities.MunicipalityInfo
+                {
+                    Name = municipalityVisit.Name ?? municipality.Trim(),
+                    LogoPath = municipalityVisit.LogoPath ?? string.Empty,
+                };
+
                 // Events (from municipality visit highlights)
                 var eventDetails = await FetchDetailsFromHighlightsAsync(
                     municipalityVisit.Events,
                     id => _apiService.GetEventDetailAsync(id, language, cancellationToken),
                     cancellationToken
                 );
-                await _persistence.PersistEventDetailsAsync(eventDetails, cancellationToken);
+                await _persistence.PersistEventDetailsAsync(
+                    eventDetails,
+                    municipalityInfo,
+                    cancellationToken
+                );
                 result.EventDetails.AddRange(eventDetails);
                 result.EventCount = eventDetails.Count;
                 _logger.LogInformation("Fetched {Count} event details", eventDetails.Count);
@@ -86,7 +96,11 @@ namespace ChillCodeBackend.Services.Ingestion
                     id => _apiService.GetRouteDetailAsync(id, language, cancellationToken),
                     cancellationToken
                 );
-                await _persistence.PersistRouteDetailsAsync(routeDetails, cancellationToken);
+                await _persistence.PersistRouteDetailsAsync(
+                    routeDetails,
+                    municipalityInfo,
+                    cancellationToken
+                );
                 result.RouteDetails.AddRange(routeDetails);
                 result.RouteCount = routeDetails.Count;
                 _logger.LogInformation("Fetched {Count} route details", routeDetails.Count);
@@ -103,7 +117,11 @@ namespace ChillCodeBackend.Services.Ingestion
                     id => _apiService.GetArticleDetailAsync(id, language, cancellationToken),
                     cancellationToken
                 );
-                await _persistence.PersistArticleDetailsAsync(articleDetails, cancellationToken);
+                await _persistence.PersistArticleDetailsAsync(
+                    articleDetails,
+                    municipalityInfo,
+                    cancellationToken
+                );
                 result.ArticleDetails.AddRange(articleDetails);
                 result.ArticleCount = articleDetails.Count;
                 _logger.LogInformation("Fetched {Count} article details", articleDetails.Count);

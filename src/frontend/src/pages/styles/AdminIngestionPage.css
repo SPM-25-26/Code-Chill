@@ -1,0 +1,65 @@
+.ingestion-page {
+  max-width: 1100px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+.ingestion-header {
+  margin-bottom: 16px;
+}
+
+.ingestion-controls,
+.ingestion-summary {
+  margin-top: 16px;
+}
+
+.ingestion-controls-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.ingestion-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  height: 56px;
+}
+
+.ingestion-action-btn {
+  height: 56px;
+  white-space: nowrap;
+}
+
+.ingestion-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+}
+
+.ingestion-label {
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .ingestion-controls-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ingestion-actions {
+    width: 100%;
+    justify-content: stretch;
+    flex-direction: column;
+    height: auto;
+  }
+
+  .ingestion-action-btn {
+    width: 100%;
+  }
+
+  .ingestion-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}

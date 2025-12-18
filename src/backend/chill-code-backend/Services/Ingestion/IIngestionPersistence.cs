@@ -1,4 +1,5 @@
 using System.Text.Json;
+using ChillCodeBackend.Models.Entities;
 using ChillCodeBackend.Models.Unicam;
 
 namespace ChillCodeBackend.Services.Ingestion
@@ -12,6 +13,7 @@ namespace ChillCodeBackend.Services.Ingestion
         Task PersistPoiDetailsAsync(IEnumerable<JsonElement> items, CancellationToken cancellationToken);
         Task PersistEventDetailsAsync(
             IEnumerable<JsonElement> items,
+            MunicipalityInfo municipalityInfo,
             CancellationToken cancellationToken
         );
         Task PersistOrganizationDetailsAsync(
@@ -20,10 +22,12 @@ namespace ChillCodeBackend.Services.Ingestion
         );
         Task PersistRouteDetailsAsync(
             IEnumerable<JsonElement> items,
+            MunicipalityInfo municipalityInfo,
             CancellationToken cancellationToken
         );
         Task PersistArticleDetailsAsync(
             IEnumerable<JsonElement> items,
+            MunicipalityInfo municipalityInfo,
             CancellationToken cancellationToken
         );
     }

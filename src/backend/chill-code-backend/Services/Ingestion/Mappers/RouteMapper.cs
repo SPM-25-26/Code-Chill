@@ -12,7 +12,17 @@ namespace ChillCodeBackend.Services.Ingestion.Mappers
         {
             foreach (var item in items)
             {
-                if (!TryGetString(item, out var externalId, "id", "identifier", "entityId"))
+                // ExternalId must be stable for upsert; prefer id/entityId, fallback to number when needed.
+                if (
+                    !TryGetString(
+                        item,
+                        out var externalId,
+                        "id",
+                        "identifier",
+                        "entityId",
+                        "number"
+                    )
+                )
                 {
                     continue;
                 }
@@ -27,7 +37,8 @@ namespace ChillCodeBackend.Services.Ingestion.Mappers
                     ExternalId = externalId,
                     Name = name,
                     ImagePath = GetString(item, "imagePath", "primaryImage"),
-                    Number = GetString(item, "number"),
+                    Number = GetString(item, "number", "Number", "id", "Id", "identifier", "Identifier")
+                        ?? externalId,
                     Description = GetString(item, "description"),
                     PathTheme = GetString(item, "pathTheme", "theme"),
                     TravellingMethod = GetString(item, "travellingMethod", "travelingMethod"),

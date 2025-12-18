@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using ChillCodeBackend.Data.Api;
 using ChillCodeBackend.Models.Ingestion;
 using ChillCodeBackend.Models.Unicam;
@@ -98,11 +99,12 @@ namespace ChillCodeBackend.Services.Ingestion
                         && !string.IsNullOrWhiteSpace(a.EntityId)
                     )
                     .ToList();
-                var routeDetails = await FetchDetailsFromHighlightsAsync(
+                var routeDetailsRaw = await FetchDetailsFromHighlightsAsync(
                     routeHighlights,
                     id => _apiService.GetRouteDetailAsync(id, language, cancellationToken),
                     cancellationToken
                 );
+                var routeDetails = MergeRouteIds(routeHighlights, routeDetailsRaw);
                 await _persistence.PersistRouteDetailsAsync(
                     routeDetails,
                     municipalityInfo,
@@ -213,6 +215,56 @@ namespace ChillCodeBackend.Services.Ingestion
             }
 
             return details;
+        }
+
+        private static List<JsonElement> MergeRouteIds(
+            List<UnicamMunicipalityVisitHighlight> highlights,
+            List<JsonElement> details
+        )
+        {
+            if (highlights.Count == 0 || details.Count == 0)
+            {
+                return details;
+            }
+
+            var mapped = new List<JsonElement>(details.Count);
+
+            foreach (var (detail, index) in details.Select((d, i) => (d, i)))
+            {
+                var highlightId = index < highlights.Count ? highlights[index].EntityId : null;
+                if (highlightId is null)
+                {
+                    mapped.Add(detail);
+                    continue;
+                }
+
+                if (
+                    detail.TryGetProperty("id", out _)
+                    || detail.TryGetProperty("Id", out _)
+                    || detail.TryGetProperty("identifier", out _)
+                    || detail.TryGetProperty("Identifier", out _)
+                    || detail.TryGetProperty("entityId", out _)
+                    || detail.TryGetProperty("EntityId", out _)
+                )
+                {
+                    mapped.Add(detail);
+                    continue;
+                }
+
+                try
+                {
+                    var node = JsonNode.Parse(detail.GetRawText()) as JsonObject ?? new JsonObject();
+                    node["entityId"] = highlightId;
+                    var merged = JsonDocument.Parse(node.ToJsonString()).RootElement;
+                    mapped.Add(merged);
+                }
+                catch
+                {
+                    mapped.Add(detail);
+                }
+            }
+
+            return mapped;
         }
     }
 }

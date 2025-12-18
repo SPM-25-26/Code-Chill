@@ -26,11 +26,22 @@ function HomePage() {
 
                 {/* Welcome message */}
                 <h1 className="welcome-title">
-                    Welcome {username ? username : email}!
+                    Welcome {username}!
                 </h1>
                 <p className="welcome-subtitle">
                     You are now logged in.
                 </p>
+
+                {/* Navigation */}
+                <div className="mt-3">
+                    <Button
+                        variant="outlined"
+                        fullWidth
+                        onClick={() => navigate('/login/admin/ingestion')}
+                    >
+                        Admin: Ingestion Verification
+                    </Button>
+                </div>
 
                 {/* Logout button */}
                 <div className="mt-4">

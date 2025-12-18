@@ -63,10 +63,12 @@ namespace ChillCodeBackend.Services.Ingestion
 
         public Task PersistEventDetailsAsync(
             IEnumerable<JsonElement> items,
+            MunicipalityInfo municipalityInfo,
             CancellationToken cancellationToken
         )
         {
-            var events = _eventMapper.MapEvents(items);
+            var events = _eventMapper.MapEvents(items).ToList();
+            ApplyMunicipalityFallback(events, municipalityInfo);
             return PersistEventsAsync(events, cancellationToken);
         }
 
@@ -85,20 +87,70 @@ namespace ChillCodeBackend.Services.Ingestion
 
         public Task PersistRouteDetailsAsync(
             IEnumerable<JsonElement> items,
+            MunicipalityInfo municipalityInfo,
             CancellationToken cancellationToken
         )
         {
-            var routes = _routeMapper.MapRoutes(items);
+            var routes = _routeMapper.MapRoutes(items).ToList();
+            ApplyMunicipalityFallback(routes, municipalityInfo);
             return PersistRoutesAsync(routes, cancellationToken);
         }
 
         public Task PersistArticleDetailsAsync(
             IEnumerable<JsonElement> items,
+            MunicipalityInfo municipalityInfo,
             CancellationToken cancellationToken
         )
         {
-            var articles = _articleMapper.MapArticles(items);
+            var articles = _articleMapper.MapArticles(items).ToList();
+            ApplyMunicipalityFallback(articles, municipalityInfo);
             return PersistArticlesAsync(articles, cancellationToken);
+        }
+
+        private static void ApplyMunicipalityFallback(
+            IEnumerable<Article> items,
+            MunicipalityInfo fallback
+        )
+        {
+            foreach (var item in items)
+            {
+                item.MunicipalityData = MergeMunicipalityInfo(item.MunicipalityData, fallback);
+            }
+        }
+
+        private static void ApplyMunicipalityFallback(
+            IEnumerable<Event> items,
+            MunicipalityInfo fallback
+        )
+        {
+            foreach (var item in items)
+            {
+                item.MunicipalityData = MergeMunicipalityInfo(item.MunicipalityData, fallback);
+            }
+        }
+
+        private static void ApplyMunicipalityFallback(
+            IEnumerable<Models.Entities.Route> items,
+            MunicipalityInfo fallback
+        )
+        {
+            foreach (var item in items)
+            {
+                item.MunicipalityData = MergeMunicipalityInfo(item.MunicipalityData, fallback);
+            }
+        }
+
+        private static MunicipalityInfo MergeMunicipalityInfo(
+            MunicipalityInfo existing,
+            MunicipalityInfo fallback
+        )
+        {
+            var name = string.IsNullOrWhiteSpace(existing.Name) ? fallback.Name : existing.Name;
+            var logoPath = string.IsNullOrWhiteSpace(existing.LogoPath)
+                ? fallback.LogoPath
+                : existing.LogoPath;
+
+            return new MunicipalityInfo { Name = name, LogoPath = logoPath };
         }
 
         private async Task PersistArticlesAsync(

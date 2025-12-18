@@ -172,6 +172,54 @@ namespace chill_code_backend.Migrations
                     b.ToTable("Events");
                 });
 
+            modelBuilder.Entity("ChillCodeBackend.Models.Entities.IngestionRun", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ArticleCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Errors")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("EventCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Municipality")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("OrganizationCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("RouteCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TotalPoiCount")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Municipality", "Language", "StartedAt");
+
+                    b.ToTable("IngestionRuns");
+                });
+
             modelBuilder.Entity("ChillCodeBackend.Models.Entities.Municipality", b =>
                 {
                     b.Property<DateTimeOffset>("CreatedAt")

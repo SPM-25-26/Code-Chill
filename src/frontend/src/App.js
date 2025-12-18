@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage.js';
 import ProtectedRoute from './utilities/ProtectedRoute.js';
 import './App.css';
 import ResetPasswordPage from './pages/authentication/ResetPasswordPage.js';
+import AdminIngestionPage from './pages/AdminIngestionPage.js';
 
 function App() {
   return (
@@ -21,6 +22,15 @@ function App() {
           element={
             <ProtectedRoute>
               <HomePage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/login/admin/ingestion"
+          element={
+            <ProtectedRoute>
+              <AdminIngestionPage />
             </ProtectedRoute>
           }
         />

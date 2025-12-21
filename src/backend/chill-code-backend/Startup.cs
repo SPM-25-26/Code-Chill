@@ -8,6 +8,7 @@ using ChillCodeBackend.Models.Entities;
 using ChillCodeBackend.Models.Options;
 using ChillCodeBackend.Services;
 using ChillCodeBackend.Services.Ingestion;
+using ChillCodeBackend.Services.Preferences;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -56,6 +57,10 @@ namespace ChillCodeBackend
             services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IMunicipalityRepository, MunicipalityRepository>();
             services.AddScoped<IRouteRepository, RouteRepository>();
+            services.AddScoped<IPreferenceRepository, PreferenceRepository>();
+            services.AddScoped<IPreferenceResponseRepository, PreferenceResponseRepository>();
+            services.AddScoped<IPreferenceScoringService, PreferenceScoringService>();
+            services.AddSingleton<IQuestionnaireSchemaProvider, QuestionnaireSchemaProvider>();
 
             // Data Api
             services.AddScoped<IUnicamApiService, UnicamApiService>();

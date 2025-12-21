@@ -1,7 +1,9 @@
+using System.Security.Claims;
 using ChillCodeBackend.Data.Repositories;
 using ChillCodeBackend.Models.Api;
 using ChillCodeBackend.Models.Entities;
 using ChillCodeBackend.Services.Preferences;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChillCodeBackend.Controllers
@@ -37,6 +39,7 @@ namespace ChillCodeBackend.Controllers
             return Ok(_schemaProvider.GetSchema());
         }
 
+        [Authorize]
         [HttpGet("response")]
         public async Task<ActionResult<PreferenceResponseDto>> GetLatestResponse(
             CancellationToken cancellationToken
@@ -45,7 +48,7 @@ namespace ChillCodeBackend.Controllers
             var userId = ResolveUserId();
             if (userId == Guid.Empty)
             {
-                return Unauthorized("User id is required (header X-User-Id).");
+                return Unauthorized();
             }
 
             var response = await _responseRepository.GetLatestAsync(userId, cancellationToken);
@@ -64,6 +67,7 @@ namespace ChillCodeBackend.Controllers
             );
         }
 
+        [Authorize]
         [HttpPut("response")]
         public async Task<ActionResult<PreferenceResponseDto>> SaveResponse(
             PreferenceResponseDto request,
@@ -71,11 +75,10 @@ namespace ChillCodeBackend.Controllers
             CancellationToken cancellationToken = default
         )
         {
-            var userId = ResolveUserId();
-            if (userId == Guid.Empty)
-            {
-                return Unauthorized("User id is required (header X-User-Id).");
-            }
+            var userIdClaim =
+                User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+            if (!Guid.TryParse(userIdClaim, out var userId) || userId == Guid.Empty)
+                return Unauthorized();
 
             var schema = _schemaProvider.GetSchema();
             var answers = request.Answers ?? new Dictionary<string, object>();
@@ -125,73 +128,6 @@ namespace ChillCodeBackend.Controllers
             );
         }
 
-        [HttpGet("me")]
-        public async Task<ActionResult<TravelPreferenceDto>> GetMyPreferences(
-            CancellationToken cancellationToken
-        )
-        {
-            var userId = ResolveUserId();
-            if (userId == Guid.Empty)
-            {
-                return Unauthorized("User id is required (header X-User-Id).");
-            }
-
-            var preference = await _preferenceRepository.GetByUserIdAsync(
-                userId,
-                cancellationToken
-            );
-            if (preference is null)
-            {
-                return NotFound();
-            }
-
-            return Ok(MapToDto(preference));
-        }
-
-        [HttpPut]
-        public async Task<ActionResult<TravelPreferenceDto>> UpsertPreferences(
-            TravelPreferenceDto preferenceDto,
-            CancellationToken cancellationToken
-        )
-        {
-            var userId = ResolveUserId();
-            if (userId == Guid.Empty)
-            {
-                return Unauthorized("User id is required (header X-User-Id).");
-            }
-
-            var (isValid, error) = PreferenceValidation.Validate(preferenceDto);
-            if (!isValid)
-            {
-                return ValidationProblem(error);
-            }
-
-            var preference = MapToEntity(preferenceDto);
-            var saved = await _preferenceRepository.UpsertAsync(
-                userId,
-                preference,
-                cancellationToken
-            );
-            _logger.LogInformation("Preferences saved for user {UserId}", userId);
-            return Ok(MapToDto(saved));
-        }
-
-        [HttpPost("preview")]
-        public async Task<ActionResult<PreferencePreviewDto>> Preview(
-            TravelPreferenceDto preferenceDto,
-            CancellationToken cancellationToken
-        )
-        {
-            var (isValid, error) = PreferenceValidation.Validate(preferenceDto);
-            if (!isValid)
-            {
-                return ValidationProblem(error);
-            }
-
-            var preview = await _scoringService.BuildPreviewAsync(preferenceDto, cancellationToken);
-            return Ok(preview);
-        }
-
         private static TravelPreferenceDto MapToDto(UserPreference preference)
         {
             return new TravelPreferenceDto
@@ -216,15 +152,9 @@ namespace ChillCodeBackend.Controllers
 
         private Guid ResolveUserId()
         {
-            if (
-                Request.Headers.TryGetValue("X-User-Id", out var values)
-                && Guid.TryParse(values.FirstOrDefault(), out var id)
-            )
-            {
-                return id;
-            }
-
-            return Guid.Empty;
+            var claim =
+                User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+            return Guid.TryParse(claim, out var id) ? id : Guid.Empty;
         }
     }
 }

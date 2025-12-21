@@ -2,7 +2,7 @@ namespace ChillCodeBackend.Services
 {
     public interface ITokenService
     {
-        string CreateToken(string userName);
+        string CreateToken(Guid userId, string userName);
         RefreshTokenResult CreateRefreshToken();
     }
 }

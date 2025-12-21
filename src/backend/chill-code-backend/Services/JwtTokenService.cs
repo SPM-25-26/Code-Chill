@@ -24,15 +24,17 @@ namespace ChillCodeBackend.Services
             _signingKeyBytes = Encoding.UTF8.GetBytes(_options.SigningKey);
         }
 
-        public string CreateToken(string userName)
+        public string CreateToken(Guid userId, string userName)
         {
             var now = DateTimeOffset.UtcNow;
             var header = new Dictionary<string, object> { ["alg"] = "HS256", ["typ"] = "JWT" };
 
             var payload = new Dictionary<string, object>
             {
-                ["sub"] = userName,
+                ["sub"] = userId.ToString(),
+                ["nameid"] = userId.ToString(),
                 ["unique_name"] = userName,
+                ["email"] = userName,
                 ["iss"] = _options.Issuer,
                 ["aud"] = _options.Audience,
                 ["iat"] = now.ToUnixTimeSeconds(),

@@ -63,6 +63,7 @@ namespace ChillCodeBackend.Controllers
                     QuestionnaireVersion = response.QuestionnaireVersion,
                     Answers = response.Answers,
                     DerivedPreferences = response.DerivedPreferences,
+                    Skipped = response.Skipped,
                 }
             );
         }
@@ -72,6 +73,7 @@ namespace ChillCodeBackend.Controllers
         public async Task<ActionResult<PreferenceResponseDto>> SaveResponse(
             PreferenceResponseDto request,
             [FromQuery] bool includePreview = false,
+            [FromQuery] bool skip = false,
             CancellationToken cancellationToken = default
         )
         {
@@ -83,22 +85,27 @@ namespace ChillCodeBackend.Controllers
             var schema = _schemaProvider.GetSchema();
             var answers = request.Answers ?? new Dictionary<string, object>();
 
-            TravelPreferenceDto derived;
-            try
-            {
-                derived = _schemaProvider.MapAnswersToPreferences(answers);
-            }
-            catch (ArgumentException ex)
-            {
-                return ValidationProblem(ex.Message);
-            }
+            TravelPreferenceDto? derived = null;
+            UserPreference? savedPreference = null;
 
-            var preferenceEntity = MapToEntity(derived);
-            var savedPreference = await _preferenceRepository.UpsertAsync(
-                userId,
-                preferenceEntity,
-                cancellationToken
-            );
+            if (!skip)
+            {
+                try
+                {
+                    derived = _schemaProvider.MapAnswersToPreferences(answers);
+                }
+                catch (ArgumentException ex)
+                {
+                    return ValidationProblem(ex.Message);
+                }
+
+                var preferenceEntity = MapToEntity(derived);
+                savedPreference = await _preferenceRepository.UpsertAsync(
+                    userId,
+                    preferenceEntity,
+                    cancellationToken
+                );
+            }
 
             var responseEntity = new PreferenceResponse
             {
@@ -106,13 +113,16 @@ namespace ChillCodeBackend.Controllers
                     ? schema.Version
                     : request.QuestionnaireVersion,
                 Answers = answers,
-                DerivedPreferences = MapToDto(savedPreference),
+                DerivedPreferences = savedPreference is null
+                    ? new TravelPreferenceDto()
+                    : MapToDto(savedPreference),
+                Skipped = skip,
             };
 
             await _responseRepository.UpsertAsync(userId, responseEntity, cancellationToken);
 
             PreferencePreviewDto? preview = null;
-            if (includePreview)
+            if (includePreview && derived is not null)
             {
                 preview = await _scoringService.BuildPreviewAsync(derived, cancellationToken);
             }
@@ -123,6 +133,7 @@ namespace ChillCodeBackend.Controllers
                     QuestionnaireVersion = responseEntity.QuestionnaireVersion,
                     Answers = responseEntity.Answers,
                     DerivedPreferences = responseEntity.DerivedPreferences,
+                    Skipped = responseEntity.Skipped,
                     Preview = preview,
                 }
             );

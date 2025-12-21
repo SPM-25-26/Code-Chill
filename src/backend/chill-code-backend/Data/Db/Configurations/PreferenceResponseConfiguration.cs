@@ -13,6 +13,7 @@ namespace ChillCodeBackend.Data.Db.Configurations
             builder.Property(r => r.QuestionnaireVersion).IsRequired().HasMaxLength(32);
             builder.Property(r => r.AnswersJson).IsRequired();
             builder.Property(r => r.DerivedPreferencesJson).IsRequired();
+            builder.Property(r => r.Skipped).HasDefaultValue(false);
             builder.Property(r => r.CreatedAt).IsRequired();
             builder.Property(r => r.UpdatedAt).IsRequired();
         }

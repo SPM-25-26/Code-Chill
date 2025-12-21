@@ -6,5 +6,6 @@ namespace ChillCodeBackend.Models.Api
         public Dictionary<string, object> Answers { get; init; } = new();
         public TravelPreferenceDto? DerivedPreferences { get; init; }
         public PreferencePreviewDto? Preview { get; init; }
+        public bool Skipped { get; init; }
     }
 }

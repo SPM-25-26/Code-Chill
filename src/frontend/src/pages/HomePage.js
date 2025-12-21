@@ -51,6 +51,15 @@ function HomePage() {
                         View Ingested Content
                     </Button>
                 </div>
+                <div className="mt-3">
+                    <Button
+                        variant="outlined"
+                        fullWidth
+                        onClick={() => navigate('/login/preferences')}
+                    >
+                        Update Preferences
+                    </Button>
+                </div>
 
                 {/* Logout button */}
                 <div className="mt-4">

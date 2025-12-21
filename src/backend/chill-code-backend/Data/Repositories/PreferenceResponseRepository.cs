@@ -18,11 +18,13 @@ namespace ChillCodeBackend.Data.Repositories
             CancellationToken cancellationToken
         )
         {
-            return await _dbContext
+            // SQLite cannot order by DateTimeOffset; sort on client after fetch.
+            var responses = await _dbContext
                 .PreferenceResponses.AsNoTracking()
                 .Where(r => r.UserId == userId)
-                .OrderByDescending(r => r.UpdatedAt)
-                .FirstOrDefaultAsync(cancellationToken);
+                .ToListAsync(cancellationToken);
+
+            return responses.OrderByDescending(r => r.UpdatedAt).FirstOrDefault();
         }
 
         public async Task<PreferenceResponse> UpsertAsync(

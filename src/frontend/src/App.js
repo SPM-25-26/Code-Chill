@@ -7,6 +7,7 @@ import './App.css';
 import ResetPasswordPage from './pages/authentication/ResetPasswordPage.js';
 import AdminIngestionPage from './pages/AdminIngestionPage.js';
 import ContentBrowserPage from './pages/ContentBrowserPage.js';
+import PreferencesPage from './pages/PreferencesPage.js';
 
 function App() {
   return (
@@ -40,6 +41,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ContentBrowserPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/login/preferences"
+          element={
+            <ProtectedRoute>
+              <PreferencesPage />
             </ProtectedRoute>
           }
         />

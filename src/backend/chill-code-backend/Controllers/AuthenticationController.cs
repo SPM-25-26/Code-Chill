@@ -407,7 +407,7 @@ namespace MyWebApi.Controllers
             CancellationToken cancellationToken
         )
         {
-            var accessToken = _tokenService.CreateToken(user.Email);
+            var accessToken = _tokenService.CreateToken(user.Id, user.Email);
             var refreshTokenResult = _tokenService.CreateRefreshToken();
             user.RefreshToken = refreshTokenResult.Token;
             user.RefreshTokenExpiresAt = refreshTokenResult.ExpiresAt;

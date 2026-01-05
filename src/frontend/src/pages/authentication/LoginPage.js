@@ -39,7 +39,26 @@ export default function LoginPage() {
   const { control, handleSubmit, formState: { errors, isValid } } = useForm({
     mode: 'onChange',
     resolver: yupResolver(schema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
   });
+
+  const checkPreferencesAndNavigate = async (token) => {
+    try {
+      await instance.get('/api/preferences/response', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      navigate('/login/dashboard');
+    } catch (err) {
+      if (err.response && err.response.status === 404) {
+        navigate('/login/preferences');
+      } else {
+        navigate('/login/dashboard');
+      }
+    }
+  };
 
   /**
      * Handle form submission
@@ -62,8 +81,8 @@ export default function LoginPage() {
         if (response.data.userName) {
           localStorage.setItem('username', response.data.userName);
         }
-
-        navigate('/login/dashboard'); // redirect to the home page after login
+        // Check if preferences exist; if not, redirect to questionnaire on first login
+        await checkPreferencesAndNavigate(response.data.token);
       } else {
         setErrorMessage(response.data.message || 'Login failed');
       }

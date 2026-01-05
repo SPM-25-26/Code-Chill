@@ -16,6 +16,8 @@ namespace ChillCodeBackend.Data.Db
         public DbSet<IngestionRun> IngestionRuns => Set<IngestionRun>();
 
         public DbSet<Models.Entities.Route> Routes => Set<Models.Entities.Route>();
+        public DbSet<UserPreference> UserPreferences => Set<UserPreference>();
+        public DbSet<PreferenceResponse> PreferenceResponses => Set<PreferenceResponse>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

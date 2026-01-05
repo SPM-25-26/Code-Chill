@@ -19,10 +19,10 @@ namespace chill_code_backend.Migrations
 
             modelBuilder.Entity("ChillCodeBackend.Models.Entities.Article", b =>
                 {
-                    b.Property<DateTimeOffset>("CreatedAt")
+                    b.Property<string>("Identifier")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Identifier")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ImagePath")
@@ -73,9 +73,6 @@ namespace chill_code_backend.Migrations
 
             modelBuilder.Entity("ChillCodeBackend.Models.Entities.Event", b =>
                 {
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Identifier")
                         .HasColumnType("TEXT");
 
@@ -87,6 +84,9 @@ namespace chill_code_backend.Migrations
                     b.Property<string>("Audience")
                         .IsRequired()
                         .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("Date")
@@ -222,17 +222,13 @@ namespace chill_code_backend.Migrations
 
             modelBuilder.Entity("ChillCodeBackend.Models.Entities.Municipality", b =>
                 {
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ExternalId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ArticlesAndPaths")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
@@ -240,6 +236,10 @@ namespace chill_code_backend.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Events")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ExternalId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("HomeImages")
@@ -291,20 +291,56 @@ namespace chill_code_backend.Migrations
                     b.ToTable("Municipalities");
                 });
 
-            modelBuilder.Entity("ChillCodeBackend.Models.Entities.Route", b =>
+            modelBuilder.Entity("ChillCodeBackend.Models.Entities.PreferenceResponse", b =>
                 {
-                    b.Property<DateTimeOffset>("CreatedAt")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("ExternalId")
+                    b.Property<string>("AnswersJson")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DerivedPreferencesJson")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("QuestionnaireVersion")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Skipped")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PreferenceResponses");
+                });
+
+            modelBuilder.Entity("ChillCodeBackend.Models.Entities.Route", b =>
+                {
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("BestWhen")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
@@ -316,6 +352,10 @@ namespace chill_code_backend.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("EndDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ExternalId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Gallery")
@@ -463,6 +503,48 @@ namespace chill_code_backend.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("ChillCodeBackend.Models.Entities.UserPreference", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ActivityLevel")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CitySize")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Interests")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TravelVibe")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("UserPreferences");
                 });
 
             modelBuilder.Entity("ChillCodeBackend.Models.Entities.Article", b =>

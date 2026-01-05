@@ -116,4 +116,8 @@
   .welcome-subtitle {
     font-size: 1rem;
   }
+
+  .page-card {
+    padding: 2.5rem;
+  }
 }

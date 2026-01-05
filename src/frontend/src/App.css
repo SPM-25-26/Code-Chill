@@ -22,16 +22,14 @@ body {
   align-items: center;
 }
 
-.page-card {
+/* .page-card {
   background-color: var(--surface);
-  border-radius: 32px;
-  border: 2px solid #d7e4ec;
   width: 100%;
   max-width: 420px;
   padding: 3rem 2.5rem;
   box-shadow: 0 25px 60px rgba(23, 94, 116, 0.15);
   position: relative;
-}
+} */
 
 .logo-image {
   width: 82px;

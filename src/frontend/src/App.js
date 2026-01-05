@@ -5,8 +5,7 @@ import HomePage from './pages/HomePage.js';
 import ProtectedRoute from './utilities/ProtectedRoute.js';
 import './App.css';
 import ResetPasswordPage from './pages/authentication/ResetPasswordPage.js';
-import AdminIngestionPage from './pages/AdminIngestionPage.js';
-import ContentBrowserPage from './pages/ContentBrowserPage.js';
+import ContentDetailPage from './pages/ContentDetailPage.js';
 import PreferencesPage from './pages/PreferencesPage.js';
 
 function App() {
@@ -27,23 +26,13 @@ function App() {
             </ProtectedRoute>
           }
         />
-
         <Route
-          path="/login/admin/ingestion"
+          path="/login/content-detail"
           element={
             <ProtectedRoute>
-              <AdminIngestionPage />
+              <ContentDetailPage />
             </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/login/content"
-          element={
-            <ProtectedRoute>
-              <ContentBrowserPage />
-            </ProtectedRoute>
-          }
-        />
+          } />
         <Route
           path="/login/preferences"
           element={

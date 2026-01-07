@@ -29,6 +29,10 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import LanguageIcon from '@mui/icons-material/Language';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import RouteIcon from '@mui/icons-material/Route';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
 import logoPng from '../assets/SPM-Logo.png';
 import instance from '../utilities/Utilities.js';
@@ -208,6 +212,83 @@ export default function HomePage() {
             case 'event': return t('contentTypes.event');
             case 'route': return t('contentTypes.route');
             default: return '';
+        }
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleDateString(language === 'en' ? 'en-US' : 'it-IT', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+        });
+    };
+
+    const getCardDetails = (item) => {
+        switch (item.contentType) {
+            case 'article':
+                return (
+                    <>
+                        {item.subtitle && (
+                            <Typography variant="caption" className="card-subtitle" sx={{ display: 'block', mb: 0.5, color: 'text.secondary' }}>
+                                {item.subtitle}
+                            </Typography>
+                        )}
+                        {item.region && (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                                <LocationOnIcon sx={{ fontSize: 14, color: 'var(--teal)' }} />
+                                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                    {item.region}
+                                </Typography>
+                            </Box>
+                        )}
+                    </>
+                );
+            case 'event':
+                return (
+                    <>
+                        {item.startDate && (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                                <CalendarTodayIcon sx={{ fontSize: 14, color: 'var(--teal)' }} />
+                                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                    {formatDate(item.startDate)}
+                                </Typography>
+                            </Box>
+                        )}
+                        {item.address && (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                                <LocationOnIcon sx={{ fontSize: 14, color: 'var(--teal)' }} />
+                                <Typography variant="caption" sx={{ color: 'text.secondary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    {item.address}
+                                </Typography>
+                            </Box>
+                        )}
+                    </>
+                );
+            case 'route':
+                return (
+                    <>
+                        {item.duration && (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                                <AccessTimeIcon sx={{ fontSize: 14, color: 'var(--teal)' }} />
+                                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                    {item.duration}
+                                </Typography>
+                            </Box>
+                        )}
+                        {item.routeLength && (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                                <RouteIcon sx={{ fontSize: 14, color: 'var(--teal)' }} />
+                                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                    {item.routeLength}
+                                </Typography>
+                            </Box>
+                        )}
+                    </>
+                );
+            default:
+                return null;
         }
     };
 
@@ -393,6 +474,7 @@ export default function HomePage() {
                                                 <Typography variant="body2" className="card-title">
                                                     {item.title ?? item.name}
                                                 </Typography>
+                                                {getCardDetails(item)}
                                             </CardContent>
                                         </Card>
                                     ))}

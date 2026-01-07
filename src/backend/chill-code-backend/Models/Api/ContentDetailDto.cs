@@ -1,4 +1,7 @@
 using ChillCodeBackend.Models.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ChillCodeBackend.Models.Api
 {
@@ -35,6 +38,7 @@ namespace ChillCodeBackend.Models.Api
                 Subtitle = a.Subtitle,
                 Description = a.Script,
                 Image = a.ImagePath,
+                // Article non ha Gallery, Address, Website, Phone, Email, Start/EndDate
             };
         }
 
@@ -48,10 +52,10 @@ namespace ChillCodeBackend.Models.Api
                 Description = e.Description,
                 Address = e.Address,
                 Image = e.PrimaryImage,
-                Gallery = e.Gallery,
-                Website = e.Website,
-                Phone = e.Telephone,
-                Email = e.Email,
+                Gallery = e.Gallery ?? new List<string>(),
+                Website = string.IsNullOrWhiteSpace(e.Website) ? null : e.Website,
+                Phone = string.IsNullOrWhiteSpace(e.Telephone) ? null : e.Telephone,
+                Email = string.IsNullOrWhiteSpace(e.Email) ? null : e.Email,
                 StartDate = e.StartDate,
                 EndDate = e.EndDate
             };
@@ -66,10 +70,13 @@ namespace ChillCodeBackend.Models.Api
                 Title = r.Name,
                 Description = r.Description,
                 Image = r.ImagePath,
-                Gallery = r.Gallery,
-                Website = r.Website,
-                Phone = r.OrganizationTelephone,
-                Email = r.OrganizationEmail
+                Gallery = r.Gallery ?? new List<string>(),
+                Website = string.IsNullOrWhiteSpace(r.Website) ? null : r.Website,
+                Phone = string.IsNullOrWhiteSpace(r.OrganizationTelephone) ? null : r.OrganizationTelephone,
+                Email = string.IsNullOrWhiteSpace(r.OrganizationEmail) ? null : r.OrganizationEmail,
+                StartDate = r.StartDate,
+                EndDate = r.EndDate,
+                Address = r.StartingPoint?.Address
             };
         }
     }

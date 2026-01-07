@@ -16,10 +16,10 @@ namespace ChillCodeBackend.Controllers
             _dbContext = dbContext;
         }
 
+        // 🔹 Lista di tutti i nomi di comuni presenti nei contenuti
         [HttpGet("municipalities")]
         public async Task<ActionResult<List<string>>> GetMunicipalities(CancellationToken ct)
         {
-            // Distinct municipalities present in stored content or municipality table.
             var articleNames = _dbContext.Articles.Select(a => a.MunicipalityData.Name);
             var eventNames = _dbContext.Events.Select(e => e.MunicipalityData.Name);
             var routeNames = _dbContext.Routes.Select(r => r.MunicipalityData.Name);
@@ -37,6 +37,7 @@ namespace ChillCodeBackend.Controllers
             return Ok(names);
         }
 
+        // 🔹 Contenuti di un singolo comune
         [HttpGet("municipalities/{municipality}")]
         public async Task<ActionResult<MunicipalityContentDto>> GetContent(
             [FromRoute] string municipality,
@@ -44,14 +45,13 @@ namespace ChillCodeBackend.Controllers
         )
         {
             if (string.IsNullOrWhiteSpace(municipality))
-            {
                 return BadRequest("Municipality is required.");
-            }
 
             var normalized = municipality.Trim();
 
-            var articles = await _dbContext
-                .Articles.AsNoTracking()
+            // Articles
+            var articles = await _dbContext.Articles
+                .AsNoTracking()
                 .Where(a => a.MunicipalityData.Name == normalized)
                 .Select(a => new ArticleDto
                 {
@@ -59,12 +59,13 @@ namespace ChillCodeBackend.Controllers
                     Title = a.Title,
                     Subtitle = a.Subtitle,
                     Region = a.Region,
-                    ImagePath = a.ImagePath,
+                    ImagePath = a.ImagePath
                 })
                 .ToListAsync(ct);
 
-            var events = await _dbContext
-                .Events.AsNoTracking()
+            // Events
+            var events = await _dbContext.Events
+                .AsNoTracking()
                 .Where(e => e.MunicipalityData.Name == normalized)
                 .Select(e => new EventDto
                 {
@@ -74,36 +75,34 @@ namespace ChillCodeBackend.Controllers
                     Address = e.Address,
                     PrimaryImage = e.PrimaryImage,
                     StartDate = e.StartDate,
-                    EndDate = e.EndDate,
+                    EndDate = e.EndDate
                 })
                 .ToListAsync(ct);
 
-            var routes = await _dbContext
-                .Routes.AsNoTracking()
+            // Routes
+            var routes = await _dbContext.Routes
+                .AsNoTracking()
                 .Where(r => r.MunicipalityData.Name == normalized)
                 .Select(r => new RouteDto
                 {
-                    Id = r.ExternalId ?? r.Name,
+                    Id = string.IsNullOrEmpty(r.ExternalId) ? r.Name : r.ExternalId,
                     Name = r.Name,
                     Description = r.Description,
                     PathTheme = r.PathTheme,
                     TravellingMethod = r.TravellingMethod,
                     Duration = r.Duration ?? string.Empty,
                     RouteLength = r.RouteLength ?? string.Empty,
-                    ImagePath = r.ImagePath,
+                    ImagePath = r.ImagePath
                 })
                 .ToListAsync(ct);
 
-            return Ok(
-                new MunicipalityContentDto
-                {
-                    Municipality = normalized,
-                    Articles = articles,
-                    Events = events,
-                    Routes = routes,
-                }
-            );
+            return Ok(new MunicipalityContentDto
+            {
+                Municipality = normalized,
+                Articles = articles,
+                Events = events,
+                Routes = routes
+            });
         }
     }
 }
-

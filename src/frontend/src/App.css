@@ -15,21 +15,13 @@ body {
 }
 
 .page-container {
-  min-height: 100vh;
-  padding: 2rem 1rem;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  background-color: var(--light);
+  padding: 32px 16px 48px;
 }
-
-/* .page-card {
-  background-color: var(--surface);
-  width: 100%;
-  max-width: 420px;
-  padding: 3rem 2.5rem;
-  box-shadow: 0 25px 60px rgba(23, 94, 116, 0.15);
-  position: relative;
-} */
 
 .logo-image {
   width: 82px;

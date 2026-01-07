@@ -73,13 +73,15 @@ export default function HomePage() {
         navigate('/login');
     };
 
-    const handleCardClick = (item, type) => {
-        localStorage.setItem(
-            'selectedContent',
-            JSON.stringify({ ...item, type })
-        );
-        navigate('/login/content-detail');
+    const handleCardClick = (item) => {
+        if (!item.id) {
+            console.error('Missing POI id', item);
+            return;
+        }
+
+        navigate(`/login/content-detail/${item.id}`);
     };
+
 
     const renderSection = (title, items, type) => (
         <Box className="section">
@@ -98,7 +100,7 @@ export default function HomePage() {
                         <Card
                             key={item.id ?? item.Id}
                             className="content-card"
-                            onClick={() => handleCardClick(item, type)}
+                            onClick={() => handleCardClick(item)}
                         >
                             <CardMedia
                                 component="img"

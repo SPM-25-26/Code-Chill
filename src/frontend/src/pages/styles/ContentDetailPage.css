@@ -1,2 +1,104 @@
+.cdp-page {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 1rem 0;
+    background: radial-gradient(circle at 20% 20%, rgba(46, 196, 182, 0.08), transparent 25%),
+                radial-gradient(circle at 80% 0%, rgba(46, 196, 182, 0.1), transparent 30%),
+                var(--canvas);
+}
 
+.cdp-card {
+    width: 95%;
+    max-width: 1000px;
+    margin: 0 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0;
+}
 
+.cdp-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.2rem;
+}
+
+.cdp-main-card {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.cdp-main-image {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+.cdp-main-card .MuiCardContent-root {
+    padding: 1rem; 
+    word-wrap: break-word; 
+    overflow-wrap: break-word;   
+}
+
+.cdp-main-card .MuiTypography-h4,
+.cdp-main-card .MuiTypography-subtitle1,
+.cdp-main-card .MuiTypography-body1,
+.cdp-main-card .MuiTypography-body2 {
+    white-space: normal; 
+    overflow: visible;
+}
+
+.cdp-main-card .MuiTypography-h4 {
+    font-size: 2rem;
+    line-height: 1.3;
+}
+
+.cdp-main-card .MuiTypography-subtitle1 {
+    font-size: 1.3rem;
+    line-height: 1.4;
+}
+
+.cdp-main-card .MuiTypography-body1 {
+    font-size: 1.15rem;
+    line-height: 1.8;
+}
+
+.cdp-main-card .MuiTypography-body2 {
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* Chip */
+.cdp-main-card .MuiChip-root {
+    font-size: 0.95rem;
+    height: 28px;
+}
+
+/* Gallery */
+.cdp-gallery-scroll {
+    display: flex;
+    gap: 1.25rem;
+    padding: 0.5rem 0;
+    overflow-x: auto;
+}
+
+.cdp-gallery-card {
+    min-width: 190px;
+    max-width: 210px;
+    flex: 0 0 auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.cdp-gallery-card img {
+    height: 130px;
+    object-fit: cover;
+}

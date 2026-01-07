@@ -27,7 +27,7 @@ function App() {
           }
         />
         <Route
-          path="/login/content-detail"
+          path="/login/content-detail/:id"
           element={
             <ProtectedRoute>
               <ContentDetailPage />

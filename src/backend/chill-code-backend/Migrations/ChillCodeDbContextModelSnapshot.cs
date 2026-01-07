@@ -29,6 +29,11 @@ namespace chill_code_backend.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Paragraphs")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -116,6 +121,11 @@ namespace chill_code_backend.Migrations
                     b.Property<string>("Instagram")
                         .IsRequired()
                         .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
                     b.Property<double?>("Latitude")
@@ -364,6 +374,11 @@ namespace chill_code_backend.Migrations
 
                     b.Property<string>("ImagePath")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Number")

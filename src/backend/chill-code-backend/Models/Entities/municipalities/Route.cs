@@ -11,6 +11,8 @@ namespace ChillCodeBackend.Models.Entities
         public DateTimeOffset UpdatedAt { get; set; }
         public DateTime? SourceLastUpdated { get; set; }
 
+        public string Language { get; set; } = "it";
+
         public string Name { get; set; } = string.Empty;
 
         public string ImagePath { get; set; } = string.Empty;

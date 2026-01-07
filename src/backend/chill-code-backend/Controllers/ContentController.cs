@@ -41,6 +41,7 @@ namespace ChillCodeBackend.Controllers
         [HttpGet("municipalities/{municipality}")]
         public async Task<ActionResult<MunicipalityContentDto>> GetContent(
             [FromRoute] string municipality,
+            [FromQuery] string? language,
             CancellationToken ct
         )
         {
@@ -48,11 +49,12 @@ namespace ChillCodeBackend.Controllers
                 return BadRequest("Municipality is required.");
 
             var normalized = municipality.Trim();
+            var lang = string.IsNullOrWhiteSpace(language) ? "it" : language.Trim();
 
             // Articles
             var articles = await _dbContext.Articles
                 .AsNoTracking()
-                .Where(a => a.MunicipalityData.Name == normalized)
+                .Where(a => a.MunicipalityData.Name == normalized && a.Language == lang)
                 .Select(a => new ArticleDto
                 {
                     Id = a.Identifier,
@@ -66,7 +68,7 @@ namespace ChillCodeBackend.Controllers
             // Events
             var events = await _dbContext.Events
                 .AsNoTracking()
-                .Where(e => e.MunicipalityData.Name == normalized)
+                .Where(e => e.MunicipalityData.Name == normalized && e.Language == lang)
                 .Select(e => new EventDto
                 {
                     Id = e.Identifier,
@@ -82,7 +84,7 @@ namespace ChillCodeBackend.Controllers
             // Routes
             var routes = await _dbContext.Routes
                 .AsNoTracking()
-                .Where(r => r.MunicipalityData.Name == normalized)
+                .Where(r => r.MunicipalityData.Name == normalized && r.Language == lang)
                 .Select(r => new RouteDto
                 {
                     Id = string.IsNullOrEmpty(r.ExternalId) ? r.Name : r.ExternalId,

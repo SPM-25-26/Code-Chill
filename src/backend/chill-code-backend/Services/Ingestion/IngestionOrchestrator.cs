@@ -86,6 +86,7 @@ namespace ChillCodeBackend.Services.Ingestion
                 await _persistence.PersistEventDetailsAsync(
                     eventDetails,
                     municipalityInfo,
+                    language,
                     cancellationToken
                 );
                 result.EventDetails.AddRange(eventDetails);
@@ -108,6 +109,7 @@ namespace ChillCodeBackend.Services.Ingestion
                 await _persistence.PersistRouteDetailsAsync(
                     routeDetails,
                     municipalityInfo,
+                    language,
                     cancellationToken
                 );
                 result.RouteDetails.AddRange(routeDetails);
@@ -129,6 +131,7 @@ namespace ChillCodeBackend.Services.Ingestion
                 await _persistence.PersistArticleDetailsAsync(
                     articleDetails,
                     municipalityInfo,
+                    language,
                     cancellationToken
                 );
                 result.ArticleDetails.AddRange(articleDetails);

@@ -8,6 +8,8 @@ namespace ChillCodeBackend.Models.Entities
         public DateTimeOffset UpdatedAt { get; set; }
         public DateTime? SourceLastUpdated { get; set; }
 
+        public string Language { get; set; } = "it";
+
         public string Title { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;

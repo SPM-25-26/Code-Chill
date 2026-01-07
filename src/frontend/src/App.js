@@ -7,6 +7,7 @@ import './App.css';
 import ResetPasswordPage from './pages/authentication/ResetPasswordPage.js';
 import ContentDetailPage from './pages/ContentDetailPage.js';
 import PreferencesPage from './pages/PreferencesPage.js';
+import AdminIngestionPage from './pages/AdminIngestionPage.js';
 
 function App() {
   return (
@@ -38,6 +39,14 @@ function App() {
           element={
             <ProtectedRoute>
               <PreferencesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/login/admin/ingestion"
+          element={
+            <ProtectedRoute>
+              <AdminIngestionPage />
             </ProtectedRoute>
           }
         />

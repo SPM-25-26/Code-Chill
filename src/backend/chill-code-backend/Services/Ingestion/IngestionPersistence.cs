@@ -64,11 +64,13 @@ namespace ChillCodeBackend.Services.Ingestion
         public Task PersistEventDetailsAsync(
             IEnumerable<JsonElement> items,
             MunicipalityInfo municipalityInfo,
+            string language,
             CancellationToken cancellationToken
         )
         {
             var events = _eventMapper.MapEvents(items).ToList();
             ApplyMunicipalityFallback(events, municipalityInfo);
+            ApplyLanguage(events, language);
             return PersistEventsAsync(events, cancellationToken);
         }
 
@@ -88,23 +90,60 @@ namespace ChillCodeBackend.Services.Ingestion
         public Task PersistRouteDetailsAsync(
             IEnumerable<JsonElement> items,
             MunicipalityInfo municipalityInfo,
+            string language,
             CancellationToken cancellationToken
         )
         {
             var routes = _routeMapper.MapRoutes(items).ToList();
             ApplyMunicipalityFallback(routes, municipalityInfo);
+            ApplyLanguage(routes, language);
             return PersistRoutesAsync(routes, cancellationToken);
         }
 
         public Task PersistArticleDetailsAsync(
             IEnumerable<JsonElement> items,
             MunicipalityInfo municipalityInfo,
+            string language,
             CancellationToken cancellationToken
         )
         {
             var articles = _articleMapper.MapArticles(items).ToList();
             ApplyMunicipalityFallback(articles, municipalityInfo);
+            ApplyLanguage(articles, language);
             return PersistArticlesAsync(articles, cancellationToken);
+        }
+
+        private static void ApplyLanguage(
+            IEnumerable<Article> items,
+            string language
+        )
+        {
+            foreach (var item in items)
+            {
+                item.Language = language;
+            }
+        }
+
+        private static void ApplyLanguage(
+            IEnumerable<Event> items,
+            string language
+        )
+        {
+            foreach (var item in items)
+            {
+                item.Language = language;
+            }
+        }
+
+        private static void ApplyLanguage(
+            IEnumerable<Models.Entities.Route> items,
+            string language
+        )
+        {
+            foreach (var item in items)
+            {
+                item.Language = language;
+            }
         }
 
         private static void ApplyMunicipalityFallback(

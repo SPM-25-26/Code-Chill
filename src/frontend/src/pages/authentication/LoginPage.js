@@ -109,105 +109,103 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="-page-container d-flex justify-content-center align-items-center min-vh-100">
-      <div className="page-card text-center shadow-sm">
+    <div className="page-container">
 
-        {/* Logo */}
-        <div className="logo-row text-center w-100 mb-3">
-          <picture>
-            <source srcSet={logoWebp} type="image/webp" />
-            <img src={logoPng} alt="SPM Logo" className="logo-image" />
-          </picture>
-        </div>
+      {/* Logo */}
+      <div className="logo-row text-center w-100 mb-3">
+        <picture>
+          <source srcSet={logoWebp} type="image/webp" />
+          <img src={logoPng} alt="SPM Logo" className="logo-image" />
+        </picture>
+      </div>
 
-        <h1 className="welcome-title">Welcome!</h1>
-        <p className="welcome-subtitle">Tell us your preferences and get the best recommendations!</p>
+      <h1 className="welcome-title">Welcome!</h1>
+      <p className="welcome-subtitle">Tell us your preferences and get the best recommendations!</p>
 
-        {registrationMessage && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            {registrationMessage}
-          </Alert>
-        )}
-        {errorMessage && <div style={{ color: 'red', marginBottom: '1rem' }}>{errorMessage}</div>}
+      {registrationMessage && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {registrationMessage}
+        </Alert>
+      )}
+      {errorMessage && <div style={{ color: 'red', marginBottom: '1rem' }}>{errorMessage}</div>}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="login-form w-100">
-          <Controller
-            name="email"
-            control={control}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="Email"
-                variant="outlined"
-                fullWidth
-                className="mb-3"
-                error={!!errors.email}
-                helperText={errors.email?.message}
-              />
-            )}
-          />
+      <form onSubmit={handleSubmit(onSubmit)} className="login-form w-100">
+        <Controller
+          name="email"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              label="Email"
+              variant="outlined"
+              fullWidth
+              className="mb-3"
+              error={!!errors.email}
+              helperText={errors.email?.message}
+            />
+          )}
+        />
 
-          <Controller
-            name="password"
-            control={control}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                type={showPassword ? 'text' : 'password'}
-                label="Password"
-                variant="outlined"
-                fullWidth
-                className="mb-3"
-                error={!!errors.password}
-                helperText={errors.password?.message}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowPassword(!showPassword)}
-                        edge="end"
-                      >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            )}
-          />
+        <Controller
+          name="password"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              type={showPassword ? 'text' : 'password'}
+              label="Password"
+              variant="outlined"
+              fullWidth
+              className="mb-3"
+              error={!!errors.password}
+              helperText={errors.password?.message}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          )}
+        />
 
-          <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            className="login-btn"
-            disabled={!isValid || loading}
-          >
-            {loading ? 'Logging in...' : 'Login'}
-          </Button>
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          className="login-btn"
+          disabled={!isValid || loading}
+        >
+          {loading ? 'Logging in...' : 'Login'}
+        </Button>
 
-          {/* Forgot password link */}
-          <Button
-            variant="text"
-            fullWidth
-            className="mt-2"
-            onClick={() => navigate('/reset-password')}
-          >
-            Forgot your password?
-          </Button>
-        </form>
+        {/* Forgot password link */}
+        <Button
+          variant="text"
+          fullWidth
+          className="mt-2"
+          onClick={() => navigate('/reset-password')}
+        >
+          Forgot your password?
+        </Button>
+      </form>
 
-        <div className="register-section w-100 mt-3">
-          <small className="text-muted d-block mb-2">Don’t have an account yet?</small>
-          <Button
-            variant="outlined"
-            fullWidth
-            className="register-btn"
-            onClick={() => navigate('/register')}
-          >
-            Register
-          </Button>
-        </div>
+      <div className="register-section w-100 mt-3">
+        <small className="text-muted d-block mb-2">Don’t have an account yet?</small>
+        <Button
+          variant="outlined"
+          fullWidth
+          className="register-btn"
+          onClick={() => navigate('/register')}
+        >
+          Register
+        </Button>
       </div>
     </div>
   );

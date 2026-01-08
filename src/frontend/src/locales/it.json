@@ -1,0 +1,34 @@
+{
+  "header": {
+    "welcome": "Benvenuto"
+  },
+  "filters": {
+    "title": "Filtri",
+    "showingAll": "Mostra tutto",
+    "filtered": "Filtrato",
+    "contentType": "Tipo di contenuto:",
+    "municipality": "Comune:",
+    "allMunicipalities": "Tutti i comuni"
+  },
+  "contentTypes": {
+    "articles": "Articoli",
+    "events": "Eventi",
+    "routes": "Percorsi",
+    "article": "Articolo",
+    "event": "Evento",
+    "route": "Percorso"
+  },
+  "menu": {
+    "preferences": "Preferenze",
+    "adminIngestion": "Admin Ingestion",
+    "logout": "Esci"
+  },
+  "messages": {
+    "loading": "Caricamento contenuti…",
+    "noActivities": "Nessuna attività corrisponde ai filtri correnti.",
+    "loadError": "Impossibile caricare i contenuti."
+  },
+  "language": {
+    "switchTo": "Passa a {{lang}}"
+  }
+}

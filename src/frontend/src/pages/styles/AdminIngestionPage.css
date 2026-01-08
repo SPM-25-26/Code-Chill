@@ -1,65 +1,56 @@
 .ingestion-page {
-  max-width: 1100px;
-  margin: 24px auto;
-  padding: 0 16px;
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
 }
 
 .ingestion-header {
-  margin-bottom: 16px;
+  margin-bottom: 2rem;
 }
 
-.ingestion-controls,
-.ingestion-summary {
-  margin-top: 16px;
+.ingestion-controls {
+  margin-bottom: 2rem;
 }
 
 .ingestion-controls-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr auto;
-  gap: 12px;
-  align-items: start;
+  gap: 1.5rem;
+  grid-template-columns: 1fr;
 }
 
 .ingestion-actions {
   display: flex;
-  gap: 8px;
-  align-items: center;
-  justify-content: flex-end;
-  height: 56px;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .ingestion-action-btn {
-  height: 56px;
-  white-space: nowrap;
+  flex: 1;
+  min-width: 150px;
+}
+
+.ingestion-summary {
+  margin-bottom: 2rem;
 }
 
 .ingestion-summary-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px 12px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .ingestion-label {
   font-weight: 600;
+  color: var(--dark);
 }
 
-@media (max-width: 900px) {
+@media (min-width: 768px) {
   .ingestion-controls-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .ingestion-actions {
-    width: 100%;
-    justify-content: stretch;
-    flex-direction: column;
-    height: auto;
-  }
-
-  .ingestion-action-btn {
-    width: 100%;
-  }
-
-  .ingestion-summary-grid {
-    grid-template-columns: 1fr;
+    grid-column: 1 / -1;
   }
 }

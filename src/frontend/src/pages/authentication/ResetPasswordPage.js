@@ -83,8 +83,7 @@ export default function ResetPasswordPage() {
 
 
     return (
-        <div className="-page-container d-flex justify-content-center align-items-center min-vh-100">
-            <div className="page-card text-center shadow-sm">
+        <div className="page-container">
 
                 {/* Logo */}
                 <div className="logo-row text-center w-100 mb-3">
@@ -196,6 +195,5 @@ export default function ResetPasswordPage() {
                     Back to Login
                 </Button>
             </div>
-        </div>
     );
 }

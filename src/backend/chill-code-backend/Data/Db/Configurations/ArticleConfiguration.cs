@@ -20,6 +20,8 @@ namespace ChillCodeBackend.Data.Db.Configurations
             builder.Property(a => a.Script).IsRequired();
             builder.Property(a => a.ImagePath).IsRequired();
 
+            builder.Property(a => a.Language).IsRequired().HasMaxLength(10);
+
             builder.Property(a => a.CreatedAt).IsRequired();
             builder.Property(a => a.UpdatedAt).IsRequired();
             builder.Property(a => a.SourceLastUpdated);

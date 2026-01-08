@@ -5,9 +5,9 @@ import HomePage from './pages/HomePage.js';
 import ProtectedRoute from './utilities/ProtectedRoute.js';
 import './App.css';
 import ResetPasswordPage from './pages/authentication/ResetPasswordPage.js';
-import AdminIngestionPage from './pages/AdminIngestionPage.js';
-import ContentBrowserPage from './pages/ContentBrowserPage.js';
+import ContentDetailPage from './pages/ContentDetailPage.js';
 import PreferencesPage from './pages/PreferencesPage.js';
+import AdminIngestionPage from './pages/AdminIngestionPage.js';
 
 function App() {
   return (
@@ -27,28 +27,26 @@ function App() {
             </ProtectedRoute>
           }
         />
-
         <Route
-          path="/login/admin/ingestion"
+          path="/login/content-detail/:id"
           element={
             <ProtectedRoute>
-              <AdminIngestionPage />
+              <ContentDetailPage />
             </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/login/content"
-          element={
-            <ProtectedRoute>
-              <ContentBrowserPage />
-            </ProtectedRoute>
-          }
-        />
+          } />
         <Route
           path="/login/preferences"
           element={
             <ProtectedRoute>
               <PreferencesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/login/admin/ingestion"
+          element={
+            <ProtectedRoute>
+              <AdminIngestionPage />
             </ProtectedRoute>
           }
         />

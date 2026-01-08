@@ -18,6 +18,7 @@ namespace ChillCodeBackend.Services.Ingestion
         Task PersistEventDetailsAsync(
             IEnumerable<JsonElement> items,
             MunicipalityInfo municipalityInfo,
+            string language,
             CancellationToken cancellationToken
         );
         Task PersistOrganizationDetailsAsync(
@@ -27,11 +28,13 @@ namespace ChillCodeBackend.Services.Ingestion
         Task PersistRouteDetailsAsync(
             IEnumerable<JsonElement> items,
             MunicipalityInfo municipalityInfo,
+            string language,
             CancellationToken cancellationToken
         );
         Task PersistArticleDetailsAsync(
             IEnumerable<JsonElement> items,
             MunicipalityInfo municipalityInfo,
+            string language,
             CancellationToken cancellationToken
         );
     }

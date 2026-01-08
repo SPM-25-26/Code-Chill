@@ -1,0 +1,34 @@
+{
+  "header": {
+    "welcome": "Welcome"
+  },
+  "filters": {
+    "title": "Filters",
+    "showingAll": "Showing all",
+    "filtered": "Filtered",
+    "contentType": "Content Type:",
+    "municipality": "Municipality:",
+    "allMunicipalities": "All municipalities"
+  },
+  "contentTypes": {
+    "articles": "Articles",
+    "events": "Events",
+    "routes": "Routes",
+    "article": "Article",
+    "event": "Event",
+    "route": "Route"
+  },
+  "menu": {
+    "preferences": "Preferences",
+    "adminIngestion": "Admin Ingestion",
+    "logout": "Logout"
+  },
+  "messages": {
+    "loading": "Loading content…",
+    "noActivities": "No activities match your current filters.",
+    "loadError": "Failed to load content."
+  },
+  "language": {
+    "switchTo": "Switch to {{lang}}"
+  }
+}

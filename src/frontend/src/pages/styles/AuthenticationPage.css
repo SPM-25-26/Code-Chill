@@ -11,6 +11,7 @@
 }
 
 .welcome-subtitle {
+  text-align: center;
   font-size: 1.1rem;
   color: var(--muted);
   margin-bottom: 2.5rem;
@@ -115,5 +116,9 @@
 
   .welcome-subtitle {
     font-size: 1rem;
+  }
+
+  .page-card {
+    padding: 2.5rem;
   }
 }

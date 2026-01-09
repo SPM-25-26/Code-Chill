@@ -1,0 +1,66 @@
+.preferences-intro-container {
+  min-height: 100vh;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  text-align: center;
+}
+
+/* Icon */
+.preferences-intro-icon {
+  margin-bottom: 40px;
+}
+
+.preferences-intro-icon img {
+  width: 64px;
+  height: 64px;
+}
+
+/* Title */
+.preferences-intro-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #7b8794;
+  line-height: 1.4;
+  margin-bottom: 32px;
+  max-width: 260px;
+}
+
+/* Primary CTA */
+.preferences-intro-start {
+  width: 100%;
+  max-width: 280px;
+  padding: 14px 20px;
+  border-radius: 32px;
+  background-color: #2ec4b6;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 32px;
+}
+
+/* Secondary text */
+.preferences-intro-description {
+  font-size: 14px;
+  color: #8e9aa6;
+  max-width: 260px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+/* Secondary CTA */
+.preferences-intro-later {
+  padding: 10px 20px;
+  border-radius: 20px;
+  background-color: #7fdcd3;
+  color: #1b1f23;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}

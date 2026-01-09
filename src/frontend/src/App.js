@@ -8,6 +8,7 @@ import ResetPasswordPage from './pages/authentication/ResetPasswordPage.js';
 import ContentDetailPage from './pages/ContentDetailPage.js';
 import PreferencesPage from './pages/PreferencesPage.js';
 import AdminIngestionPage from './pages/AdminIngestionPage.js';
+import PreferencesIntroPage from './pages/PreferencesIntroPage.js';
 
 function App() {
   return (
@@ -34,6 +35,14 @@ function App() {
               <ContentDetailPage />
             </ProtectedRoute>
           } />
+        <Route
+          path="/login/preferences-intro"
+          element={
+            <ProtectedRoute>
+              <PreferencesIntroPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/login/preferences"
           element={

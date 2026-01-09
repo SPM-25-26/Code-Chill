@@ -17,12 +17,6 @@ import logoWebp from '../../assets/SPM-Logo.webp';
 import instance from '../../utilities/Utilities.js';
 import '../styles/AuthenticationPage.css';
 
-
-/**
- * Validation schema for the login form
- * - Ensures the email is a valid format and required
- * - Ensures password is required
- */
 const schema = yup.object({
   email: yup.string().email('Enter a valid email').required('Email is required'),
   password: yup.string().required('Password is required')
@@ -39,32 +33,33 @@ export default function LoginPage() {
   const { control, handleSubmit, formState: { errors, isValid } } = useForm({
     mode: 'onChange',
     resolver: yupResolver(schema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
+    defaultValues: { email: '', password: '' },
   });
 
   const checkPreferencesAndNavigate = async (token) => {
     try {
-      await instance.get('/api/preferences/response', {
+      const res = await instance.get('/api/preferences/response', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      navigate('/login/dashboard');
+
+      const answers = res.data?.answers ?? {};
+      const skipped = res.data?.skipped ?? false; 
+
+      if (!answers || Object.keys(answers).length === 0 || skipped) {
+        navigate('/login/preferences-intro');
+      } else {
+        navigate('/login/dashboard');
+      }
     } catch (err) {
       if (err.response && err.response.status === 404) {
-        navigate('/login/preferences');
+        navigate('/login/preferences-intro');
       } else {
         navigate('/login/dashboard');
       }
     }
   };
 
-  /**
-     * Handle form submission
-     * Sends login request to backend and stores tokens on success
-     * Redirects user to the login/dashboard page
-     */
+  // Gestione login
   const onSubmit = async (data) => {
     setLoading(true);
     setErrorMessage('');
@@ -75,14 +70,14 @@ export default function LoginPage() {
       });
 
       if (response.status === 201 || response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('refreshToken', response.data.refreshToken);
-        localStorage.setItem('refreshTokenExpiresAt', response.data.refreshTokenExpiresAt);
-        if (response.data.userName) {
-          localStorage.setItem('username', response.data.userName);
-        }
-        // Check if preferences exist; if not, redirect to questionnaire on first login
-        await checkPreferencesAndNavigate(response.data.token);
+        const { token, refreshToken, refreshTokenExpiresAt, userName } = response.data;
+        localStorage.setItem('token', token);
+        localStorage.setItem('refreshToken', refreshToken);
+        localStorage.setItem('refreshTokenExpiresAt', refreshTokenExpiresAt);
+        if (userName) localStorage.setItem('username', userName);
+
+        // Controlla preferenze
+        await checkPreferencesAndNavigate(token);
       } else {
         setErrorMessage(response.data.message || 'Login failed');
       }
@@ -90,22 +85,16 @@ export default function LoginPage() {
       let msg = 'Something went wrong. Please try again.';
       if (error.response) {
         switch (error.response.status) {
-          case 401:
-            msg = 'Invalid credentials. Please try again.';
-            break;
-          case 403:
-            msg = 'Your account is not verified.';
-            break;
-          case 500:
-            msg = 'Server error. Please try again later.';
-            break;
-          default:
-            msg = error.response.data?.message || msg;
+          case 401: msg = 'Invalid credentials. Please try again.'; break;
+          case 403: msg = 'Your account is not verified.'; break;
+          case 500: msg = 'Server error. Please try again later.'; break;
+          default: msg = error.response.data?.message || msg;
         }
       }
       setErrorMessage(msg);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -127,6 +116,7 @@ export default function LoginPage() {
           {registrationMessage}
         </Alert>
       )}
+
       {errorMessage && <div style={{ color: 'red', marginBottom: '1rem' }}>{errorMessage}</div>}
 
       <form onSubmit={handleSubmit(onSubmit)} className="login-form w-100">
@@ -185,7 +175,6 @@ export default function LoginPage() {
           {loading ? 'Logging in...' : 'Login'}
         </Button>
 
-        {/* Forgot password link */}
         <Button
           variant="text"
           fullWidth

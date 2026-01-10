@@ -47,6 +47,7 @@ namespace ChillCodeBackend.Data.Repositories
                 existing.ActivityLevel = preference.ActivityLevel;
                 existing.CitySize = preference.CitySize;
                 existing.Interests = preference.Interests;
+                existing.FamilyFriendly = preference.FamilyFriendly;
                 existing.UpdatedAt = DateTimeOffset.UtcNow;
             }
 

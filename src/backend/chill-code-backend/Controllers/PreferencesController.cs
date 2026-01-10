@@ -139,6 +139,29 @@ namespace ChillCodeBackend.Controllers
             );
         }
 
+        [Authorize]
+        [HttpGet("preview")]
+        public async Task<ActionResult<PreferencePreviewDto>> GetPreview(
+            CancellationToken cancellationToken
+        )
+        {
+            var userId = ResolveUserId();
+            if (userId == Guid.Empty)
+            {
+                return Unauthorized();
+            }
+
+            var preference = await _preferenceRepository.GetByUserIdAsync(userId, cancellationToken);
+            if (preference is null)
+            {
+                return NotFound();
+            }
+
+            var dto = MapToDto(preference);
+            var preview = await _scoringService.BuildPreviewAsync(dto, cancellationToken);
+            return Ok(preview);
+        }
+
         private static TravelPreferenceDto MapToDto(UserPreference preference)
         {
             return new TravelPreferenceDto
@@ -147,6 +170,7 @@ namespace ChillCodeBackend.Controllers
                 ActivityLevel = preference.ActivityLevel,
                 CitySize = preference.CitySize,
                 Interests = preference.Interests,
+                FamilyFriendly = preference.FamilyFriendly,
             };
         }
 
@@ -158,6 +182,7 @@ namespace ChillCodeBackend.Controllers
                 ActivityLevel = dto.ActivityLevel.Trim(),
                 CitySize = dto.CitySize.Trim(),
                 Interests = dto.Interests.Select(i => i.Trim()).ToList(),
+                FamilyFriendly = dto.FamilyFriendly,
             };
         }
 

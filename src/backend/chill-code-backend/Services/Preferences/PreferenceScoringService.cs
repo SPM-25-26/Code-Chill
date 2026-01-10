@@ -18,6 +18,46 @@ namespace ChillCodeBackend.Services.Preferences
         private readonly ChillCodeDbContext _dbContext;
         private static readonly Regex WordSplitter = new(@"[^\p{L}\p{N}]+", RegexOptions.Compiled);
 
+        private static readonly Dictionary<string, string[]> TypologyInterestMap =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                ["Sagra"] = new[] { "Food & Wine Experiences" },
+                ["Fiera / Salone"] = new[] { "Food & Wine Experiences", "Shopping & Markets" },
+                ["Festival"] = new[] { "Festivals & Events" },
+                ["Show"] = new[] { "Festivals & Events" },
+                ["Patronal Day/Feast of Saints"] = new[]
+                {
+                    "Festivals & Events",
+                    "Local Traditions",
+                },
+                ["Musical event"] = new[] { "Festivals & Events" },
+                ["Theatrical performance"] = new[] { "Festivals & Events" },
+                ["Sports meeting"] = new[] { "Sports & Adventure", "Festivals & Events" },
+            };
+
+        private static readonly Dictionary<string, string[]> PathThemeInterestMap =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                ["Archeologico"] = new[] { "Architecture" },
+                ["Culturale"] = new[] { "Local Traditions" },
+                ["Storico"] = new[] { "Local Traditions" },
+                ["Naturalistico"] = new[] { "Nature & Outdoor Activities" },
+                ["Religiosi"] = new[] { "Religious Sites" },
+            };
+
+        private static readonly Dictionary<string, string[]> ReferenceCategoryInterestMap =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                ["Nature"] = new[] { "Nature & Outdoor Activities" },
+                ["Events"] = new[] { "Festivals & Events" },
+                ["ArtCulture"] = new[] { "Art & Museums" },
+                ["EntertainmentLeisure"] = new[]
+                {
+                    "Festivals & Events",
+                    "Local Traditions",
+                },
+            };
+
         private static readonly Dictionary<string, string[]> InterestKeywords = new(
             StringComparer.OrdinalIgnoreCase
         )
@@ -31,8 +71,8 @@ namespace ChillCodeBackend.Services.Preferences
                 "castle",
             },
             ["Nature & Outdoor Activities"] = new[] { "nature", "park", "trail", "outdoor" },
-            ["Food & Wine Experiences"] = new[] { "food", "wine", "restaurant", "cuisine" },
-            ["Festivals & Events"] = new[] { "festival", "event", "celebration" },
+            ["Food & Wine Experiences"] = new[] { "food", "wine", "restaurant", "cuisine", "sagra" },
+            ["Festivals & Events"] = new[] { "festival", "event", "celebration", "show" },
             ["Art & Museums"] = new[] { "art", "gallery", "museum", "exhibition" },
             ["Architecture"] = new[] { "architecture", "building", "design" },
             ["Local Traditions"] = new[] { "tradition", "local", "folklore" },
@@ -76,19 +116,28 @@ namespace ChillCodeBackend.Services.Preferences
             return articles
                 .Select(article =>
                 {
-                    var score = 0.0;
-                    score += preference.TravelVibe.Equals(
-                        "chill",
-                        StringComparison.OrdinalIgnoreCase
-                    )
-                        ? 0.2
-                        : 0.05;
+                    var score = 0.1; // base so everything remains visible
+                    if (preference.TravelVibe.Equals("chill", StringComparison.OrdinalIgnoreCase))
+                    {
+                        score += 0.05;
+                    }
 
-                    score += ScoreByInterests(
-                        normalizedInterests,
-                        article.Title,
-                        string.Join(' ', article.Themes)
-                    );
+                    var paragraphInterests = article.Paragraphs
+                        .Select(p => p.ReferenceCategory)
+                        .Where(rc => !string.IsNullOrWhiteSpace(rc))
+                        .SelectMany(rc => MapReferenceCategoryToInterests(rc))
+                        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                    foreach (var interest in paragraphInterests)
+                    {
+                        if (normalizedInterests.Contains(interest))
+                        {
+                            score += 0.3;
+                        }
+                    }
+
+                    // fallback keyword-style match on themes/title
+                    score += ScoreByKeywords(normalizedInterests, article.Title, string.Join(' ', article.Themes));
                     return new ScoredArticleDto
                     {
                         Id = article.Identifier,
@@ -101,7 +150,6 @@ namespace ChillCodeBackend.Services.Preferences
                     };
                 })
                 .OrderByDescending(a => a.Score)
-                .Take(10)
                 .ToList();
         }
 
@@ -114,13 +162,58 @@ namespace ChillCodeBackend.Services.Preferences
             return events
                 .Select(ev =>
                 {
-                    var score = preference.TravelVibe.Equals(
-                        "chill",
-                        StringComparison.OrdinalIgnoreCase
+                    var score = 0.1;
+
+                    // family-friendly bias but never filter out
+                    if (preference.FamilyFriendly)
+                    {
+                        if (IsFamilyFriendly(ev.Audience))
+                        {
+                            score += 0.25;
+                        }
+                        else
+                        {
+                            score += 0.02;
+                        }
+                    }
+
+                    // vibe leaning
+                    if (preference.TravelVibe.Equals("chill", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (IsChillTypology(ev.Typology))
+                        {
+                            score += 0.2;
+                        }
+                        else
+                        {
+                            score += 0.05;
+                        }
+                    }
+                    else if (
+                        preference.TravelVibe.Equals("adventure", StringComparison.OrdinalIgnoreCase)
                     )
-                        ? 0.1
-                        : 0.15;
-                    score += ScoreByInterests(normalizedInterests, ev.Title, ev.Description);
+                    {
+                        if (IsAdventureTypology(ev.Typology))
+                        {
+                            score += 0.2;
+                        }
+                        else
+                        {
+                            score += 0.05;
+                        }
+                    }
+
+                    // interests from typology
+                    foreach (var interest in MapTypologyToInterests(ev.Typology))
+                    {
+                        if (normalizedInterests.Contains(interest))
+                        {
+                            score += 0.3;
+                        }
+                    }
+
+                    // keyword fallback
+                    score += ScoreByKeywords(normalizedInterests, ev.Title, ev.Description);
                     return new ScoredEventDto
                     {
                         Id = ev.Identifier,
@@ -134,7 +227,6 @@ namespace ChillCodeBackend.Services.Preferences
                     };
                 })
                 .OrderByDescending(e => e.Score)
-                .Take(10)
                 .ToList();
         }
 
@@ -147,15 +239,64 @@ namespace ChillCodeBackend.Services.Preferences
             return routes
                 .Select(route =>
                 {
-                    var score = preference.TravelVibe.Equals(
-                        "adventure",
-                        StringComparison.OrdinalIgnoreCase
-                    )
-                        ? 0.25
-                        : 0.1;
+                    var score = 0.1;
 
-                    score += ScoreActivityLevel(preference.ActivityLevel, route);
-                    score += ScoreByInterests(
+                    var routeDifficulty = DeriveRouteActivityLevel(route);
+                    score += ScoreActivityMatch(preference.ActivityLevel, routeDifficulty);
+
+                    // vibe: chill prefers low effort, adventure prefers higher or biking
+                    if (preference.TravelVibe.Equals("adventure", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (
+                            routeDifficulty.Equals("high", StringComparison.OrdinalIgnoreCase)
+                            || route.TravellingMethod?.Contains("cicl", StringComparison.OrdinalIgnoreCase)
+                                == true
+                        )
+                        {
+                            score += 0.15;
+                        }
+                        else
+                        {
+                            score += 0.05;
+                        }
+                    }
+                    else if (
+                        preference.TravelVibe.Equals("chill", StringComparison.OrdinalIgnoreCase)
+                    )
+                    {
+                        if (routeDifficulty.Equals("low", StringComparison.OrdinalIgnoreCase))
+                        {
+                            score += 0.15;
+                        }
+                        else
+                        {
+                            score += 0.05;
+                        }
+                    }
+
+                    foreach (var interest in MapPathThemeToInterests(route.PathTheme))
+                    {
+                        if (normalizedInterests.Contains(interest))
+                        {
+                            score += 0.2;
+                        }
+                    }
+
+                    if (
+                        route.TravellingMethod?.Contains("cicl", StringComparison.OrdinalIgnoreCase)
+                            == true
+                        && normalizedInterests.Contains("Sports & Adventure")
+                    )
+                    {
+                        score += 0.2;
+                    }
+
+                    if (normalizedInterests.Contains("Nature & Outdoor Activities"))
+                    {
+                        score += 0.1; // all routes count as outdoor
+                    }
+
+                    score += ScoreByKeywords(
                         normalizedInterests,
                         route.Name,
                         route.Description,
@@ -164,12 +305,12 @@ namespace ChillCodeBackend.Services.Preferences
 
                     return new ScoredRouteDto
                     {
-                        Id = route.ExternalId ?? route.Name,
-                        Name = route.Name,
-                        Description = route.Description,
-                        PathTheme = route.PathTheme,
-                        TravellingMethod = route.TravellingMethod,
-                        Municipality = route.MunicipalityData.Name,
+                        Id = route.ExternalId ?? route.Name ?? string.Empty,
+                        Name = route.Name ?? string.Empty,
+                        Description = route.Description ?? string.Empty,
+                        PathTheme = route.PathTheme ?? string.Empty,
+                        TravellingMethod = route.TravellingMethod ?? string.Empty,
+                        Municipality = route.MunicipalityData.Name ?? string.Empty,
                         RouteLength = route.RouteLength ?? string.Empty,
                         Duration = route.Duration ?? string.Empty,
                         ImagePath = route.ImagePath,
@@ -177,28 +318,10 @@ namespace ChillCodeBackend.Services.Preferences
                     };
                 })
                 .OrderByDescending(r => r.Score)
-                .Take(10)
                 .ToList();
         }
 
-        private static double ScoreActivityLevel(string level, Models.Entities.Route route)
-        {
-            var lowerTheme = route.PathTheme?.ToLowerInvariant() ?? string.Empty;
-            var lowerMethod = route.TravellingMethod?.ToLowerInvariant() ?? string.Empty;
-            return level.ToLowerInvariant() switch
-            {
-                "low" => (lowerTheme.Contains("walk") || lowerTheme.Contains("easy")) ? 0.15 : 0.05,
-                "medium" => (lowerTheme.Contains("hike") || lowerMethod.Contains("bike"))
-                    ? 0.2
-                    : 0.1,
-                "high" => (lowerTheme.Contains("mountain") || lowerTheme.Contains("climb"))
-                    ? 0.25
-                    : 0.12,
-                _ => 0,
-            };
-        }
-
-        private static double ScoreByInterests(
+        private static double ScoreByKeywords(
             HashSet<string> normalizedInterests,
             params string?[] fields
         )
@@ -229,6 +352,181 @@ namespace ChillCodeBackend.Services.Preferences
             }
 
             return score;
+        }
+
+        private static IEnumerable<string> MapTypologyToInterests(string? typology)
+        {
+            if (string.IsNullOrWhiteSpace(typology))
+            {
+                return Array.Empty<string>();
+            }
+
+            return TypologyInterestMap.TryGetValue(typology, out var interests)
+                ? interests
+                : Array.Empty<string>();
+        }
+
+        private static IEnumerable<string> MapPathThemeToInterests(string? pathTheme)
+        {
+            if (string.IsNullOrWhiteSpace(pathTheme))
+            {
+                return Array.Empty<string>();
+            }
+
+            return PathThemeInterestMap.TryGetValue(pathTheme, out var interests)
+                ? interests
+                : Array.Empty<string>();
+        }
+
+        private static IEnumerable<string> MapReferenceCategoryToInterests(string category)
+        {
+            return ReferenceCategoryInterestMap.TryGetValue(category, out var interests)
+                ? interests
+                : Array.Empty<string>();
+        }
+
+        private static bool IsFamilyFriendly(string? audience)
+        {
+            if (string.IsNullOrWhiteSpace(audience))
+            {
+                return false;
+            }
+
+            var lower = audience.ToLowerInvariant();
+            return lower.Contains("bambini") || lower.Contains("children");
+        }
+
+        private static bool IsChillTypology(string? typology)
+        {
+            if (string.IsNullOrWhiteSpace(typology))
+            {
+                return false;
+            }
+
+            return typology.Equals("Musical event", StringComparison.OrdinalIgnoreCase)
+                || typology.Equals("Theatrical performance", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsAdventureTypology(string? typology)
+        {
+            if (string.IsNullOrWhiteSpace(typology))
+            {
+                return false;
+            }
+
+            return !IsChillTypology(typology);
+        }
+
+        private static string DeriveRouteActivityLevel(Models.Entities.Route route)
+        {
+            var minutes = ParseDurationMinutes(route.Duration);
+            if (minutes is not null)
+            {
+                if (minutes <= 60)
+                {
+                    return "low";
+                }
+
+                if (minutes <= 240)
+                {
+                    return "medium";
+                }
+
+                return "high";
+            }
+
+            var lengthKm = ParseLength(route.RouteLength);
+            if (lengthKm is not null)
+            {
+                if (lengthKm <= 5)
+                {
+                    return "low";
+                }
+
+                if (lengthKm <= 12)
+                {
+                    return "medium";
+                }
+
+                return "high";
+            }
+
+            // fallback: assume medium if unknown
+            return "medium";
+        }
+
+        private static int? ParseDurationMinutes(string? duration)
+        {
+            if (string.IsNullOrWhiteSpace(duration))
+            {
+                return null;
+            }
+
+            var lower = duration.ToLowerInvariant().Trim();
+            if (lower.Contains("metà giornata"))
+            {
+                return 240;
+            }
+
+            if (lower.Contains("una giornata"))
+            {
+                return 480;
+            }
+
+            // pattern: "X ora", "X ore", "X ora e Y minuti"
+            var hours = 0;
+            var minutes = 0;
+            var hourMatch = Regex.Match(lower, @"(\d+)\s*or");
+            if (hourMatch.Success && int.TryParse(hourMatch.Groups[1].Value, out var h))
+            {
+                hours = h;
+            }
+
+            var minuteMatch = Regex.Match(lower, @"(\d+)\s*min");
+            if (minuteMatch.Success && int.TryParse(minuteMatch.Groups[1].Value, out var m))
+            {
+                minutes = m;
+            }
+
+            if (hours == 0 && minutes == 0)
+            {
+                return null;
+            }
+
+            return (hours * 60) + minutes;
+        }
+
+        private static double? ParseLength(string? length)
+        {
+            if (string.IsNullOrWhiteSpace(length))
+            {
+                return null;
+            }
+
+            return double.TryParse(length, out var value) ? value : null;
+        }
+
+        private static double ScoreActivityMatch(string preferredLevel, string routeLevel)
+        {
+            var pref = preferredLevel.ToLowerInvariant();
+            var route = routeLevel.ToLowerInvariant();
+
+            if (pref == route)
+            {
+                return 0.25;
+            }
+
+            // adjacent levels still get some credit
+            if (
+                (pref == "low" && route == "medium")
+                || (pref == "medium" && (route == "low" || route == "high"))
+                || (pref == "high" && route == "medium")
+            )
+            {
+                return 0.12;
+            }
+
+            return 0.02;
         }
     }
 }

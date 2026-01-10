@@ -49,6 +49,7 @@ function buildMediaUrl(path) {
 export default function HomePage() {
     const navigate = useNavigate();
     const username = localStorage.getItem('username') || 'User';
+    const token = localStorage.getItem('token') || '';
     const { t, language, changeLanguage } = useTranslation();
 
     const [allMunicipalities, setAllMunicipalities] = useState([]);
@@ -57,9 +58,17 @@ export default function HomePage() {
     const [error, setError] = useState('');
     const [open, setOpen] = useState(false);
     const [preferences, setPreferences] = useState(null);
+    const [scoreMap, setScoreMap] = useState({});
     const [selectedTypes, setSelectedTypes] = useState([]);
     const [selectedCities, setSelectedCities] = useState([]);
     const [filterCollapsed, setFilterCollapsed] = useState(false);
+
+    const authHeaders = useMemo(
+        () => ({
+            Authorization: token ? `Bearer ${token}` : undefined,
+        }),
+        [token],
+    );
 
     // Load municipalities and content from all cities
     useEffect(() => {
@@ -120,6 +129,34 @@ export default function HomePage() {
         }
     }, []);
 
+    // Load scored preview from backend to sort feed
+    useEffect(() => {
+        const loadPreview = async () => {
+            if (!token) return;
+            try {
+                const res = await instance.get('/api/preferences/preview', { headers: authHeaders });
+                const preview = res.data;
+                const map = {};
+                preview?.articles?.forEach((a) => {
+                    const id = a.id ?? a.Id ?? a.identifier;
+                    if (id) map[id] = a.score ?? a.Score ?? 0;
+                });
+                preview?.events?.forEach((e) => {
+                    const id = e.id ?? e.Id ?? e.identifier;
+                    if (id) map[id] = e.score ?? e.Score ?? 0;
+                });
+                preview?.routes?.forEach((r) => {
+                    const id = r.id ?? r.Id ?? r.identifier;
+                    if (id) map[id] = r.score ?? r.Score ?? 0;
+                });
+                setScoreMap(map);
+            } catch (err) {
+                console.warn('Failed to load preference preview', err);
+            }
+        };
+        loadPreview();
+    }, [authHeaders, token]);
+
     // Handle scroll to collapse filter
     useEffect(() => {
         const scrollContainer = document.querySelector('.scrollable-content');
@@ -154,21 +191,31 @@ export default function HomePage() {
 
         // Filter by selected cities (inverted: empty = show all, selected = show only selected)
         if (selectedCities.length > 0) {
-            filtered = filtered.filter(item => selectedCities.includes(item.municipality));
-        }
+                    filtered = filtered.filter(item => selectedCities.includes(item.municipality));
+                }
 
-        // Filter by user preferences
-        if (preferences) {
-            filtered = filtered.filter(item => {
-                if (preferences.activity_type && item.type && !preferences.activity_type.includes(item.type)) return false;
-                if (preferences.transport && item.travellingMethod && item.travellingMethod !== preferences.transport) return false;
-                if (preferences.difficulty && item.difficulty && item.difficulty !== preferences.difficulty) return false;
-                return true;
-            });
-        }
+                // Filter by user preferences
+                if (preferences) {
+                    filtered = filtered.filter(item => {
+                        if (preferences.activity_type && item.type && !preferences.activity_type.includes(item.type)) return false;
+                        if (preferences.transport && item.travellingMethod && item.travellingMethod !== preferences.transport) return false;
+                        if (preferences.difficulty && item.difficulty && item.difficulty !== preferences.difficulty) return false;
+                        return true;
+                    });
+                }
 
-        return filtered;
+                return filtered;
     }, [allContent, selectedTypes, selectedCities, preferences]);
+
+    const sortedContent = useMemo(() => {
+        const withScore = [...filteredContent];
+        const getScore = (item) => {
+            const id = item.id ?? item.Id ?? item.identifier;
+            return id && scoreMap[id] != null ? scoreMap[id] : 0;
+        };
+        withScore.sort((a, b) => getScore(b) - getScore(a));
+        return withScore;
+    }, [filteredContent, scoreMap]);
 
     const handleLogout = () => {
         localStorage.clear();
@@ -450,9 +497,9 @@ export default function HomePage() {
 
                     {!loading && !error && (
                         <>
-                            {filteredContent.length > 0 ? (
+                            {sortedContent.length > 0 ? (
                                 <Box className="content-grid">
-                                    {filteredContent.map((item) => (
+                                    {sortedContent.map((item) => (
                                         <Card
                                             key={item.id ?? item.Id}
                                             className="content-card"

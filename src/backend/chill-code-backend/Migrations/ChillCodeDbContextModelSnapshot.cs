@@ -539,7 +539,7 @@ namespace chill_code_backend.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("FamilyFriendly")
+                    b.Property<bool?>("FamilyFriendly")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Interests")

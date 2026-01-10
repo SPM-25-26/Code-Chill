@@ -48,3 +48,14 @@ Source: `src/backend/chill-code-backend/App_Data/chillcode.db` (SQLite) as of th
   - Sports & Adventure → Events with Typology Sports meeting; Routes with TravellingMethod Ciclismo.
   - Religious Sites → Routes with PathTheme Religiosi.
   - Shopping & Markets → Events with Typology Fiera / Salone.
+
+## Scoring logic (frontend sorting)
+- Base: everything stays in the feed; scores only influence ordering.
+- travelVibe: chill biases Musical/Theatrical events and low-effort routes; adventure biases other event typologies and higher-effort routes/biking.
+- activityLevel: derived from duration (fallback length) → low/medium/high; matches give strongest boost, adjacent levels smaller.
+- familyFriendly: boosts family-friendly audiences when set to Yes; “Doesn’t matter” keeps it neutral; No gently penalizes family-friendly events (sort lower).
+- interests:
+  - Events: typology → interest buckets (Sagra/Fiera → Food & Wine/Shopping; Festival/Show/Patronal/Musical/Theatrical/Sports meeting → Festivals & Events; Sports meeting → Sports & Adventure; Patronal → Local Traditions).
+  - Routes: pathTheme → interest buckets (Archeologico→Architecture; Culturale/Storico→Local Traditions; Naturalistico→Nature; Religiosi→Religious Sites); TravellingMethod Ciclismo → Sports & Adventure; all routes get a small Nature & Outdoor boost when selected.
+  - Articles: paragraph referenceCategory → interests (Nature→Nature; Events→Festivals & Events; ArtCulture→Art & Museums; EntertainmentLeisure→Festivals & Events/Local Traditions); title/themes keyword fallback.
+- Keyword fallback: if no structured match, titles/descriptions/themes are tokenized against interest keywords for a small boost.

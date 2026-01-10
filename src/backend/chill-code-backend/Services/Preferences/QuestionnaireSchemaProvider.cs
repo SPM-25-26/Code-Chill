@@ -108,6 +108,7 @@ namespace ChillCodeBackend.Services.Preferences
                     [
                         new OptionDto { Value = "yes", Label = "Yes" },
                         new OptionDto { Value = "no", Label = "No" },
+                        new OptionDto { Value = "any", Label = "Doesn't matter" },
                     ],
                 },
             ],
@@ -160,11 +161,17 @@ namespace ChillCodeBackend.Services.Preferences
                     .ToList();
             }
 
-            var familyFriendly = false;
+            bool? familyFriendly = null;
             if (answers.TryGetValue("familyFriendly", out var familyObj))
             {
                 var value = ToStringSafe(familyObj).Trim().ToLowerInvariant();
-                familyFriendly = value is "yes" or "true" or "1";
+                familyFriendly = value switch
+                {
+                    "yes" or "true" or "1" => true,
+                    "no" or "false" or "0" => false,
+                    "any" => (bool?)null,
+                    _ => (bool?)null,
+                };
             }
 
             var dto = new TravelPreferenceDto

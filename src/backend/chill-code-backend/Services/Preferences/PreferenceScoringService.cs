@@ -165,16 +165,14 @@ namespace ChillCodeBackend.Services.Preferences
                     var score = 0.1;
 
                     // family-friendly bias but never filter out
-                    if (preference.FamilyFriendly)
+                    if (preference.FamilyFriendly == true)
                     {
-                        if (IsFamilyFriendly(ev.Audience))
-                        {
-                            score += 0.25;
-                        }
-                        else
-                        {
-                            score += 0.02;
-                        }
+                        score += IsFamilyFriendly(ev.Audience) ? 0.25 : 0.02;
+                    }
+                    else if (preference.FamilyFriendly == false && IsFamilyFriendly(ev.Audience))
+                    {
+                        // User asked for non-family focus: gently push family events down.
+                        score -= 0.2;
                     }
 
                     // vibe leaning

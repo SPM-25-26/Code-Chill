@@ -61,18 +61,39 @@ export default function PreferencesPage() {
     }
   };
 
+  /**
+   * Handles the "Skip for now" action in the preferences questionnaire.
+   * 
+   * - If the user already has saved preferences, skipping will NOT overwrite them.
+   *   The existing answers are re-sent to the backend to preserve the profile.
+   * - If the user has no existing preferences, an empty preferences object is saved,
+   *   explicitly marking the questionnaire as skipped.
+   */
   const handleSkip = async () => {
     setSaving(true);
     setError('');
     setSuccessMessage('');
+
     try {
+      const hasExistingAnswers =
+        initialAnswers && Object.keys(initialAnswers).length > 0;
+
       await instance.put(
         '/api/preferences/response?skip=true',
-        { questionnaireVersion: schema?.version ?? 'v1', answers: {} },
+        {
+          questionnaireVersion: schema?.version ?? 'v1',
+          answers: hasExistingAnswers ? initialAnswers : {}
+        },
         { headers: authHeaders },
       );
+
+      // Clear autosaved data if no existing answers
+      if (!hasExistingAnswers) {
+        localStorage.removeItem('preference-wizard');
+      }
+
       setSuccessMessage('Skipped for now.');
-      setTimeout(() => navigate('/login/dashboard'), 1500);
+      setTimeout(() => navigate('/login/dashboard'), 1200);
     } catch (e) {
       setError('Failed to skip preferences. Please try again.');
     } finally {

@@ -163,17 +163,27 @@ export default function HomePage() {
         if (!scrollContainer) return;
 
         let lastScrollTop = 0;
+        const threshold = 50;
+        let ticking = false;
+
         const handleScroll = () => {
-            const scrollTop = scrollContainer.scrollTop;
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const scrollTop = scrollContainer.scrollTop;
 
-            // Collapse when scrolling down, expand when scrolling up
-            if (scrollTop > 50 && scrollTop > lastScrollTop) {
-                setFilterCollapsed(true);
-            } else if (scrollTop < lastScrollTop) {
-                setFilterCollapsed(false);
+                    if (scrollTop - lastScrollTop > threshold) {
+                        setFilterCollapsed(true);
+                        lastScrollTop = scrollTop;
+                    }
+                    else if (lastScrollTop - scrollTop > threshold) {
+                        setFilterCollapsed(false);
+                        lastScrollTop = scrollTop;
+                    }
+
+                    ticking = false;
+                });
+                ticking = true;
             }
-
-            lastScrollTop = scrollTop;
         };
 
         scrollContainer.addEventListener('scroll', handleScroll);
@@ -191,20 +201,20 @@ export default function HomePage() {
 
         // Filter by selected cities (inverted: empty = show all, selected = show only selected)
         if (selectedCities.length > 0) {
-                    filtered = filtered.filter(item => selectedCities.includes(item.municipality));
-                }
+            filtered = filtered.filter(item => selectedCities.includes(item.municipality));
+        }
 
-                // Filter by user preferences
-                if (preferences) {
-                    filtered = filtered.filter(item => {
-                        if (preferences.activity_type && item.type && !preferences.activity_type.includes(item.type)) return false;
-                        if (preferences.transport && item.travellingMethod && item.travellingMethod !== preferences.transport) return false;
-                        if (preferences.difficulty && item.difficulty && item.difficulty !== preferences.difficulty) return false;
-                        return true;
-                    });
-                }
+        // Filter by user preferences
+        if (preferences) {
+            filtered = filtered.filter(item => {
+                if (preferences.activity_type && item.type && !preferences.activity_type.includes(item.type)) return false;
+                if (preferences.transport && item.travellingMethod && item.travellingMethod !== preferences.transport) return false;
+                if (preferences.difficulty && item.difficulty && item.difficulty !== preferences.difficulty) return false;
+                return true;
+            });
+        }
 
-                return filtered;
+        return filtered;
     }, [allContent, selectedTypes, selectedCities, preferences]);
 
     const sortedContent = useMemo(() => {

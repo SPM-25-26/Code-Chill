@@ -35,6 +35,7 @@
   "home": {
     "recommendedForYou": "Recommended for you",
     "otherRecommendations": "Other recommendations",
-    "mightLike": "You might like…"
+    "mightLike": "You might like…",
+    "AllActivities": "All activities"
   }
 }

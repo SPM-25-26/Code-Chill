@@ -370,9 +370,9 @@ export default function HomePage() {
                             size="small"
                             className="filter-toggle-group"
                         >
-                            <ToggleButton value="all" className="filter-toggle">Tutti</ToggleButton>
-                            <ToggleButton value="recommended" className="filter-toggle">Consigliati per te</ToggleButton>
-                            <ToggleButton value="mightLike" className="filter-toggle">Potrebbero interessarti</ToggleButton>
+                            <ToggleButton value="all" className="filter-toggle">{t('home.AllActivities')}</ToggleButton>
+                            <ToggleButton value="recommended" className="filter-toggle">{t('home.recommendedForYou')}</ToggleButton>
+                            <ToggleButton value="mightLike" className="filter-toggle">{t('home.mightLike')}</ToggleButton>
                         </ToggleButtonGroup>
                     </Box>
                 </Box>

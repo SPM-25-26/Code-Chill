@@ -135,7 +135,7 @@ export default function HomePage() {
     /** Carica preview con score dal backend */
     useEffect(() => {
         const loadPreview = async () => {
-            if (!preferences || !token) return;
+            if (!token) return;
             try {
                 const res = await instance.get('/api/preferences/preview', { headers: authHeaders });
                 const map = {};
@@ -148,7 +148,7 @@ export default function HomePage() {
             }
         };
         loadPreview();
-    }, [preferences, token, authHeaders]);
+    }, [token, authHeaders]);
 
     /** Scroll collapse filter */
     useEffect(() => {

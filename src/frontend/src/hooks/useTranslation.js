@@ -8,11 +8,11 @@ const translations = {
 };
 
 export const useTranslation = () => {
-    const [language, setLanguageState] = useState(localStorage.getItem('language') || 'en');
+    const [language, setLanguageState] = useState(localStorage.getItem('language') || 'it');
 
     useEffect(() => {
         const handleStorageChange = () => {
-            setLanguageState(localStorage.getItem('language') || 'en');
+            setLanguageState(localStorage.getItem('language') || 'it');
         };
 
         window.addEventListener('storage', handleStorageChange);

@@ -98,6 +98,19 @@ namespace ChillCodeBackend.Services.Preferences
                         },
                     ],
                 },
+                new QuestionDto
+                {
+                    Id = "familyFriendly",
+                    Title = "Are you looking for family-friendly options?",
+                    Type = "binary",
+                    Required = false,
+                    Options =
+                    [
+                        new OptionDto { Value = "yes", Label = "Yes" },
+                        new OptionDto { Value = "no", Label = "No" },
+                        new OptionDto { Value = "any", Label = "Doesn't matter" },
+                    ],
+                },
             ],
         };
 
@@ -148,12 +161,26 @@ namespace ChillCodeBackend.Services.Preferences
                     .ToList();
             }
 
+            bool? familyFriendly = null;
+            if (answers.TryGetValue("familyFriendly", out var familyObj))
+            {
+                var value = ToStringSafe(familyObj).Trim().ToLowerInvariant();
+                familyFriendly = value switch
+                {
+                    "yes" or "true" or "1" => true,
+                    "no" or "false" or "0" => false,
+                    "any" => (bool?)null,
+                    _ => (bool?)null,
+                };
+            }
+
             var dto = new TravelPreferenceDto
             {
                 TravelVibe = travelVibe,
                 ActivityLevel = activityLevel,
                 CitySize = citySize,
                 Interests = interests,
+                FamilyFriendly = familyFriendly,
             };
 
             var (isValid, error) = PreferenceValidation.Validate(dto);

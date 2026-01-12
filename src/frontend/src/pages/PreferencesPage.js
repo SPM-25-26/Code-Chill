@@ -29,9 +29,10 @@ export default function PreferencesPage() {
           instance.get('/api/preferences/schema', { headers: authHeaders }),
           instance.get('/api/preferences/response', { headers: authHeaders }).catch(() => null),
         ]);
-        setSchema(schemaRes.data);
+        const fetchedSchema = schemaRes.data;
+        setSchema(fetchedSchema);
         if (responseRes?.data?.answers) {
-          setInitialAnswers(responseRes.data.answers);
+          setInitialAnswers(normalizeAnswers(responseRes.data.answers, fetchedSchema?.questions));
         }
       } catch (e) {
         setError('Failed to load questionnaire. Please try again.');
@@ -127,4 +128,32 @@ export default function PreferencesPage() {
       {successMessage && <div className="preferences-saving success">{successMessage}</div>}
     </div>
   );
+}
+
+/**
+ * Normalizes persisted answers to the expected schema formats so that pre-filling works
+ * even if the stored value is boolean (e.g., familyFriendly true/false).
+ */
+function normalizeAnswers(rawAnswers, questions = []) {
+  if (!rawAnswers) return {};
+  const normalized = { ...rawAnswers };
+
+  questions.forEach((q) => {
+    const val = normalized[q.id];
+    if (val === undefined || val === null) return;
+
+    if ((q.type === 'binary' || q.type === 'single') && typeof val === 'boolean') {
+      // convert boolean to matching option value when present
+      const yesOpt = q.options.find((o) => o.value.toLowerCase() === 'yes');
+      const noOpt = q.options.find((o) => o.value.toLowerCase() === 'no');
+      if (val && yesOpt) normalized[q.id] = yesOpt.value;
+      else if (!val && noOpt) normalized[q.id] = noOpt.value;
+    }
+
+    if (q.type === 'multi' && !Array.isArray(val)) {
+      normalized[q.id] = Array.isArray(val) ? val : [];
+    }
+  });
+
+  return normalized;
 }

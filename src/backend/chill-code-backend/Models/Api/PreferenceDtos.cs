@@ -14,6 +14,8 @@ namespace ChillCodeBackend.Models.Api
         public string CitySize { get; init; } = string.Empty; // small | big
 
         public IReadOnlyCollection<string> Interests { get; init; } = Array.Empty<string>();
+
+        public bool? FamilyFriendly { get; init; }
     }
 
     public static class PreferenceValidation

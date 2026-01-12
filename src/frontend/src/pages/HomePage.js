@@ -49,6 +49,7 @@ function buildMediaUrl(path) {
 export default function HomePage() {
     const navigate = useNavigate();
     const username = localStorage.getItem('username') || 'User';
+    const token = localStorage.getItem('token') || '';
     const { t, language, changeLanguage } = useTranslation();
 
     const [allMunicipalities, setAllMunicipalities] = useState([]);
@@ -57,46 +58,36 @@ export default function HomePage() {
     const [error, setError] = useState('');
     const [open, setOpen] = useState(false);
     const [preferences, setPreferences] = useState(null);
+    const [scoreMap, setScoreMap] = useState({});
     const [selectedTypes, setSelectedTypes] = useState([]);
     const [selectedCities, setSelectedCities] = useState([]);
     const [filterCollapsed, setFilterCollapsed] = useState(false);
+    const [recommendationFilter, setRecommendationFilter] = useState('all'); // 'all', 'recommended', 'mightLike'
 
-    // Load municipalities and content from all cities
+    const authHeaders = useMemo(() => ({
+        Authorization: token ? `Bearer ${token}` : undefined,
+    }), [token]);
+
+    /** Carica contenuti da tutte le città */
     useEffect(() => {
         const loadData = async () => {
             try {
-                // Fetch list of municipalities
                 const municipalitiesRes = await instance.get('/api/content/municipalities');
                 const municipalities = municipalitiesRes.data;
                 setAllMunicipalities(municipalities);
 
-                // Fetch content from all municipalities
                 const contentPromises = municipalities.map(muni =>
                     instance.get(`/api/content/municipalities/${muni}?language=${language}`)
                 );
                 const contentResponses = await Promise.all(contentPromises);
 
-                // Combine all content
                 const combinedContent = [];
                 contentResponses.forEach(res => {
                     const data = res.data;
                     const municipality = data.municipality;
-
-                    data.articles?.forEach(article => combinedContent.push({
-                        ...article,
-                        contentType: 'article',
-                        municipality
-                    }));
-                    data.events?.forEach(event => combinedContent.push({
-                        ...event,
-                        contentType: 'event',
-                        municipality
-                    }));
-                    data.routes?.forEach(route => combinedContent.push({
-                        ...route,
-                        contentType: 'route',
-                        municipality
-                    }));
+                    data.articles?.forEach(article => combinedContent.push({ ...article, contentType: 'article', municipality }));
+                    data.events?.forEach(event => combinedContent.push({ ...event, contentType: 'event', municipality }));
+                    data.routes?.forEach(route => combinedContent.push({ ...route, contentType: 'route', municipality }));
                 });
 
                 setAllContent(combinedContent);
@@ -108,9 +99,9 @@ export default function HomePage() {
             }
         };
         loadData();
-    }, [language]); // Reload when language changes
+    }, [language]);
 
-    // Load user preferences
+    /** Carica preferenze salvate localmente */
     useEffect(() => {
         try {
             const saved = localStorage.getItem('preference-wizard');
@@ -120,44 +111,76 @@ export default function HomePage() {
         }
     }, []);
 
-    // Handle scroll to collapse filter
+    /** Aggiorna feed se il questionario modifica le preferenze */
+    useEffect(() => {
+        const handlePreferencesChange = (event) => {
+            const detail = event?.detail;
+            if (!detail) return;
+            const derived = detail.derivedPreferences;
+            const skipped = detail.skipped ?? false;
+
+            if (derived && Object.keys(derived).length > 0 && !skipped) {
+                setPreferences(derived);
+                localStorage.setItem('preference-wizard', JSON.stringify(derived));
+                localStorage.setItem('has-preferences', 'true');
+            } else {
+                console.log('Preferences empty or skipped, keeping previous values.');
+            }
+        };
+
+        window.addEventListener('preferencesChanged', handlePreferencesChange);
+        return () => window.removeEventListener('preferencesChanged', handlePreferencesChange);
+    }, []);
+
+    /** Carica preview con score dal backend */
+    useEffect(() => {
+        const loadPreview = async () => {
+            if (!preferences || !token) return;
+            try {
+                const res = await instance.get('/api/preferences/preview', { headers: authHeaders });
+                const map = {};
+                res.data?.articles?.forEach(a => map[a.id] = a.score);
+                res.data?.events?.forEach(e => map[e.id] = e.score);
+                res.data?.routes?.forEach(r => map[r.id] = r.score);
+                setScoreMap(map);
+            } catch (err) {
+                console.error('Failed to load preview', err);
+            }
+        };
+        loadPreview();
+    }, [preferences, token, authHeaders]);
+
+    /** Scroll collapse filter */
     useEffect(() => {
         const scrollContainer = document.querySelector('.scrollable-content');
         if (!scrollContainer) return;
 
-        let lastScrollTop = 0;
         const handleScroll = () => {
             const scrollTop = scrollContainer.scrollTop;
 
-            // Collapse when scrolling down, expand when scrolling up
-            if (scrollTop > 50 && scrollTop > lastScrollTop) {
+            if (scrollTop > 0) {
                 setFilterCollapsed(true);
-            } else if (scrollTop < lastScrollTop) {
+            } else {
                 setFilterCollapsed(false);
             }
-
-            lastScrollTop = scrollTop;
         };
 
         scrollContainer.addEventListener('scroll', handleScroll);
         return () => scrollContainer.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Filter content based on selections and preferences
+
     const filteredContent = useMemo(() => {
         let filtered = allContent;
 
-        // Filter by selected content types (inverted: empty = show all, selected = show only selected)
         if (selectedTypes.length > 0) {
             filtered = filtered.filter(item => selectedTypes.includes(item.contentType));
         }
 
-        // Filter by selected cities (inverted: empty = show all, selected = show only selected)
         if (selectedCities.length > 0) {
             filtered = filtered.filter(item => selectedCities.includes(item.municipality));
         }
 
-        // Filter by user preferences
         if (preferences) {
             filtered = filtered.filter(item => {
                 if (preferences.activity_type && item.type && !preferences.activity_type.includes(item.type)) return false;
@@ -167,38 +190,37 @@ export default function HomePage() {
             });
         }
 
+        filtered = filtered.filter(item => {
+            const score = scoreMap[item.id ?? item.Id ?? item.identifier] ?? 0;
+            if (recommendationFilter === 'recommended') return score >= 0.5;
+            if (recommendationFilter === 'mightLike') return score < 0.5;
+            return true; // 'all'
+        });
+
         return filtered;
-    }, [allContent, selectedTypes, selectedCities, preferences]);
+    }, [allContent, selectedTypes, selectedCities, preferences, scoreMap, recommendationFilter]);
 
-    const handleLogout = () => {
-        localStorage.clear();
-        navigate('/login');
-    };
 
-    const handleCardClick = (item) => {
-        if (!item.id && !item.Id) {
-            console.error('Missing POI id', item);
-            return;
-        }
-        navigate(`/login/content-detail/${item.id ?? item.Id}`);
-    };
+    const handleRecommendationToggle = (_, newValue) => newValue && setRecommendationFilter(newValue);
 
-    const handleTypeToggle = (event, newTypes) => {
-        setSelectedTypes(newTypes);
-    };
+    const sortedContent = useMemo(() => {
+        const withScore = [...filteredContent];
+        const getScore = (item) => {
+            const id = item.id ?? item.Id ?? item.identifier;
+            return id && scoreMap[id] != null ? scoreMap[id] : 0;
+        };
+        withScore.sort((a, b) => getScore(b) - getScore(a));
+        return withScore;
+    }, [filteredContent, scoreMap]);
 
-    const handleCityChange = (event, newValue) => {
-        setSelectedCities(newValue);
-    };
+    const handleLogout = () => { localStorage.clear(); navigate('/login'); };
+    const handleCardClick = (item) => { navigate(`/login/content-detail/${item.id ?? item.Id}`); };
+    const handleTypeToggle = (event, newTypes) => setSelectedTypes(newTypes);
+    const handleCityChange = (event, newValue) => setSelectedCities(newValue);
+    const handleLanguageToggle = () => changeLanguage(language === 'en' ? 'it' : 'en');
 
-    const handleLanguageToggle = () => {
-        const newLanguage = language === 'en' ? 'it' : 'en';
-        changeLanguage(newLanguage);
-        // Reload content will happen automatically via useEffect dependency
-    };
-
-    const getContentIcon = (contentType) => {
-        switch (contentType) {
+    const getContentIcon = (type) => {
+        switch (type) {
             case 'article': return <ArticleIcon fontSize="small" />;
             case 'event': return <EventIcon fontSize="small" />;
             case 'route': return <MapIcon fontSize="small" />;
@@ -206,8 +228,8 @@ export default function HomePage() {
         }
     };
 
-    const getContentLabel = (contentType) => {
-        switch (contentType) {
+    const getContentLabel = (type) => {
+        switch (type) {
             case 'article': return t('contentTypes.article');
             case 'event': return t('contentTypes.event');
             case 'route': return t('contentTypes.route');
@@ -218,11 +240,7 @@ export default function HomePage() {
     const formatDate = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
-        return date.toLocaleDateString(language === 'en' ? 'en-US' : 'it-IT', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric'
-        });
+        return date.toLocaleDateString(language === 'en' ? 'en-US' : 'it-IT', { day: 'numeric', month: 'short', year: 'numeric' });
     };
 
     const getCardDetails = (item) => {
@@ -230,80 +248,45 @@ export default function HomePage() {
             case 'article':
                 return (
                     <>
-                        {item.subtitle && (
-                            <Typography variant="caption" className="card-subtitle" sx={{ display: 'block', mb: 0.5, color: 'text.secondary' }}>
-                                {item.subtitle}
-                            </Typography>
-                        )}
-                        {item.region && (
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
-                                <LocationOnIcon sx={{ fontSize: 14, color: 'var(--teal)' }} />
-                                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                                    {item.region}
-                                </Typography>
-                            </Box>
-                        )}
+                        {item.subtitle && <Typography variant="caption" sx={{ display: 'block', mb: 0.5, color: 'text.secondary' }}>{item.subtitle}</Typography>}
+                        {item.region && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><LocationOnIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary' }}>{item.region}</Typography></Box>}
                     </>
                 );
             case 'event':
                 return (
                     <>
-                        {item.startDate && (
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
-                                <CalendarTodayIcon sx={{ fontSize: 14, color: 'var(--teal)' }} />
-                                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                                    {formatDate(item.startDate)}
-                                </Typography>
-                            </Box>
-                        )}
-                        {item.address && (
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
-                                <LocationOnIcon sx={{ fontSize: 14, color: 'var(--teal)' }} />
-                                <Typography variant="caption" sx={{ color: 'text.secondary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                    {item.address}
-                                </Typography>
-                            </Box>
-                        )}
+                        {item.startDate && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><CalendarTodayIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary' }}>{formatDate(item.startDate)}</Typography></Box>}
+                        {item.address && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><LocationOnIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.address}</Typography></Box>}
                     </>
                 );
             case 'route':
                 return (
                     <>
-                        {item.duration && (
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
-                                <AccessTimeIcon sx={{ fontSize: 14, color: 'var(--teal)' }} />
-                                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                                    {item.duration}
-                                </Typography>
-                            </Box>
-                        )}
-                        {item.routeLength && (
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
-                                <RouteIcon sx={{ fontSize: 14, color: 'var(--teal)' }} />
-                                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                                    {item.routeLength}
-                                </Typography>
-                            </Box>
-                        )}
+                        {item.duration && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><AccessTimeIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary' }}>{item.duration}</Typography></Box>}
+                        {item.routeLength && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><RouteIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary' }}>{item.routeLength}</Typography></Box>}
                     </>
                 );
-            default:
-                return null;
+            default: return null;
         }
     };
 
+    const clearFilters = () => {
+        setSelectedTypes([]);
+        setSelectedCities([]);
+        setRecommendationFilter('all');
+    };
+
+    /** Rendering */
     return (
         <Box className="page">
-            {/* Drawer Menu */}
+
+            {/* Drawer */}
             <Drawer anchor="left" open={open} onClose={() => setOpen(false)}>
                 <Box className="drawer-container">
                     <Box className="drawer-header">
-                        <Box className="drawer-header-icon">
-                            <AccountCircleIcon fontSize="small" />
-                        </Box>
+                        <Box className="drawer-header-icon"><AccountCircleIcon fontSize="small" /></Box>
                         <Typography variant="subtitle1">{username}</Typography>
                     </Box>
-
                     <List className="drawer-list">
                         <ListItemButton onClick={() => { setOpen(false); navigate('/login/preferences'); }}>
                             <ListItemIcon><SettingsIcon /></ListItemIcon>
@@ -321,167 +304,122 @@ export default function HomePage() {
                 </Box>
             </Drawer>
 
-            <Box className="page-card-home" >
+            {/* Header */}
+            <Box className="page-card-home">
                 <Box className="header">
-                    <IconButton onClick={() => setOpen(true)}>
-                        <MenuIcon />
-                    </IconButton>
+                    <IconButton onClick={() => setOpen(true)}><MenuIcon /></IconButton>
                     <img src={logoPng} alt="SPM Logo" className="logo" />
-                    <Typography variant="h6">
-                        {t('header.welcome')}, {username}
-                    </Typography>
+                    <Typography variant="h6">{t('header.welcome')}, {username}</Typography>
                     <Box sx={{ marginLeft: 'auto' }}>
-                        <IconButton
-                            onClick={handleLanguageToggle}
-                            className="language-button"
-                            title={`Switch to ${language === 'en' ? 'Italian' : 'English'}`}
-                        >
+                        <IconButton onClick={handleLanguageToggle} title={`Switch to ${language === 'en' ? 'Italian' : 'English'}`}>
                             <LanguageIcon />
-                            <Typography variant="caption" sx={{ ml: 0.5, fontWeight: 600 }}>
-                                {language.toUpperCase()}
-                            </Typography>
+                            <Typography variant="caption" sx={{ ml: 0.5, fontWeight: 600 }}>{language.toUpperCase()}</Typography>
                         </IconButton>
                     </Box>
                 </Box>
 
                 {/* Filter Toolbar */}
-                <Box
-                    className={`filter-toolbar ${filterCollapsed ? 'collapsed' : ''}`}
-                    onClick={() => filterCollapsed && setFilterCollapsed(false)}
-                >
+                <Box className={`filter-toolbar ${filterCollapsed ? 'collapsed' : ''}`} onClick={() => filterCollapsed && setFilterCollapsed(false)}>
                     <Box className="filter-header">
                         <FilterListIcon fontSize="small" />
                         <Typography variant="subtitle2">{t('filters.title')}</Typography>
                         <Typography variant="caption" sx={{ ml: 'auto', fontStyle: 'italic', opacity: 0.7 }}>
                             {selectedTypes.length === 0 && selectedCities.length === 0 ? t('filters.showingAll') : t('filters.filtered')}
                         </Typography>
+                        {/* Clear All Button */}
+                        <IconButton
+                            size="small"
+                            onClick={clearFilters}
+                            title={t('filters.clearAll')}
+                            sx={{ ml: 1 }}
+                        >
+                            <Typography variant="caption" sx={{ fontWeight: 400, fontStyle: 'Italic' }}>{t('filters.clearAll')}</Typography>
+                        </IconButton>
                     </Box>
 
-                    {/* Content Type Filter */}
+                    {/* Type Filter */}
                     <Box>
-                        <Typography variant="caption" sx={{ fontWeight: 600, mb: 0.5, display: 'block' }}>
-                            {t('filters.contentType')}
-                        </Typography>
-                        <ToggleButtonGroup
-                            value={selectedTypes}
-                            onChange={handleTypeToggle}
-                            aria-label="content type filter"
-                            size="small"
-                            className="filter-toggle-group"
-                        >
-                            <ToggleButton value="article" aria-label="articles" className="filter-toggle">
-                                <ArticleIcon fontSize="small" />
-                                <span>{t('contentTypes.articles')}</span>
-                            </ToggleButton>
-                            <ToggleButton value="event" aria-label="events" className="filter-toggle">
-                                <EventIcon fontSize="small" />
-                                <span>{t('contentTypes.events')}</span>
-                            </ToggleButton>
-                            <ToggleButton value="route" aria-label="routes" className="filter-toggle">
-                                <MapIcon fontSize="small" />
-                                <span>{t('contentTypes.routes')}</span>
-                            </ToggleButton>
+                        <Typography variant="caption" sx={{ fontWeight: 600, mb: 0.5, display: 'block' }}>{t('filters.contentType')}</Typography>
+                        <ToggleButtonGroup value={selectedTypes} onChange={handleTypeToggle} aria-label="content type filter" size="small" className="filter-toggle-group">
+                            <ToggleButton value="article" aria-label="articles" className="filter-toggle"><ArticleIcon fontSize="small" /><span>{t('contentTypes.articles')}</span></ToggleButton>
+                            <ToggleButton value="event" aria-label="events" className="filter-toggle"><EventIcon fontSize="small" /><span>{t('contentTypes.events')}</span></ToggleButton>
+                            <ToggleButton value="route" aria-label="routes" className="filter-toggle"><MapIcon fontSize="small" /><span>{t('contentTypes.routes')}</span></ToggleButton>
                         </ToggleButtonGroup>
                     </Box>
 
                     {/* City Filter */}
                     {allMunicipalities.length > 0 && (
                         <Box>
-                            <Typography variant="caption" sx={{ fontWeight: 600, mb: 0.5, display: 'block' }}>
-                                {t('filters.municipality')}
-                            </Typography>
+                            <Typography variant="caption" sx={{ fontWeight: 600, mb: 0.5, display: 'block' }}>{t('filters.municipality')}</Typography>
                             <Autocomplete
                                 multiple
                                 options={allMunicipalities}
                                 value={selectedCities}
                                 onChange={handleCityChange}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        placeholder={selectedCities.length === 0 ? t('filters.allMunicipalities') : ""}
-                                        size="small"
-                                        className="city-autocomplete"
-                                    />
-                                )}
-                                sx={{
-                                    '& .MuiOutlinedInput-root': {
-                                        borderRadius: '999px',
-                                        backgroundColor: 'var(--surface)',
-                                        border: '2px solid var(--teal)',
-                                        '&:hover': {
-                                            backgroundColor: 'rgba(46, 196, 182, 0.05)',
-                                        },
-                                        '&.Mui-focused': {
-                                            backgroundColor: 'var(--surface)',
-                                            boxShadow: '0 4px 12px rgba(46, 196, 182, 0.2)',
-                                        },
-                                        '& fieldset': {
-                                            border: 'none',
-                                        },
-                                    },
-                                    '& .MuiAutocomplete-tag': {
-                                        borderRadius: '999px',
-                                        background: 'linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%)',
-                                        color: '#ffffff',
-                                        border: '2px solid var(--dark)',
-                                        fontWeight: 600,
-                                    },
-                                    '& .MuiChip-deleteIcon': {
-                                        color: '#ffffff',
-                                        '&:hover': {
-                                            color: 'rgba(255, 255, 255, 0.8)',
-                                        },
-                                    },
-                                }}
+                                renderInput={(params) => <TextField {...params} placeholder={selectedCities.length === 0 ? t('filters.allMunicipalities') : ""} size="small" className="city-autocomplete" />}
                             />
                         </Box>
                     )}
+
+                    <Box sx={{ mt: 1 }}>
+                        <Typography variant="caption" sx={{ fontWeight: 600, mb: 0.5, display: 'block' }}>Consigli</Typography>
+                        <ToggleButtonGroup
+                            value={recommendationFilter}
+                            exclusive
+                            onChange={handleRecommendationToggle}
+                            size="small"
+                            className="filter-toggle-group"
+                        >
+                            <ToggleButton value="all" className="filter-toggle">Tutti</ToggleButton>
+                            <ToggleButton value="recommended" className="filter-toggle">Consigliati per te</ToggleButton>
+                            <ToggleButton value="mightLike" className="filter-toggle">Potrebbero interessarti</ToggleButton>
+                        </ToggleButtonGroup>
+                    </Box>
                 </Box>
 
+                {/* Feed */}
                 <Box className="scrollable-content">
-                    {loading && (
-                        <Box className="loading">
-                            <CircularProgress size={24} />
-                            <Typography variant="body2">{t('messages.loading')}</Typography>
-                        </Box>
-                    )}
-
+                    {loading && <CircularProgress />}
                     {error && <Alert severity="error">{error}</Alert>}
-
                     {!loading && !error && (
                         <>
-                            {filteredContent.length > 0 ? (
-                                <Box className="content-grid">
-                                    {filteredContent.map((item) => (
-                                        <Card
-                                            key={item.id ?? item.Id}
-                                            className="content-card"
-                                            onClick={() => handleCardClick(item)}
-                                        >
-                                            <Box className="card-type-badge">
-                                                {getContentIcon(item.contentType)}
-                                                <Typography variant="caption">
-                                                    {getContentLabel(item.contentType)}
-                                                </Typography>
-                                            </Box>
-                                            <CardMedia
-                                                component="img"
-                                                image={buildMediaUrl(item.imagePath ?? item.ImagePath ?? item.primaryImage ?? item.PrimaryImage)}
-                                                alt={item.title ?? item.name}
-                                                className="card-image"
-                                            />
-                                            <CardContent className="card-content">
-                                                <Typography variant="body2" className="card-title">
-                                                    {item.title ?? item.name}
-                                                </Typography>
-                                                {getCardDetails(item)}
-                                            </CardContent>
-                                        </Card>
-                                    ))}
-                                </Box>
-                            ) : (
-                                <Alert severity="info">{t('messages.noActivities')}</Alert>
+                            {sortedContent.some(item => (scoreMap[item.id ?? item.Id ?? item.identifier] ?? 0) >= 0.5) && (
+                                <>
+                                    <Typography variant="h6" className="recommended-title">{t('home.recommendedForYou')}</Typography>
+                                    <Box className="content-grid">
+                                        {sortedContent.filter(item => (scoreMap[item.id ?? item.Id ?? item.identifier] ?? 0) >= 0.5).map(item => (
+                                            <Card key={item.id ?? item.Id} className="content-card" onClick={() => handleCardClick(item)}>
+                                                <Box className="card-type-badge">{getContentIcon(item.contentType)}<Typography variant="caption">{getContentLabel(item.contentType)}</Typography></Box>
+                                                <CardMedia component="img" image={buildMediaUrl(item.imagePath ?? item.ImagePath ?? item.primaryImage ?? item.PrimaryImage)} alt={item.title ?? item.name} className="card-image" />
+                                                <CardContent className="card-content">
+                                                    <Typography variant="body2" className="card-title">{item.title ?? item.name}</Typography>
+                                                    {getCardDetails(item)}
+                                                </CardContent>
+                                            </Card>
+                                        ))}
+                                    </Box>
+                                </>
                             )}
+
+                            {sortedContent.some(item => (scoreMap[item.id ?? item.Id ?? item.identifier] ?? 0) < 0.5) && (
+                                <>
+                                    <Typography variant="h6" className="recommended-title">{t('home.mightLike')}</Typography>
+                                    <Box className="content-grid">
+                                        {sortedContent.filter(item => (scoreMap[item.id ?? item.Id ?? item.identifier] ?? 0) < 0.5).map(item => (
+                                            <Card key={item.id ?? item.Id} className="content-card" onClick={() => handleCardClick(item)}>
+                                                <Box className="card-type-badge">{getContentIcon(item.contentType)}<Typography variant="caption">{getContentLabel(item.contentType)}</Typography></Box>
+                                                <CardMedia component="img" image={buildMediaUrl(item.imagePath ?? item.ImagePath ?? item.primaryImage ?? item.PrimaryImage)} alt={item.title ?? item.name} className="card-image" />
+                                                <CardContent className="card-content">
+                                                    <Typography variant="body2" className="card-title">{item.title ?? item.name}</Typography>
+                                                    {getCardDetails(item)}
+                                                </CardContent>
+                                            </Card>
+                                        ))}
+                                    </Box>
+                                </>
+                            )}
+
+                            {sortedContent.length === 0 && <Alert severity="info">{t('messages.noActivities')}</Alert>}
                         </>
                     )}
                 </Box>

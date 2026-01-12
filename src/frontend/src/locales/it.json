@@ -8,7 +8,8 @@
     "filtered": "Filtrato",
     "contentType": "Tipo di contenuto:",
     "municipality": "Comune:",
-    "allMunicipalities": "Tutti i comuni"
+    "allMunicipalities": "Tutti i comuni",
+    "clearAll": "Cancella tutto"
   },
   "contentTypes": {
     "articles": "Articoli",
@@ -30,5 +31,10 @@
   },
   "language": {
     "switchTo": "Passa a {{lang}}"
+  },
+  "home": {
+    "recommendedForYou": "Consigliati per te",
+    "otherRecommendations": "Altri consigli",
+    "mightLike": "Potrebbero interessarti…"
   }
 }

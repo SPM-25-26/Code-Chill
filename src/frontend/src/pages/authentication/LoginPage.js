@@ -43,7 +43,7 @@ export default function LoginPage() {
       });
 
       const answers = res.data?.answers ?? {};
-      const skipped = res.data?.skipped ?? false; 
+      const skipped = res.data?.skipped ?? false;
 
       if (!answers || Object.keys(answers).length === 0 || skipped) {
         navigate('/login/preferences-intro');
@@ -59,7 +59,35 @@ export default function LoginPage() {
     }
   };
 
-  // Gestione login
+  /**
+   * Load user preferences and store them in localStorage
+   * @param {*} token - JWT token for authentication
+   */
+  const loadPreferences = async (token) => {
+    try {
+      const res = await instance.get('/api/preferences/response', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      console.log('Preferences response:', res.data);
+
+      const derived = res.data?.derivedPreferences ?? {};
+      const skipped = res.data?.skipped ?? false;
+
+      if (Object.keys(derived).length > 0 && !skipped) {
+        localStorage.setItem('preference-wizard', JSON.stringify(derived));
+        localStorage.setItem('has-preferences', 'true');
+        console.log('Loaded preferences:', derived);
+      } else {
+        localStorage.removeItem('preference-wizard');
+        localStorage.setItem('has-preferences', 'false');
+      }
+    } catch (err) {
+      localStorage.removeItem('preference-wizard');
+      localStorage.setItem('has-preferences', 'false');
+    }
+  };
+
+
   const onSubmit = async (data) => {
     setLoading(true);
     setErrorMessage('');
@@ -76,7 +104,10 @@ export default function LoginPage() {
         localStorage.setItem('refreshTokenExpiresAt', refreshTokenExpiresAt);
         if (userName) localStorage.setItem('username', userName);
 
-        // Controlla preferenze
+        // Load user preferences
+        await loadPreferences(token);
+
+        // Check preferences and navigate accordingly
         await checkPreferencesAndNavigate(token);
       } else {
         setErrorMessage(response.data.message || 'Login failed');

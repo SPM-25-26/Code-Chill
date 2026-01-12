@@ -12,7 +12,7 @@ export const useTranslation = () => {
 
     useEffect(() => {
         const handleStorageChange = () => {
-            setLanguageState(localStorage.getItem('language') || 'en');
+            setLanguageState(localStorage.getItem('language') || 'it');
         };
 
         window.addEventListener('storage', handleStorageChange);

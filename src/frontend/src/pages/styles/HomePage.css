@@ -314,6 +314,17 @@
   font-size: 1rem;
 }
 
+.recommended-title {
+    padding-bottom: 8px;
+    padding-top: 8px;
+    color: var(--teal-dark);
+    border-radius: 12px;
+    padding-left: 6px;
+    display: inline-block;
+    transition: color 0.25s ease;
+    font-style: italic;
+}
+
 /* RESPONSIVE BREAKPOINTS */
 @media (max-width: 1024px) {
   .content-grid {

@@ -8,7 +8,8 @@
     "filtered": "Filtered",
     "contentType": "Content Type:",
     "municipality": "Municipality:",
-    "allMunicipalities": "All municipalities"
+    "allMunicipalities": "All municipalities",
+    "clearAll": "Clear all"
   },
   "contentTypes": {
     "articles": "Articles",
@@ -30,5 +31,10 @@
   },
   "language": {
     "switchTo": "Switch to {{lang}}"
+  },
+  "home": {
+    "recommendedForYou": "Recommended for you",
+    "otherRecommendations": "Other recommendations",
+    "mightLike": "You might like…"
   }
 }

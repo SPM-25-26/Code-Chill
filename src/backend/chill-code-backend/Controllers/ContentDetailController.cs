@@ -52,6 +52,16 @@ namespace ChillCodeBackend.Controllers
                 return Ok(ContentDetailDto.FromRoute(route));
             }
 
+            // 4️⃣ POI
+            var poi = await _dbContext.PointsOfInterest
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Identifier == id, ct);
+
+            if (poi != null)
+            {
+                return Ok(ContentDetailDto.FromPoi(poi));
+            }
+
             return NotFound($"Content with id '{id}' not found.");
         }
     }

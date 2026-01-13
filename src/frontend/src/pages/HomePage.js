@@ -33,6 +33,15 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import RouteIcon from '@mui/icons-material/Route';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import PlaceIcon from '@mui/icons-material/Place';
+import RestaurantIcon from '@mui/icons-material/Restaurant';
+import MuseumIcon from '@mui/icons-material/Museum';
+import ParkIcon from '@mui/icons-material/Park';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
+import HotelIcon from '@mui/icons-material/Hotel';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import BuildIcon from '@mui/icons-material/Build';
+import TheaterComedyIcon from '@mui/icons-material/TheaterComedy';
 
 import logoPng from '../assets/SPM-Logo.png';
 import instance from '../utilities/Utilities.js';
@@ -88,6 +97,7 @@ export default function HomePage() {
                     data.articles?.forEach(article => combinedContent.push({ ...article, contentType: 'article', municipality }));
                     data.events?.forEach(event => combinedContent.push({ ...event, contentType: 'event', municipality }));
                     data.routes?.forEach(route => combinedContent.push({ ...route, contentType: 'route', municipality }));
+                    data.pois?.forEach(poi => combinedContent.push({ ...poi, contentType: poi.category, municipality }));
                 });
 
                 setAllContent(combinedContent);
@@ -224,7 +234,15 @@ export default function HomePage() {
             case 'article': return <ArticleIcon fontSize="small" />;
             case 'event': return <EventIcon fontSize="small" />;
             case 'route': return <MapIcon fontSize="small" />;
-            default: return null;
+            case 'ArtCulture': return <MuseumIcon fontSize="small" />;
+            case 'EatAndDrink': return <RestaurantIcon fontSize="small" />;
+            case 'EntertainmentLeisure': return <TheaterComedyIcon fontSize="small" />;
+            case 'Nature': return <ParkIcon fontSize="small" />;
+            case 'Services': return <BuildIcon fontSize="small" />;
+            case 'Shopping': return <ShoppingBagIcon fontSize="small" />;
+            case 'Sleep': return <HotelIcon fontSize="small" />;
+            case 'TypicalProducts': return <LocalOfferIcon fontSize="small" />;
+            default: return <PlaceIcon fontSize="small" />;
         }
     };
 
@@ -233,6 +251,14 @@ export default function HomePage() {
             case 'article': return t('contentTypes.article');
             case 'event': return t('contentTypes.event');
             case 'route': return t('contentTypes.route');
+            case 'ArtCulture': return t('poiCategories.artCulture');
+            case 'EatAndDrink': return t('poiCategories.eatAndDrink');
+            case 'EntertainmentLeisure': return t('poiCategories.entertainmentLeisure');
+            case 'Nature': return t('poiCategories.nature');
+            case 'Services': return t('poiCategories.services');
+            case 'Shopping': return t('poiCategories.shopping');
+            case 'Sleep': return t('poiCategories.sleep');
+            case 'TypicalProducts': return t('poiCategories.typicalProducts');
             default: return '';
         }
     };
@@ -264,6 +290,20 @@ export default function HomePage() {
                     <>
                         {item.duration && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><AccessTimeIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary' }}>{item.duration}</Typography></Box>}
                         {item.routeLength && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><RouteIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary' }}>{item.routeLength}</Typography></Box>}
+                    </>
+                );
+            case 'ArtCulture':
+            case 'EatAndDrink':
+            case 'EntertainmentLeisure':
+            case 'Nature':
+            case 'Services':
+            case 'Shopping':
+            case 'Sleep':
+            case 'TypicalProducts':
+                return (
+                    <>
+                        {item.typology && <Typography variant="caption" sx={{ display: 'block', mb: 0.5, color: 'text.secondary' }}>{item.typology}</Typography>}
+                        {item.address && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><LocationOnIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.address}</Typography></Box>}
                     </>
                 );
             default: return null;
@@ -344,6 +384,14 @@ export default function HomePage() {
                             <ToggleButton value="article" aria-label="articles" className="filter-toggle"><ArticleIcon fontSize="small" /><span>{t('contentTypes.articles')}</span></ToggleButton>
                             <ToggleButton value="event" aria-label="events" className="filter-toggle"><EventIcon fontSize="small" /><span>{t('contentTypes.events')}</span></ToggleButton>
                             <ToggleButton value="route" aria-label="routes" className="filter-toggle"><MapIcon fontSize="small" /><span>{t('contentTypes.routes')}</span></ToggleButton>
+                            <ToggleButton value="ArtCulture" aria-label="art-culture" className="filter-toggle"><MuseumIcon fontSize="small" /><span>{t('poiCategories.artCulture')}</span></ToggleButton>
+                            <ToggleButton value="EatAndDrink" aria-label="eat-drink" className="filter-toggle"><RestaurantIcon fontSize="small" /><span>{t('poiCategories.eatAndDrink')}</span></ToggleButton>
+                            <ToggleButton value="EntertainmentLeisure" aria-label="entertainment" className="filter-toggle"><TheaterComedyIcon fontSize="small" /><span>{t('poiCategories.entertainmentLeisure')}</span></ToggleButton>
+                            <ToggleButton value="Nature" aria-label="nature" className="filter-toggle"><ParkIcon fontSize="small" /><span>{t('poiCategories.nature')}</span></ToggleButton>
+                            <ToggleButton value="Services" aria-label="services" className="filter-toggle"><BuildIcon fontSize="small" /><span>{t('poiCategories.services')}</span></ToggleButton>
+                            <ToggleButton value="Shopping" aria-label="shopping" className="filter-toggle"><ShoppingBagIcon fontSize="small" /><span>{t('poiCategories.shopping')}</span></ToggleButton>
+                            <ToggleButton value="Sleep" aria-label="sleep" className="filter-toggle"><HotelIcon fontSize="small" /><span>{t('poiCategories.sleep')}</span></ToggleButton>
+                            <ToggleButton value="TypicalProducts" aria-label="typical-products" className="filter-toggle"><LocalOfferIcon fontSize="small" /><span>{t('poiCategories.typicalProducts')}</span></ToggleButton>
                         </ToggleButtonGroup>
                     </Box>
 

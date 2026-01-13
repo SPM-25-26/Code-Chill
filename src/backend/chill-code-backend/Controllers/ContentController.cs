@@ -23,11 +23,13 @@ namespace ChillCodeBackend.Controllers
             var articleNames = _dbContext.Articles.Select(a => a.MunicipalityData.Name);
             var eventNames = _dbContext.Events.Select(e => e.MunicipalityData.Name);
             var routeNames = _dbContext.Routes.Select(r => r.MunicipalityData.Name);
+            var poiNames = _dbContext.PointsOfInterest.Select(p => p.MunicipalityData.Name);
             var muniNames = _dbContext.Municipalities.Select(m => m.Name);
 
             var names = await articleNames
                 .Concat(eventNames)
                 .Concat(routeNames)
+                .Concat(poiNames)
                 .Concat(muniNames)
                 .Where(n => !string.IsNullOrWhiteSpace(n))
                 .Distinct()
@@ -98,12 +100,29 @@ namespace ChillCodeBackend.Controllers
                 })
                 .ToListAsync(ct);
 
+            // POIs
+            var pois = await _dbContext.PointsOfInterest
+                .AsNoTracking()
+                .Where(p => p.MunicipalityData.Name == normalized && p.Language == lang)
+                .Select(p => new PoiDto
+                {
+                    Id = p.Identifier,
+                    Title = !string.IsNullOrWhiteSpace(p.Title) ? p.Title : p.OfficialName,
+                    Category = p.Category.ToString(),
+                    Description = p.Description,
+                    Address = p.Address,
+                    Typology = p.Typology,
+                    PrimaryImage = p.PrimaryImage
+                })
+                .ToListAsync(ct);
+
             return Ok(new MunicipalityContentDto
             {
                 Municipality = normalized,
                 Articles = articles,
                 Events = events,
-                Routes = routes
+                Routes = routes,
+                Pois = pois
             });
         }
     }

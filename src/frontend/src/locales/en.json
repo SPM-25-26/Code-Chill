@@ -19,6 +19,16 @@
     "event": "Event",
     "route": "Route"
   },
+  "poiCategories": {
+    "artCulture": "Art & Culture",
+    "eatAndDrink": "Eat & Drink",
+    "entertainmentLeisure": "Entertainment",
+    "nature": "Nature",
+    "services": "Services",
+    "shopping": "Shopping",
+    "sleep": "Accommodation",
+    "typicalProducts": "Local Products"
+  },
   "menu": {
     "preferences": "Preferences",
     "adminIngestion": "Admin Ingestion",

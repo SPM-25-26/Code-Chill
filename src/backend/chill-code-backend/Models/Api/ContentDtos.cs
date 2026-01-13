@@ -6,6 +6,7 @@ namespace ChillCodeBackend.Models.Api
         public List<ArticleDto> Articles { get; set; } = new();
         public List<EventDto> Events { get; set; } = new();
         public List<RouteDto> Routes { get; set; } = new();
+        public List<PoiDto> Pois { get; set; } = new();
     }
 
     public class ArticleDto
@@ -38,6 +39,17 @@ namespace ChillCodeBackend.Models.Api
         public string Duration { get; set; } = string.Empty;
         public string RouteLength { get; set; } = string.Empty;
         public string ImagePath { get; set; } = string.Empty;
+    }
+
+    public class PoiDto
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string Category { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string Typology { get; set; } = string.Empty;
+        public string PrimaryImage { get; set; } = string.Empty;
     }
 }
 

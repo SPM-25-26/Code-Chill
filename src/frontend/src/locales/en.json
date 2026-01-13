@@ -40,9 +40,10 @@
   },
   "chatBot": {
     "AIAssistant": "AI Assistant",
-    "chatWithBot": "Chat with our virtual assistant for personalized suggestions!",
-    "replyPlaceholder": "Sorry, I cannot answer complex questions yet 😅",
+    "chatWithBot": "Chat with our virtual assistant for personalized suggestions",
     "inputPlaceholder": "Type a message...",
-    "sendButton": "Send"
+    "sendButton": "Send",
+    "defaultResponse": "I'm still learning 🙂 Try asking me something simple!",
+    "newChat": "Initiate a new chat"
   }
 }

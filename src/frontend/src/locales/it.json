@@ -40,9 +40,10 @@
   },
   "chatBot": {
     "AIAssistant": "Assistente AI",
-    "chatWithBot": "Chatta con il nostro assistente virtuale per suggerimenti personalizzati!",
-    "replyPlaceholder": "Mi dispiace, non posso ancora rispondere a domande complesse 😅",
+    "chatWithBot": "Chatta con il nostro assistente virtuale per suggerimenti personalizzati",
     "inputPlaceholder": "Scrivi un messaggio...",
-    "sendButton": "Invia"
+    "sendButton": "Invia",
+    "defaultResponse": "Sto ancora imparando 🙂 Prova a chiedermi qualcosa di semplice!",
+    "newChat": "Inizia una nuova chat"
   }
 }

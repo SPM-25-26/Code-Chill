@@ -36,9 +36,13 @@ namespace ChillCodeBackend.Services.Ingestion
                 throw new ArgumentException("Municipality is required", nameof(municipality));
             }
 
+            // Normalize municipality name by removing "Comune di" prefix at the start
+            // This ensures the API returns the correct response with both names
+            var normalizedMunicipality = NormalizeMunicipalityName(municipality);
+
             var result = new IngestionResult
             {
-                Municipality = municipality.Trim(),
+                Municipality = normalizedMunicipality,
                 Language = language,
             };
 
@@ -46,14 +50,20 @@ namespace ChillCodeBackend.Services.Ingestion
             {
                 _logger.LogInformation(
                     "Starting ingestion for municipality {Municipality}",
-                    municipality
+                    normalizedMunicipality
                 );
 
+                // Municipality Visit API needs the short name (without "Comune di")
+                // API then returns: name = "Castignano", legalName = "Comune di Castignano"
                 var municipalityVisit = await _apiService.GetMunicipalityVisitAsync(
-                    municipality,
+                    normalizedMunicipality,
                     language,
                     cancellationToken
                 );
+
+                // Use the short name from the API response for POI card endpoints
+                var municipalityShortName = municipalityVisit.Name ?? normalizedMunicipality;
+
                 // Persisted entities use the municipality "display name" (from the API payload),
                 // so we align the result to that as well (useful for verification/logging).
                 if (!string.IsNullOrWhiteSpace(municipalityVisit.Name))
@@ -61,19 +71,19 @@ namespace ChillCodeBackend.Services.Ingestion
                     result.Municipality = municipalityVisit.Name!;
                 }
                 await _persistence.PersistMunicipalityVisitAsync(
-                    municipality,
+                    normalizedMunicipality,
                     municipalityVisit,
                     cancellationToken
                 );
                 _logger.LogInformation(
                     "Fetched municipality profile for {Municipality}: {MunicipalityName}",
-                    municipality,
-                    municipalityVisit.Name ?? municipality
+                    normalizedMunicipality,
+                    municipalityVisit.Name ?? normalizedMunicipality
                 );
 
                 var municipalityInfo = new Models.Entities.MunicipalityInfo
                 {
-                    Name = municipalityVisit.Name ?? municipality.Trim(),
+                    Name = municipalityVisit.Name ?? normalizedMunicipality,
                     LogoPath = municipalityVisit.LogoPath ?? string.Empty,
                 };
 
@@ -138,10 +148,77 @@ namespace ChillCodeBackend.Services.Ingestion
                 result.ArticleCount = articleDetails.Count;
                 _logger.LogInformation("Fetched {Count} article details", articleDetails.Count);
 
+                // POIs - Load cards for each category and then fetch details
+                // Use short name (without "Comune di") for POI card endpoints
+                await IngestPoiCategoryAsync(
+                    UnicamPoiCategory.ArtCulture,
+                    municipalityShortName,
+                    language,
+                    municipalityInfo,
+                    result,
+                    cancellationToken
+                );
+                await IngestPoiCategoryAsync(
+                    UnicamPoiCategory.EatAndDrink,
+                    municipalityShortName,
+                    language,
+                    municipalityInfo,
+                    result,
+                    cancellationToken
+                );
+                await IngestPoiCategoryAsync(
+                    UnicamPoiCategory.EntertainmentLeisure,
+                    municipalityShortName,
+                    language,
+                    municipalityInfo,
+                    result,
+                    cancellationToken
+                );
+                await IngestPoiCategoryAsync(
+                    UnicamPoiCategory.Nature,
+                    municipalityShortName,
+                    language,
+                    municipalityInfo,
+                    result,
+                    cancellationToken
+                );
+                await IngestPoiCategoryAsync(
+                    UnicamPoiCategory.Services,
+                    municipalityShortName,
+                    language,
+                    municipalityInfo,
+                    result,
+                    cancellationToken
+                );
+                await IngestPoiCategoryAsync(
+                    UnicamPoiCategory.Shopping,
+                    municipalityShortName,
+                    language,
+                    municipalityInfo,
+                    result,
+                    cancellationToken
+                );
+                await IngestPoiCategoryAsync(
+                    UnicamPoiCategory.Sleep,
+                    municipalityShortName,
+                    language,
+                    municipalityInfo,
+                    result,
+                    cancellationToken
+                );
+                await IngestPoiCategoryAsync(
+                    UnicamPoiCategory.TypicalProducts,
+                    municipalityShortName,
+                    language,
+                    municipalityInfo,
+                    result,
+                    cancellationToken
+                );
+
                 result.CompletedAt = DateTimeOffset.UtcNow;
                 _logger.LogInformation(
                     "Ingestion finished for municipality {Municipality}. Total POIs {Poi}, Events {Events}, Organizations {Orgs}, Routes {Routes}, Articles {Articles}",
-                    municipality,
+                    normalizedMunicipality,
                     result.TotalPoiCount,
                     result.EventCount,
                     result.OrganizationCount,
@@ -154,7 +231,7 @@ namespace ChillCodeBackend.Services.Ingestion
                 _logger.LogError(
                     ex,
                     "Ingestion failed for municipality {Municipality}",
-                    municipality
+                    normalizedMunicipality
                 );
                 result.Errors.Add(ex.Message);
             }
@@ -256,7 +333,8 @@ namespace ChillCodeBackend.Services.Ingestion
 
                 try
                 {
-                    var node = JsonNode.Parse(detail.GetRawText()) as JsonObject ?? new JsonObject();
+                    var node =
+                        JsonNode.Parse(detail.GetRawText()) as JsonObject ?? new JsonObject();
                     node["entityId"] = highlightId;
                     var merged = JsonDocument.Parse(node.ToJsonString()).RootElement;
                     mapped.Add(merged);
@@ -268,6 +346,166 @@ namespace ChillCodeBackend.Services.Ingestion
             }
 
             return mapped;
+        }
+
+        private async Task IngestPoiCategoryAsync(
+            UnicamPoiCategory category,
+            string municipality,
+            string language,
+            Models.Entities.MunicipalityInfo municipalityInfo,
+            IngestionResult result,
+            CancellationToken cancellationToken
+        )
+        {
+            try
+            {
+                _logger.LogInformation(
+                    "Fetching {Category} POI cards for {Municipality}",
+                    category,
+                    municipality
+                );
+
+                // Get list of POI cards
+                var cardsResponse = await _apiService.GetPoiCardsAsync(
+                    category,
+                    municipality,
+                    language,
+                    cancellationToken
+                );
+
+                // Parse cards to extract entity IDs
+                var cards = new List<UnicamPoiCard>();
+                if (cardsResponse.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var card in cardsResponse.EnumerateArray())
+                    {
+                        var poiCard = JsonSerializer.Deserialize<UnicamPoiCard>(card.GetRawText());
+                        if (poiCard != null && !string.IsNullOrWhiteSpace(poiCard.EntityId))
+                        {
+                            cards.Add(poiCard);
+                        }
+                    }
+                }
+
+                _logger.LogInformation(
+                    "Found {Count} {Category} POI cards for {Municipality}",
+                    cards.Count,
+                    category,
+                    municipality
+                );
+
+                // Fetch details for each POI
+                var details = new List<JsonElement>();
+                var skipped = 0;
+                foreach (var card in cards)
+                {
+                    if (string.IsNullOrWhiteSpace(card.EntityId))
+                    {
+                        continue;
+                    }
+
+                    cancellationToken.ThrowIfCancellationRequested();
+                    try
+                    {
+                        var detail = await _apiService.GetPoiDetailAsync(
+                            category,
+                            card.EntityId,
+                            language,
+                            cancellationToken
+                        );
+                        details.Add(detail);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        throw;
+                    }
+                    catch (UnicamApiException ex)
+                    {
+                        skipped++;
+                        _logger.LogWarning(
+                            ex,
+                            "Skipping detail for {Category} POI {EntityId} due to Unicam API error.",
+                            category,
+                            card.EntityId
+                        );
+                    }
+                    catch (Exception ex)
+                    {
+                        skipped++;
+                        _logger.LogWarning(
+                            ex,
+                            "Skipping detail for {Category} POI {EntityId} due to unexpected error.",
+                            category,
+                            card.EntityId
+                        );
+                    }
+                }
+
+                if (skipped > 0)
+                {
+                    _logger.LogInformation(
+                        "Skipped {Skipped} {Category} POI detail requests due to errors.",
+                        skipped,
+                        category
+                    );
+                }
+
+                // Persist POI details
+                if (details.Count > 0)
+                {
+                    await _persistence.PersistPoiDetailsAsync(
+                        details,
+                        category,
+                        municipalityInfo,
+                        language,
+                        cancellationToken
+                    );
+                    result.TotalPoiCount += details.Count;
+                }
+
+                _logger.LogInformation(
+                    "Fetched {Count} {Category} POI details for {Municipality}",
+                    details.Count,
+                    category,
+                    municipality
+                );
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed to ingest {Category} POIs for municipality {Municipality}",
+                    category,
+                    municipality
+                );
+                // Add error to result but don't throw - continue with other categories
+                result.Errors.Add($"Failed to ingest {category} POIs: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Removes the "Comune di" prefix from municipality names at the start of ingestion.
+        /// The API expects the short name (e.g., "Castignano") and then returns both:
+        /// - name: "Castignano" (short name for POI endpoints)
+        /// - legalName: "Comune di Castignano" (official full name)
+        /// </summary>
+        private static string NormalizeMunicipalityName(string municipality)
+        {
+            if (string.IsNullOrWhiteSpace(municipality))
+            {
+                return string.Empty;
+            }
+
+            municipality = municipality.Trim();
+
+            // Remove "Comune di " prefix (case-insensitive)
+            const string prefix = "Comune di ";
+            if (municipality.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                return municipality.Substring(prefix.Length).Trim();
+            }
+
+            return municipality;
         }
     }
 }

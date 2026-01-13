@@ -84,6 +84,7 @@ namespace ChillCodeBackend
             services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IMunicipalityRepository, MunicipalityRepository>();
             services.AddScoped<IRouteRepository, RouteRepository>();
+            services.AddScoped<IPointOfInterestRepository, PointOfInterestRepository>();
             services.AddScoped<IPreferenceRepository, PreferenceRepository>();
             services.AddScoped<IPreferenceResponseRepository, PreferenceResponseRepository>();
             services.AddScoped<IPreferenceScoringService, PreferenceScoringService>();

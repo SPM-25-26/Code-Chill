@@ -14,17 +14,20 @@ namespace ChillCodeBackend.Services.Ingestion
         private readonly IArticleRepository _articleStoreRepository;
         private readonly IEventRepository _eventRepository;
         private readonly IRouteRepository _routeRepository;
+        private readonly IPointOfInterestRepository _poiRepository;
         private readonly ArticleMapper _articleMapper;
         private readonly MunicipalityMapper _municipalityMapper;
         private readonly EventMapper _eventMapper;
         private readonly RouteMapper _routeMapper;
+        private readonly PointOfInterestMapper _poiMapper;
 
         public IngestionPersistence(
             ILogger<IngestionPersistence> logger,
             IMunicipalityRepository municipalityRepository,
             IArticleRepository articleStoreRepository,
             IEventRepository eventRepository,
-            IRouteRepository routeRepository
+            IRouteRepository routeRepository,
+            IPointOfInterestRepository poiRepository
         )
         {
             _logger = logger;
@@ -32,10 +35,12 @@ namespace ChillCodeBackend.Services.Ingestion
             _articleStoreRepository = articleStoreRepository;
             _eventRepository = eventRepository;
             _routeRepository = routeRepository;
+            _poiRepository = poiRepository;
             _articleMapper = new ArticleMapper();
             _municipalityMapper = new MunicipalityMapper();
             _eventMapper = new EventMapper();
             _routeMapper = new RouteMapper();
+            _poiMapper = new PointOfInterestMapper();
         }
 
         public Task PersistMunicipalityVisitAsync(
@@ -50,15 +55,30 @@ namespace ChillCodeBackend.Services.Ingestion
 
         public Task PersistPoiDetailsAsync(
             IEnumerable<JsonElement> items,
+            UnicamPoiCategory category,
+            MunicipalityInfo municipalityInfo,
+            string language,
             CancellationToken cancellationToken
         )
         {
-            // Intentionally omitted: current municipality does not expose POI detail data; add mapping/persistence when needed for other cities.
-            _logger.LogInformation(
-                "Skipping persistence for {Count} POI detail records (no-op).",
-                items.Count()
-            );
-            return Task.CompletedTask;
+            // Convert UnicamPoiCategory to MobileCategory
+            var mobileCategory = category switch
+            {
+                UnicamPoiCategory.ArtCulture => MobileCategory.ArtCulture,
+                UnicamPoiCategory.EatAndDrink => MobileCategory.EatAndDrink,
+                UnicamPoiCategory.EntertainmentLeisure => MobileCategory.EntertainmentLeisure,
+                UnicamPoiCategory.Nature => MobileCategory.Nature,
+                UnicamPoiCategory.Services => MobileCategory.Services,
+                UnicamPoiCategory.Shopping => MobileCategory.Shopping,
+                UnicamPoiCategory.Sleep => MobileCategory.Sleep,
+                UnicamPoiCategory.TypicalProducts => MobileCategory.TypicalProducts,
+                _ => throw new ArgumentOutOfRangeException(nameof(category), category, null),
+            };
+
+            var pois = _poiMapper.MapPointsOfInterest(items, mobileCategory).ToList();
+            ApplyMunicipalityFallback(pois, municipalityInfo);
+            ApplyLanguage(pois, language);
+            return PersistPointsOfInterestAsync(pois, cancellationToken);
         }
 
         public Task PersistEventDetailsAsync(
@@ -113,10 +133,7 @@ namespace ChillCodeBackend.Services.Ingestion
             return PersistArticlesAsync(articles, cancellationToken);
         }
 
-        private static void ApplyLanguage(
-            IEnumerable<Article> items,
-            string language
-        )
+        private static void ApplyLanguage(IEnumerable<Article> items, string language)
         {
             foreach (var item in items)
             {
@@ -124,10 +141,7 @@ namespace ChillCodeBackend.Services.Ingestion
             }
         }
 
-        private static void ApplyLanguage(
-            IEnumerable<Event> items,
-            string language
-        )
+        private static void ApplyLanguage(IEnumerable<Event> items, string language)
         {
             foreach (var item in items)
             {
@@ -135,10 +149,15 @@ namespace ChillCodeBackend.Services.Ingestion
             }
         }
 
-        private static void ApplyLanguage(
-            IEnumerable<Models.Entities.Route> items,
-            string language
-        )
+        private static void ApplyLanguage(IEnumerable<Models.Entities.Route> items, string language)
+        {
+            foreach (var item in items)
+            {
+                item.Language = language;
+            }
+        }
+
+        private static void ApplyLanguage(IEnumerable<PointOfInterest> items, string language)
         {
             foreach (var item in items)
             {
@@ -170,6 +189,17 @@ namespace ChillCodeBackend.Services.Ingestion
 
         private static void ApplyMunicipalityFallback(
             IEnumerable<Models.Entities.Route> items,
+            MunicipalityInfo fallback
+        )
+        {
+            foreach (var item in items)
+            {
+                item.MunicipalityData = MergeMunicipalityInfo(item.MunicipalityData, fallback);
+            }
+        }
+
+        private static void ApplyMunicipalityFallback(
+            IEnumerable<PointOfInterest> items,
             MunicipalityInfo fallback
         )
         {
@@ -210,7 +240,10 @@ namespace ChillCodeBackend.Services.Ingestion
             CancellationToken cancellationToken
         )
         {
-            var inserted = await _municipalityRepository.UpsertAsync(municipality, cancellationToken);
+            var inserted = await _municipalityRepository.UpsertAsync(
+                municipality,
+                cancellationToken
+            );
             _logger.LogInformation(
                 "Persisted municipality visit data for {MunicipalityName}. {Operation}.",
                 municipality.Name,
@@ -239,6 +272,19 @@ namespace ChillCodeBackend.Services.Ingestion
             var result = await _routeRepository.UpsertManyAsync(routes, cancellationToken);
             _logger.LogInformation(
                 "Persisted route detail records to the database. Added {Added}, Updated {Updated}.",
+                result.Inserted,
+                result.Updated
+            );
+        }
+
+        private async Task PersistPointsOfInterestAsync(
+            IEnumerable<PointOfInterest> pois,
+            CancellationToken cancellationToken
+        )
+        {
+            var result = await _poiRepository.UpsertManyAsync(pois, cancellationToken);
+            _logger.LogInformation(
+                "Persisted POI detail records to the database. Added {Added}, Updated {Updated}.",
                 result.Inserted,
                 result.Updated
             );

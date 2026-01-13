@@ -24,6 +24,19 @@ namespace ChillCodeBackend.Data.Api
                 [UnicamPoiCategory.TypicalProducts] = "/api/typical-products/detail/",
             };
 
+        private readonly IReadOnlyDictionary<UnicamPoiCategory, string> PoiCardEndpoints =
+            new Dictionary<UnicamPoiCategory, string>
+            {
+                [UnicamPoiCategory.ArtCulture] = "/api/art-culture/card-list",
+                [UnicamPoiCategory.EatAndDrink] = "/api/eat-and-drink/card-list",
+                [UnicamPoiCategory.EntertainmentLeisure] = "/api/entertainment-leisure/card-list",
+                [UnicamPoiCategory.Nature] = "/api/nature/card-list",
+                [UnicamPoiCategory.Services] = "/api/services/card-list",
+                [UnicamPoiCategory.Shopping] = "/api/shopping/card-list",
+                [UnicamPoiCategory.Sleep] = "/api/sleep/card-list",
+                [UnicamPoiCategory.TypicalProducts] = "/api/typical-products/card-list",
+            };
+
         private readonly IUnicamApiProxy _proxy;
         private readonly ILogger<UnicamApiService> _logger;
 
@@ -79,12 +92,42 @@ namespace ChillCodeBackend.Data.Api
             municipality = municipality.Trim();
             language = NormalizeLanguage(language);
 
+            // Municipality visit endpoint uses "city" parameter
             var relativePath = BuildQueryPath(
                 "/api/organizations/municipalities/visit",
                 new Dictionary<string, string?> { ["city"] = municipality, ["language"] = language }
             );
 
             return FetchAndHandleAsync<UnicamMunicipalityVisit>(relativePath, cancellationToken);
+        }
+
+        public Task<JsonElement> GetPoiCardsAsync(
+            UnicamPoiCategory category,
+            string municipality,
+            string language = DefaultLanguage,
+            CancellationToken cancellationToken = default
+        )
+        {
+            if (string.IsNullOrWhiteSpace(municipality))
+            {
+                throw new ArgumentException("Municipality is required", nameof(municipality));
+            }
+
+            // Municipality name should already be normalized (without "Comune di") by the caller
+            municipality = municipality.Trim();
+            language = NormalizeLanguage(language);
+
+            // POI card endpoints use "municipality" parameter
+            var relativePath = BuildQueryPath(
+                PoiCardEndpoints[category],
+                new Dictionary<string, string?>
+                {
+                    ["municipality"] = municipality,
+                    ["language"] = language,
+                }
+            );
+
+            return FetchAndHandleAsync<JsonElement>(relativePath, cancellationToken);
         }
 
         private Task<JsonElement> FetchDetailAsync(
@@ -113,6 +156,9 @@ namespace ChillCodeBackend.Data.Api
             CancellationToken cancellationToken
         )
         {
+            // Log the full path being called
+            _logger.LogInformation("Calling Unicam API: {RelativePath}", relativePath);
+
             try
             {
                 var result = await _proxy.FetchAsAsync<T>(relativePath, cancellationToken);
@@ -124,6 +170,10 @@ namespace ChillCodeBackend.Data.Api
                     );
                 }
 
+                _logger.LogInformation(
+                    "Successfully fetched from Unicam API: {RelativePath}",
+                    relativePath
+                );
                 return result;
             }
             catch (HttpRequestException ex)

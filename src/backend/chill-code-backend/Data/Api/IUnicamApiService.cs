@@ -41,5 +41,13 @@ namespace ChillCodeBackend.Data.Api
             string language = "it",
             CancellationToken cancellationToken = default
         );
+
+        // Card endpoints to get lists of POIs by municipality
+        Task<JsonElement> GetPoiCardsAsync(
+            UnicamPoiCategory category,
+            string municipality,
+            string language = "it",
+            CancellationToken cancellationToken = default
+        );
     }
 }

@@ -152,6 +152,7 @@ export default function HomePage() {
                 res.data?.articles?.forEach(a => map[a.id] = a.score);
                 res.data?.events?.forEach(e => map[e.id] = e.score);
                 res.data?.routes?.forEach(r => map[r.id] = r.score);
+                res.data?.pois?.forEach(p => map[p.id] = p.score);
                 setScoreMap(map);
             } catch (err) {
                 console.error('Failed to load preview', err);

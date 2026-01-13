@@ -8,6 +8,8 @@ namespace ChillCodeBackend.Models.Api
             Array.Empty<ScoredEventDto>();
         public IReadOnlyCollection<ScoredRouteDto> Routes { get; init; } =
             Array.Empty<ScoredRouteDto>();
+        public IReadOnlyCollection<ScoredPoiDto> Pois { get; init; } =
+            Array.Empty<ScoredPoiDto>();
     }
 
     public record ScoredArticleDto
@@ -44,6 +46,17 @@ namespace ChillCodeBackend.Models.Api
         public string RouteLength { get; init; } = string.Empty;
         public string Duration { get; init; } = string.Empty;
         public string? ImagePath { get; init; }
+        public double Score { get; init; }
+    }
+
+    public record ScoredPoiDto
+    {
+        public string Id { get; init; } = string.Empty;
+        public string Title { get; init; } = string.Empty;
+        public string Category { get; init; } = string.Empty;
+        public string Typology { get; init; } = string.Empty;
+        public string Municipality { get; init; } = string.Empty;
+        public string? PrimaryImage { get; init; }
         public double Score { get; init; }
     }
 }

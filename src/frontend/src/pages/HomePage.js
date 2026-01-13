@@ -38,6 +38,9 @@ import logoPng from '../assets/SPM-Logo.png';
 import instance from '../utilities/Utilities.js';
 import { useTranslation } from '../hooks/useTranslation.js';
 import './styles/HomePage.css';
+import Fab from '@mui/material/Fab';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import ChatBotPage from './ChatBotPage.js';
 
 const MEDIA_BASE = 'https://eppoi.io';
 function buildMediaUrl(path) {
@@ -63,12 +66,12 @@ export default function HomePage() {
     const [selectedCities, setSelectedCities] = useState([]);
     const [filterCollapsed, setFilterCollapsed] = useState(false);
     const [recommendationFilter, setRecommendationFilter] = useState('all'); // 'all', 'recommended', 'mightLike'
+    const [chatOpen, setChatOpen] = useState(false);
 
     const authHeaders = useMemo(() => ({
         Authorization: token ? `Bearer ${token}` : undefined,
     }), [token]);
 
-    /** Carica contenuti da tutte le città */
     useEffect(() => {
         const loadData = async () => {
             try {
@@ -101,7 +104,6 @@ export default function HomePage() {
         loadData();
     }, [language]);
 
-    /** Carica preferenze salvate localmente */
     useEffect(() => {
         try {
             const saved = localStorage.getItem('preference-wizard');
@@ -132,7 +134,6 @@ export default function HomePage() {
         return () => window.removeEventListener('preferencesChanged', handlePreferencesChange);
     }, []);
 
-    /** Carica preview con score dal backend */
     useEffect(() => {
         const loadPreview = async () => {
             if (!token) return;
@@ -424,6 +425,25 @@ export default function HomePage() {
                     )}
                 </Box>
             </Box>
+
+
+            <Fab
+                color="primary"
+                aria-label="chatbot"
+                onClick={() => setChatOpen(prev => !prev)}
+                sx={{
+                    position: 'fixed',
+                    bottom: 24,
+                    right: 24,
+                    zIndex: 1300,
+                    backgroundColor: 'var(--teal)',
+                    '&:hover': { backgroundColor: 'var(--teal-dark)' },
+                }}
+            >
+                <SupportAgentIcon fontSize="large" />
+            </Fab>
+
+            <ChatBotPage open={chatOpen} onClose={() => setChatOpen(false)} />
         </Box>
     );
 }

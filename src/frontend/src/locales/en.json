@@ -37,5 +37,12 @@
     "otherRecommendations": "Other recommendations",
     "mightLike": "You might like…",
     "AllActivities": "All activities"
+  },
+  "chatBot": {
+    "AIAssistant": "AI Assistant",
+    "chatWithBot": "Chat with our virtual assistant for personalized suggestions!",
+    "replyPlaceholder": "Sorry, I cannot answer complex questions yet 😅",
+    "inputPlaceholder": "Type a message...",
+    "sendButton": "Send"
   }
 }

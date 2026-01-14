@@ -21,7 +21,7 @@
   },
   "poiCategories": {
     "artCulture": "Arte e Cultura",
-    "eatAndDrink": "Mangiare e Bere",
+    "eatAndDrink": "Ristorazione",
     "entertainmentLeisure": "Intrattenimento",
     "nature": "Natura",
     "services": "Servizi",
@@ -46,6 +46,19 @@
     "recommendedForYou": "Consigliati per te",
     "otherRecommendations": "Altri consigli",
     "mightLike": "Potrebbero interessarti…",
-    "AllActivities": "Tutte le attività"
+    "AllActivities": "Tutte le attività",
+    "OpenGoogleMaps": "Apri in Google Maps",
+    "Location": "Posizione",
+    "contant&social": "Contatti e social",
+    "eventInformation": "Informazioni sull'evento",
+    "routeDetails": "Dettagli del percorso",
+    "bestTimeToVisit": "Periodo migliore per visitare",
+    "themes": "Temi",
+    "methodsOfTravel": "Modalità di viaggio",
+    "stages": "Tappe",
+    "startDate": "Data di inizio",
+    "endDate": "Data di fine",
+    "virtualTour": "Tour virtuale",
+    "viewVirtualTour": "Visualizza tour virtuale"
   }
 }

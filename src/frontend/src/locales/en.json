@@ -21,7 +21,7 @@
   },
   "poiCategories": {
     "artCulture": "Art & Culture",
-    "eatAndDrink": "Eat & Drink",
+    "eatAndDrink": "Restaurant",
     "entertainmentLeisure": "Entertainment",
     "nature": "Nature",
     "services": "Services",
@@ -46,6 +46,19 @@
     "recommendedForYou": "Recommended for you",
     "otherRecommendations": "Other recommendations",
     "mightLike": "You might like…",
-    "AllActivities": "All activities"
+    "AllActivities": "All activities",
+    "OpenGoogleMaps": "Open in Google Maps",
+    "Location": "Location",
+    "contant&social": "Contacts and social",
+    "eventInformation": "Event Information",
+    "routeDetails": "Route Details",
+    "bestTimeToVisit": "Best time to visit",
+    "themes": "Themes",
+    "methodsOfTravel": "Methods of travel",
+    "stages": "Stages",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "virtualTour": "Virtual Tour",
+    "viewVirtualTour": "View virtual tour"
   }
 }

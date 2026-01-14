@@ -126,7 +126,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-weight: 600 !important;
+  font-weight: 400 !important;
   color: var(--dark) !important;
   background-color: var(--surface) !important;
   transition: all 0.2s ease !important;
@@ -368,7 +368,6 @@
 
   .filter-toggle {
     padding: 0.4rem 0.75rem !important;
-    font-size: 0.875rem !important;
   }
 
   .card-type-badge {
@@ -396,6 +395,6 @@
   }
 
   .filter-header {
-    font-size: 0.875rem;
+    font-size: 10px;
   }
 }

@@ -170,6 +170,14 @@ export default function HomePage() {
         return () => scrollContainer.removeEventListener('scroll', handleScroll);
     }, []);
 
+    /**
+     * Close chatbot sidebar when main menu is opened
+     */
+    useEffect(() => {
+        if (open && chatOpen) {
+            setChatOpen(false);
+        }
+    }, [open, chatOpen]);
 
     const filteredContent = useMemo(() => {
         let filtered = allContent;
@@ -435,9 +443,13 @@ export default function HomePage() {
                     position: 'fixed',
                     bottom: 24,
                     right: 24,
-                    zIndex: 1300,
+                    zIndex: open ? 1100 : 1300,
                     backgroundColor: 'var(--teal)',
-                    '&:hover': { backgroundColor: 'var(--teal-dark)' },
+                    '&:hover': {
+                        backgroundColor: open ? 'var(--teal)' : 'var(--teal-dark)',
+                        cursor: open ? 'not-allowed' : 'pointer'
+                    },
+                    pointerEvents: open ? 'none' : 'auto'
                 }}
             >
                 <SupportAgentIcon fontSize="large" />

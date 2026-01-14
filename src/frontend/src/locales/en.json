@@ -39,11 +39,14 @@
     "AllActivities": "All activities"
   },
   "chatBot": {
+    "welcomeMessage": "Hi! I'm your virtual assistant. How can I help you today?",
     "AIAssistant": "AI Assistant",
     "chatWithBot": "Chat with our virtual assistant for personalized suggestions",
     "inputPlaceholder": "Type a message...",
     "sendButton": "Send",
     "defaultResponse": "I'm still learning 🙂 Try asking me something simple!",
-    "newChat": "Initiate a new chat"
+    "newChat": "Initiate a new chat",
+    "offlineMessage": "You are offline. Please try again when connected to the Internet.",
+    "errorMessage": "An error occurred. Please try again later."
   }
 }

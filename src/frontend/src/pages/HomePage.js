@@ -17,7 +17,10 @@ import {
     ToggleButtonGroup,
     ToggleButton,
     Autocomplete,
-    TextField
+    TextField,
+    Tab,
+    Tabs,
+    Pagination
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -71,13 +74,24 @@ export default function HomePage() {
     const [selectedTypes, setSelectedTypes] = useState([]);
     const [selectedCities, setSelectedCities] = useState([]);
     const [filterCollapsed, setFilterCollapsed] = useState(false);
-    const [recommendationFilter, setRecommendationFilter] = useState('all'); // 'all', 'recommended', 'mightLike'
+
+    const [tabValue, setTabValue] = useState('all');
+
+    const ITEMS_PER_PAGE = 18;
+    const [page, setPage] = useState(1);
+    const handleTabChange = (_, newValue) => {
+        setTabValue(newValue);
+        setPage(1);
+    };
+
+    const [userLocation, setUserLocation] = useState(null);
+    const [locationDenied, setLocationDenied] = useState(false);
 
     const authHeaders = useMemo(() => ({
         Authorization: token ? `Bearer ${token}` : undefined,
     }), [token]);
 
-    /** Carica contenuti da tutte le città */
+    /** Load all content for all municipalities */
     useEffect(() => {
         const loadData = async () => {
             try {
@@ -111,7 +125,23 @@ export default function HomePage() {
         loadData();
     }, [language]);
 
-    /** Carica preferenze salvate localmente */
+    /** Get user location */
+    useEffect(() => {
+        if (!navigator.geolocation || userLocation) return;
+
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                setUserLocation({
+                    lat: pos.coords.latitude,
+                    lng: pos.coords.longitude
+                });
+            },
+            () => setLocationDenied(true),
+            { enableHighAccuracy: true, timeout: 5000 }
+        );
+    }, []);
+
+    /** Load saved preferences from localStorage */
     useEffect(() => {
         try {
             const saved = localStorage.getItem('preference-wizard');
@@ -180,6 +210,12 @@ export default function HomePage() {
         return () => scrollContainer.removeEventListener('scroll', handleScroll);
     }, []);
 
+    useEffect(() => {
+        const scrollContainer = document.querySelector('.scrollable-content');
+        if (!scrollContainer) return;
+
+        scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [page, tabValue]);
 
     const filteredContent = useMemo(() => {
         let filtered = allContent;
@@ -201,33 +237,45 @@ export default function HomePage() {
             });
         }
 
-        filtered = filtered.filter(item => {
-            const score = scoreMap[item.id ?? item.Id ?? item.identifier] ?? 0;
-            if (recommendationFilter === 'recommended') return score >= 0.5;
-            if (recommendationFilter === 'mightLike') return score < 0.5;
-            return true; // 'all'
-        });
-
         return filtered;
-    }, [allContent, selectedTypes, selectedCities, preferences, scoreMap, recommendationFilter]);
+    }, [allContent, selectedTypes, selectedCities, preferences]);
 
+    const getTabContent = useMemo(() => {
+        const score = (item) => scoreMap[item.id ?? item.Id ?? item.identifier] ?? 0;
 
-    const handleRecommendationToggle = (_, newValue) => newValue && setRecommendationFilter(newValue);
+        if (tabValue === 'recommended') {
+            return filteredContent.filter(item => score(item) >= 0.5);
+        }
+
+        if (tabValue === 'mightLike') {
+            return filteredContent.filter(item => score(item) < 0.5);
+        }
+
+        return filteredContent;
+    }, [filteredContent, scoreMap, tabValue]);
 
     const sortedContent = useMemo(() => {
-        const withScore = [...filteredContent];
+        const withScore = [...getTabContent];
         const getScore = (item) => {
             const id = item.id ?? item.Id ?? item.identifier;
             return id && scoreMap[id] != null ? scoreMap[id] : 0;
         };
+
         withScore.sort((a, b) => getScore(b) - getScore(a));
         return withScore;
-    }, [filteredContent, scoreMap]);
+    }, [getTabContent, scoreMap]);
+
+    // Paginated content
+    const paginatedContent = useMemo(() => {
+        const start = (page - 1) * ITEMS_PER_PAGE;
+        const end = start + ITEMS_PER_PAGE;
+        return sortedContent.slice(start, end);
+    }, [sortedContent, page]);
 
     const handleLogout = () => { localStorage.clear(); navigate('/login'); };
     const handleCardClick = (item) => { navigate(`/login/content-detail/${item.id ?? item.Id}`); };
-    const handleTypeToggle = (event, newTypes) => setSelectedTypes(newTypes);
-    const handleCityChange = (event, newValue) => setSelectedCities(newValue);
+    const handleTypeToggle = (_, newTypes) => setSelectedTypes(newTypes);
+    const handleCityChange = (_, newValue) => setSelectedCities(newValue);
     const handleLanguageToggle = () => changeLanguage(language === 'en' ? 'it' : 'en');
 
     const getContentIcon = (type) => {
@@ -293,28 +341,20 @@ export default function HomePage() {
                         {item.routeLength && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><RouteIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary' }}>{item.routeLength}</Typography></Box>}
                     </>
                 );
-            case 'ArtCulture':
-            case 'EatAndDrink':
-            case 'EntertainmentLeisure':
-            case 'Nature':
-            case 'Services':
-            case 'Shopping':
-            case 'Sleep':
-            case 'TypicalProducts':
+            default:
                 return (
                     <>
                         {item.typology && <Typography variant="caption" sx={{ display: 'block', mb: 0.5, color: 'text.secondary' }}>{item.typology}</Typography>}
                         {item.address && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><LocationOnIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.address}</Typography></Box>}
                     </>
                 );
-            default: return null;
         }
     };
 
     const clearFilters = () => {
         setSelectedTypes([]);
         setSelectedCities([]);
-        setRecommendationFilter('all');
+        setTabValue('all');
     };
 
     /** Rendering */
@@ -409,68 +449,67 @@ export default function HomePage() {
                             />
                         </Box>
                     )}
+                </Box>
 
-                    <Box sx={{ mt: 1 }}>
-                        <Typography variant="caption" sx={{ fontWeight: 600, mb: 0.5, display: 'block' }}>Consigli</Typography>
-                        <ToggleButtonGroup
-                            value={recommendationFilter}
-                            exclusive
-                            onChange={handleRecommendationToggle}
-                            size="small"
-                            className="filter-toggle-group"
-                        >
-                            <ToggleButton value="all" className="filter-toggle">{t('home.AllActivities')}</ToggleButton>
-                            <ToggleButton value="recommended" className="filter-toggle">{t('home.recommendedForYou')}</ToggleButton>
-                            <ToggleButton value="mightLike" className="filter-toggle">{t('home.mightLike')}</ToggleButton>
-                        </ToggleButtonGroup>
-                    </Box>
+                {/* Tabs */}
+                <Box className="tabs-toolbar">
+                    <Tabs
+                        value={tabValue}
+                        onChange={handleTabChange}
+                        variant="fullWidth"
+                        textColor="primary"
+                        indicatorColor="primary"
+                    >
+                        <Tab value="all" label={t('home.AllActivities')} />
+                        <Tab value="recommended" label={t('home.recommendedForYou')} />
+                        <Tab value="mightLike" label={t('home.mightLike')} />
+                    </Tabs>
                 </Box>
 
                 {/* Feed */}
                 <Box className="scrollable-content">
                     {loading && <CircularProgress />}
                     {error && <Alert severity="error">{error}</Alert>}
+
                     {!loading && !error && (
                         <>
-                            {sortedContent.some(item => (scoreMap[item.id ?? item.Id ?? item.identifier] ?? 0) >= 0.5) && (
-                                <>
-                                    <Typography variant="h6" className="recommended-title">{t('home.recommendedForYou')}</Typography>
-                                    <Box className="content-grid">
-                                        {sortedContent.filter(item => (scoreMap[item.id ?? item.Id ?? item.identifier] ?? 0) >= 0.5).map(item => (
-                                            <Card key={item.id ?? item.Id} className="content-card" onClick={() => handleCardClick(item)}>
-                                                <Box className="card-type-badge">{getContentIcon(item.contentType)}<Typography variant="caption">{getContentLabel(item.contentType)}</Typography></Box>
-                                                <CardMedia component="img" image={buildMediaUrl(item.imagePath ?? item.ImagePath ?? item.primaryImage ?? item.PrimaryImage)} alt={item.title ?? item.name} className="card-image" />
-                                                <CardContent className="card-content">
-                                                    <Typography variant="body2" className="card-title">{item.title ?? item.name}</Typography>
-                                                    {getCardDetails(item)}
-                                                </CardContent>
-                                            </Card>
-                                        ))}
-                                    </Box>
-                                </>
-                            )}
+                            <Typography variant="h6" className="recommended-title">
+                                {tabValue === 'recommended' ? t('home.recommendedForYou')
+                                    : tabValue === 'mightLike' ? t('home.mightLike')
+                                        : t('home.AllActivities')}
+                            </Typography>
 
-                            {sortedContent.some(item => (scoreMap[item.id ?? item.Id ?? item.identifier] ?? 0) < 0.5) && (
-                                <>
-                                    <Typography variant="h6" className="recommended-title">{t('home.mightLike')}</Typography>
-                                    <Box className="content-grid">
-                                        {sortedContent.filter(item => (scoreMap[item.id ?? item.Id ?? item.identifier] ?? 0) < 0.5).map(item => (
-                                            <Card key={item.id ?? item.Id} className="content-card" onClick={() => handleCardClick(item)}>
-                                                <Box className="card-type-badge">{getContentIcon(item.contentType)}<Typography variant="caption">{getContentLabel(item.contentType)}</Typography></Box>
-                                                <CardMedia component="img" image={buildMediaUrl(item.imagePath ?? item.ImagePath ?? item.primaryImage ?? item.PrimaryImage)} alt={item.title ?? item.name} className="card-image" />
-                                                <CardContent className="card-content">
-                                                    <Typography variant="body2" className="card-title">{item.title ?? item.name}</Typography>
-                                                    {getCardDetails(item)}
-                                                </CardContent>
-                                            </Card>
-                                        ))}
-                                    </Box>
-                                </>
-                            )}
+                            <Box className="content-grid">
+                                {paginatedContent.map(item => (
+                                    <Card key={item.id ?? item.Id} className="content-card" onClick={() => handleCardClick(item)}>
+                                        <Box className="card-type-badge">
+                                            {getContentIcon(item.contentType)}
+                                            <Typography variant="caption">{getContentLabel(item.contentType)}</Typography>
+                                        </Box>
+                                        <CardMedia component="img" image={buildMediaUrl(item.imagePath ?? item.ImagePath ?? item.primaryImage ?? item.PrimaryImage)} alt={item.title ?? item.name} className="card-image" />
+                                        <CardContent className="card-content">
+                                            <Typography variant="body2" className="card-title">{item.title ?? item.name}</Typography>
+                                            {getCardDetails(item)}
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </Box>
 
                             {sortedContent.length === 0 && <Alert severity="info">{t('messages.noActivities')}</Alert>}
                         </>
                     )}
+
+                    {/* Pagination */}
+                    <Box className="custom-pagination">
+                        <Pagination
+                            count={Math.ceil(sortedContent.length / ITEMS_PER_PAGE)}
+                            page={page}
+                            onChange={(_, value) => setPage(value)}
+                            color="primary"
+                            shape="rounded"
+                            size="medium"
+                        />
+                    </Box>
                 </Box>
             </Box>
         </Box>

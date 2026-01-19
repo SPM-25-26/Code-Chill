@@ -32,7 +32,8 @@
   "menu": {
     "preferences": "Preferences",
     "adminIngestion": "Admin Ingestion",
-    "logout": "Logout"
+    "logout": "Logout",
+    "discover": "Discover"
   },
   "messages": {
     "loading": "Loading content…",

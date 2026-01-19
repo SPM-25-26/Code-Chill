@@ -315,14 +315,14 @@
 }
 
 .recommended-title {
-    padding-bottom: 8px;
-    padding-top: 8px;
-    color: var(--teal-dark);
-    border-radius: 12px;
-    padding-left: 6px;
-    display: inline-block;
-    transition: color 0.25s ease;
-    font-style: italic;
+  padding-bottom: 8px;
+  padding-top: 8px;
+  color: var(--teal-dark);
+  border-radius: 12px;
+  padding-left: 6px;
+  display: inline-block;
+  transition: color 0.25s ease;
+  font-style: italic;
 }
 
 /* RESPONSIVE BREAKPOINTS */
@@ -397,4 +397,73 @@
   .filter-header {
     font-size: 10px;
   }
+}
+
+/* TABS COERENTI CON L'APP */
+.tabs-toolbar {
+  width: 100%;
+  margin-top: 0.5rem;
+  background: linear-gradient(140deg, rgba(231, 250, 245, 0.55) 0%, rgba(46, 196, 182, 0.12) 100%);
+  border: 2px solid var(--teal);
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(46, 196, 182, 0.18);
+  overflow: hidden;
+}
+
+.tabs-toolbar .MuiTabs-root {
+  min-height: 44px;
+}
+
+.tabs-toolbar .MuiTab-root {
+  text-transform: none;
+  font-weight: 600;
+  min-height: 44px;
+  border-right: 1px solid rgba(46, 196, 182, 0.35);
+}
+
+.tabs-toolbar .MuiTab-root:last-child {
+  border-right: none;
+}
+
+.tabs-toolbar .MuiTab-root.Mui-selected {
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+  color: #ffffff;
+}
+
+.tabs-toolbar .MuiTabs-indicator {
+  display: none;
+}
+
+/* PAGINATION */
+.custom-pagination {
+  display: flex;
+  justify-content: flex-end;
+  padding-left: 0.25rem;
+  margin-top: 1rem;
+}
+
+.custom-pagination .MuiPaginationItem-root {
+  background: rgba(240, 243, 247, 0.9);
+  color: var(--dark);
+  border-radius: 999px;
+  min-width: 34px;
+  height: 34px;
+  font-weight: 600;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+}
+
+.custom-pagination .MuiPaginationItem-root:hover {
+  background: rgba(46, 196, 182, 0.18);
+  box-shadow: 0 6px 16px rgba(46, 196, 182, 0.18);
+}
+
+.custom-pagination .MuiPaginationItem-root.Mui-selected {
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(46, 196, 182, 0.35);
+}
+
+.custom-pagination .MuiPaginationItem-root.Mui-disabled {
+  opacity: 0.5;
 }

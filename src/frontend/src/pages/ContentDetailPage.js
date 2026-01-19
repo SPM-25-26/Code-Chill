@@ -292,7 +292,9 @@ export default function ContentDetailPage() {
                         {/* Themes */}
                         {content.themes && content.themes.length > 0 && (
                             <Box mb={3}>
-                                <Typography variant="h6" fontWeight={600} mb={1}>Themes</Typography>
+                                <Typography variant="h6" fontWeight={600} mb={1}>
+                                    {t('home.themes')}
+                                </Typography>
                                 <Box display="flex" gap={1} flexWrap="wrap">
                                     {content.themes.map((theme, idx) => (
                                         <Chip key={idx} label={theme} size="small" sx={{ bgcolor: 'var(--teal)', color: 'white' }} />

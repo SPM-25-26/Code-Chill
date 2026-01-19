@@ -32,7 +32,8 @@
   "menu": {
     "preferences": "Preferenze",
     "adminIngestion": "Admin Ingestion",
-    "logout": "Esci"
+    "logout": "Esci",
+    "discover": "Scopri"
   },
   "messages": {
     "loading": "Caricamento contenuti…",

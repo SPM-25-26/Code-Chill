@@ -134,6 +134,38 @@ export default function HomePage() {
         );
     };
 
+    const getEventBoost = (item) => {
+        if (item.contentType !== 'event') return 0;
+        const start = item.startDate ?? item.StartDate;
+        const end = item.endDate ?? item.EndDate;
+        if (!start || !end) return 0;
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+        if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) return 0;
+        const now = new Date();
+        if (now >= startDate && now <= endDate) return 0.2;
+        const upcomingWindowMs = 7 * 24 * 60 * 60 * 1000;
+        if (startDate > now && startDate.getTime() - now.getTime() <= upcomingWindowMs) return 0.2;
+        return 0;
+    };
+
+    const getEventStatusLabel = (item) => {
+        if (item.contentType !== 'event') return null;
+        const start = item.startDate ?? item.StartDate;
+        const end = item.endDate ?? item.EndDate;
+        if (!start || !end) return null;
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+        if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) return null;
+        const now = new Date();
+        if (now >= startDate && now <= endDate) return t('home.eventLive');
+        const upcomingWindowMs = 7 * 24 * 60 * 60 * 1000;
+        if (startDate > now && startDate.getTime() - now.getTime() <= upcomingWindowMs) {
+            return t('home.eventUpcoming');
+        }
+        return null;
+    };
+
     /** Load all content for all municipalities */
     useEffect(() => {
         const loadData = async () => {
@@ -305,18 +337,19 @@ export default function HomePage() {
             const id = item.id ?? item.Id ?? item.identifier ?? item.taxCode;
             return id && scoreMap[id] != null ? scoreMap[id] : 0;
         };
+        const getRankingScore = (item) => getScore(item) + getEventBoost(item);
 
         if (sortNearMe && userLocation) {
             withScore.sort((a, b) => {
                 const coordsA = getItemCoords(a);
                 const coordsB = getItemCoords(b);
-                if (!coordsA && !coordsB) return getScore(b) - getScore(a);
+                if (!coordsA && !coordsB) return getRankingScore(b) - getRankingScore(a);
                 if (!coordsA) return 1;
                 if (!coordsB) return -1;
                 return distanceKm(userLocation, coordsA) - distanceKm(userLocation, coordsB);
             });
         } else {
-            withScore.sort((a, b) => getScore(b) - getScore(a));
+            withScore.sort((a, b) => getRankingScore(b) - getRankingScore(a));
         }
         return withScore;
     }, [getTabContent, scoreMap, sortNearMe, userLocation]);
@@ -396,6 +429,13 @@ export default function HomePage() {
             case 'event':
                 return (
                     <>
+                        {getEventStatusLabel(item) && (
+                            <Box sx={{ display: 'inline-flex', alignItems: 'center', mb: 0.5, px: 1, py: 0.25, borderRadius: 999, backgroundColor: 'rgba(0, 150, 136, 0.12)' }}>
+                                <Typography variant="caption" sx={{ color: 'var(--teal)', fontWeight: 600 }}>
+                                    {getEventStatusLabel(item)}
+                                </Typography>
+                            </Box>
+                        )}
                         {renderDistance(item)}
                         {item.startDate && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><CalendarTodayIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary' }}>{formatDate(item.startDate)}</Typography></Box>}
                         {item.address && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><LocationOnIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.address}</Typography></Box>}

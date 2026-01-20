@@ -9,6 +9,7 @@ import ContentDetailPage from './pages/ContentDetailPage.js';
 import PreferencesPage from './pages/PreferencesPage.js';
 import AdminIngestionPage from './pages/AdminIngestionPage.js';
 import PreferencesIntroPage from './pages/PreferencesIntroPage.js';
+import AdminLlmHealthPage from './pages/AdminLlmHealthPage.js';
 
 function App() {
   return (
@@ -56,6 +57,14 @@ function App() {
           element={
             <ProtectedRoute>
               <AdminIngestionPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/login/admin/llm-health"
+          element={
+            <ProtectedRoute>
+              <AdminLlmHealthPage />
             </ProtectedRoute>
           }
         />

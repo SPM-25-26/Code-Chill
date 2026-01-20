@@ -8,6 +8,7 @@ using ChillCodeBackend.Data.Repositories.Municipalities;
 using ChillCodeBackend.Models.Entities;
 using ChillCodeBackend.Models.Options;
 using ChillCodeBackend.Services;
+using ChillCodeBackend.Services.Chat;
 using ChillCodeBackend.Services.Ingestion;
 using ChillCodeBackend.Services.Preferences;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Options;
 
 namespace ChillCodeBackend
 {
@@ -73,6 +75,7 @@ namespace ChillCodeBackend
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.Configure<JwtOptions>(_configuration.GetSection(JwtOptions.SectionName));
             services.Configure<EmailOptions>(_configuration.GetSection(EmailOptions.SectionName));
+            services.Configure<LlmOptions>(_configuration.GetSection(LlmOptions.SectionName));
             services.AddSingleton<ITokenService, JwtTokenService>();
             services.AddScoped<IEmailService, SmtpEmailService>();
             services.AddScoped<IEmailTemplateService, EmailTemplateService>();
@@ -91,6 +94,9 @@ namespace ChillCodeBackend
             services.AddScoped<IPreferenceResponseRepository, PreferenceResponseRepository>();
             services.AddScoped<IPreferenceScoringService, PreferenceScoringService>();
             services.AddSingleton<IQuestionnaireSchemaProvider, QuestionnaireSchemaProvider>();
+            services.AddScoped<ChatContextService>();
+            services.AddScoped<ChatPromptBuilder>();
+            services.AddScoped<ChatResponseNormalizer>();
 
             services
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -135,6 +141,21 @@ namespace ChillCodeBackend
                     client.BaseAddress = new Uri(baseUrl);
                 }
             });
+
+            services.AddHttpClient<IChatCompletionClient, OpenAiChatCompletionClient>(
+                (sp, client) =>
+                {
+                    var options = sp.GetRequiredService<IOptions<LlmOptions>>().Value;
+                    if (!string.IsNullOrWhiteSpace(options.BaseUrl))
+                    {
+                        client.BaseAddress = new Uri(options.BaseUrl.TrimEnd('/') + "/");
+                    }
+
+                    client.Timeout = TimeSpan.FromSeconds(
+                        options.TimeoutSeconds > 0 ? options.TimeoutSeconds : 30
+                    );
+                }
+            );
         }
 
         public void Configure(WebApplication app)

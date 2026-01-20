@@ -467,3 +467,27 @@
 .custom-pagination .MuiPaginationItem-root.Mui-disabled {
   opacity: 0.5;
 }
+
+.chatbot-launcher {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 2001;
+}
+
+.chatbot-launcher-btn {
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+  color: #fff;
+  box-shadow: 0 12px 26px rgba(46, 196, 182, 0.3);
+  width: 56px;
+  height: 56px;
+}
+
+.chatbot-launcher-btn:hover {
+  background: linear-gradient(135deg, var(--teal-dark) 0%, var(--teal) 100%);
+}
+
+.chatbot-launcher-btn .MuiSvgIcon-root {
+  font-size: 28px;
+  color: #fff;
+}

@@ -39,6 +39,7 @@
   "menu": {
     "preferences": "Preferences",
     "adminIngestion": "Admin Ingestion",
+    "adminLlmHealth": "LLM Health Check",
     "logout": "Logout",
     "discover": "Discover"
   },
@@ -70,5 +71,12 @@
     "endDate": "End Date",
     "virtualTour": "Virtual Tour",
     "viewVirtualTour": "View virtual tour"
+  },
+  "chat": {
+    "title": "ChillCode Chat",
+    "empty": "Ask me about nearby activities or events.",
+    "placeholder": "Type your message…",
+    "thinking": "Thinking…",
+    "error": "Chat request failed."
   }
 }

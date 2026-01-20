@@ -46,10 +46,12 @@ import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import BuildIcon from '@mui/icons-material/Build';
 import TheaterComedyIcon from '@mui/icons-material/TheaterComedy';
 import BusinessIcon from '@mui/icons-material/Business';
+import ChatIcon from '@mui/icons-material/Chat';
 
 import logoPng from '../assets/SPM-Logo.png';
 import instance from '../utilities/Utilities.js';
 import { useTranslation } from '../hooks/useTranslation.js';
+import ChatbotOverlay from '../components/ChatbotOverlay.js';
 import './styles/HomePage.css';
 
 const MEDIA_BASE = 'https://eppoi.io';
@@ -76,6 +78,7 @@ export default function HomePage() {
     const [selectedCities, setSelectedCities] = useState([]);
     const [filterCollapsed, setFilterCollapsed] = useState(false);
     const [sortNearMe, setSortNearMe] = useState(false);
+    const [chatOpen, setChatOpen] = useState(false);
 
     const [tabValue, setTabValue] = useState('all');
 
@@ -371,6 +374,7 @@ export default function HomePage() {
     const handleCityChange = (_, newValue) => setSelectedCities(newValue);
     const handleLanguageToggle = () => changeLanguage(language === 'en' ? 'it' : 'en');
     const toggleNearMe = () => setSortNearMe((prev) => !prev);
+    const toggleChat = () => setChatOpen((prev) => !prev);
 
     const getContentIcon = (type) => {
         switch (type) {
@@ -478,6 +482,18 @@ export default function HomePage() {
     /** Rendering */
     return (
         <Box className="page">
+            <ChatbotOverlay
+                open={chatOpen}
+                onClose={() => setChatOpen(false)}
+                location={userLocation}
+                municipality={selectedCities.length === 1 ? selectedCities[0] : null}
+                language={language}
+            />
+            <Box className="chatbot-launcher">
+                <IconButton color="primary" onClick={toggleChat} className="chatbot-launcher-btn">
+                    <ChatIcon />
+                </IconButton>
+            </Box>
 
             {/* Drawer */}
             <Drawer anchor="left" open={open} onClose={() => setOpen(false)}>
@@ -494,6 +510,10 @@ export default function HomePage() {
                         <ListItemButton onClick={() => { setOpen(false); navigate('/login/admin/ingestion'); }}>
                             <ListItemIcon><AdminPanelSettingsIcon /></ListItemIcon>
                             <ListItemText primary={t('menu.adminIngestion')} />
+                        </ListItemButton>
+                        <ListItemButton onClick={() => { setOpen(false); navigate('/login/admin/llm-health'); }}>
+                            <ListItemIcon><AdminPanelSettingsIcon /></ListItemIcon>
+                            <ListItemText primary={t('menu.adminLlmHealth')} />
                         </ListItemButton>
                         <ListItemButton onClick={handleLogout}>
                             <ListItemIcon><LogoutIcon /></ListItemIcon>

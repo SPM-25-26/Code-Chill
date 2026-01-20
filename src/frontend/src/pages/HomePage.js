@@ -93,6 +93,47 @@ export default function HomePage() {
         Authorization: token ? `Bearer ${token}` : undefined,
     }), [token]);
 
+    const getItemCoords = (item) => {
+        const lat = item.latitude ?? item.Latitude;
+        const lng = item.longitude ?? item.Longitude;
+        return typeof lat === 'number' && typeof lng === 'number'
+            ? { lat, lng }
+            : null;
+    };
+
+    const distanceKm = (a, b) => {
+        const R = 6371;
+        const toRad = (v) => (v * Math.PI) / 180;
+        const dLat = toRad(b.lat - a.lat);
+        const dLng = toRad(b.lng - a.lng);
+        const lat1 = toRad(a.lat);
+        const lat2 = toRad(b.lat);
+        const h =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2)
+            + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+    };
+
+    const getDistanceFromUser = (item) => {
+        if (!userLocation) return null;
+        const coords = getItemCoords(item);
+        if (!coords) return null;
+        return distanceKm(userLocation, coords);
+    };
+
+    const renderDistance = (item) => {
+        const distance = getDistanceFromUser(item);
+        if (distance == null) return null;
+        return (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                <LocationOnIcon sx={{ fontSize: 14, color: 'var(--teal)' }} />
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                    {distance.toFixed(1)} km
+                </Typography>
+            </Box>
+        );
+    };
+
     /** Load all content for all municipalities */
     useEffect(() => {
         const loadData = async () => {
@@ -260,25 +301,6 @@ export default function HomePage() {
 
     const sortedContent = useMemo(() => {
         const withScore = [...getTabContent];
-        const getCoords = (item) => {
-            const lat = item.latitude ?? item.Latitude;
-            const lng = item.longitude ?? item.Longitude;
-            return typeof lat === 'number' && typeof lng === 'number'
-                ? { lat, lng }
-                : null;
-        };
-        const distanceKm = (a, b) => {
-            const R = 6371;
-            const toRad = (v) => (v * Math.PI) / 180;
-            const dLat = toRad(b.lat - a.lat);
-            const dLng = toRad(b.lng - a.lng);
-            const lat1 = toRad(a.lat);
-            const lat2 = toRad(b.lat);
-            const h =
-                Math.sin(dLat / 2) * Math.sin(dLat / 2)
-                + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
-            return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
-        };
         const getScore = (item) => {
             const id = item.id ?? item.Id ?? item.identifier ?? item.taxCode;
             return id && scoreMap[id] != null ? scoreMap[id] : 0;
@@ -286,8 +308,8 @@ export default function HomePage() {
 
         if (sortNearMe && userLocation) {
             withScore.sort((a, b) => {
-                const coordsA = getCoords(a);
-                const coordsB = getCoords(b);
+                const coordsA = getItemCoords(a);
+                const coordsB = getItemCoords(b);
                 if (!coordsA && !coordsB) return getScore(b) - getScore(a);
                 if (!coordsA) return 1;
                 if (!coordsB) return -1;
@@ -366,6 +388,7 @@ export default function HomePage() {
             case 'article':
                 return (
                     <>
+                        {renderDistance(item)}
                         {item.subtitle && <Typography variant="caption" sx={{ display: 'block', mb: 0.5, color: 'text.secondary' }}>{item.subtitle}</Typography>}
                         {item.region && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><LocationOnIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary' }}>{item.region}</Typography></Box>}
                     </>
@@ -373,6 +396,7 @@ export default function HomePage() {
             case 'event':
                 return (
                     <>
+                        {renderDistance(item)}
                         {item.startDate && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><CalendarTodayIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary' }}>{formatDate(item.startDate)}</Typography></Box>}
                         {item.address && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><LocationOnIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.address}</Typography></Box>}
                     </>
@@ -380,6 +404,7 @@ export default function HomePage() {
             case 'route':
                 return (
                     <>
+                        {renderDistance(item)}
                         {item.duration && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><AccessTimeIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary' }}>{item.duration}</Typography></Box>}
                         {item.routeLength && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><RouteIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary' }}>{item.routeLength}</Typography></Box>}
                     </>
@@ -387,6 +412,7 @@ export default function HomePage() {
             case 'organization':
                 return (
                     <>
+                        {renderDistance(item)}
                         {item.type && <Typography variant="caption" sx={{ display: 'block', mb: 0.5, color: 'text.secondary' }}>{item.type}</Typography>}
                         {item.address && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><LocationOnIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.address}</Typography></Box>}
                     </>
@@ -394,6 +420,7 @@ export default function HomePage() {
             default:
                 return (
                     <>
+                        {renderDistance(item)}
                         {item.typology && <Typography variant="caption" sx={{ display: 'block', mb: 0.5, color: 'text.secondary' }}>{item.typology}</Typography>}
                         {item.address && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><LocationOnIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.address}</Typography></Box>}
                     </>

@@ -54,7 +54,9 @@ namespace ChillCodeBackend.Controllers
                     result.TotalPoiCount > 0
                     || result.EventCount > 0
                     || result.RouteCount > 0
-                    || result.ArticleCount > 0;
+                    || result.ArticleCount > 0
+                    || result.OrganizationCount > 0
+                    || result.ServiceCount > 0;
 
                 if (!hasAnyData)
                 {
@@ -107,6 +109,7 @@ namespace ChillCodeBackend.Controllers
                 PoiCounts = new Dictionary<UnicamPoiCategory, int>(result.PoiCounts),
                 EventCount = result.EventCount,
                 OrganizationCount = result.OrganizationCount,
+                ServiceCount = result.ServiceCount,
                 RouteCount = result.RouteCount,
                 ArticleCount = result.ArticleCount,
                 Errors = new List<string>(result.Errors),

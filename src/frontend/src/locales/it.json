@@ -15,9 +15,13 @@
     "articles": "Articoli",
     "events": "Eventi",
     "routes": "Percorsi",
+    "organizations": "Organizzazioni",
+    "services": "Servizi",
     "article": "Articolo",
     "event": "Evento",
-    "route": "Percorso"
+    "route": "Percorso",
+    "organization": "Organizzazione",
+    "service": "Servizio"
   },
   "poiCategories": {
     "artCulture": "Arte e Cultura",

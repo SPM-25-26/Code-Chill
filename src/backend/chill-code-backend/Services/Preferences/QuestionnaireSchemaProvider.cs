@@ -111,6 +111,18 @@ namespace ChillCodeBackend.Services.Preferences
                         new OptionDto { Value = "any", Label = "Doesn't matter" },
                     ],
                 },
+                new QuestionDto
+                {
+                    Id = "overnightStay",
+                    Title = "Are you planning to stay overnight?",
+                    Type = "binary",
+                    Required = false,
+                    Options =
+                    [
+                        new OptionDto { Value = "yes", Label = "Yes" },
+                        new OptionDto { Value = "no", Label = "No" },
+                    ],
+                },
             ],
         };
 
@@ -174,6 +186,18 @@ namespace ChillCodeBackend.Services.Preferences
                 };
             }
 
+            bool? overnightStay = null;
+            if (answers.TryGetValue("overnightStay", out var overnightObj))
+            {
+                var value = ToStringSafe(overnightObj).Trim().ToLowerInvariant();
+                overnightStay = value switch
+                {
+                    "yes" or "true" or "1" => true,
+                    "no" or "false" or "0" => false,
+                    _ => (bool?)null,
+                };
+            }
+
             var dto = new TravelPreferenceDto
             {
                 TravelVibe = travelVibe,
@@ -181,6 +205,7 @@ namespace ChillCodeBackend.Services.Preferences
                 CitySize = citySize,
                 Interests = interests,
                 FamilyFriendly = familyFriendly,
+                OvernightStay = overnightStay,
             };
 
             var (isValid, error) = PreferenceValidation.Validate(dto);

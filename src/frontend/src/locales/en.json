@@ -15,9 +15,13 @@
     "articles": "Articles",
     "events": "Events",
     "routes": "Routes",
+    "organizations": "Organizations",
+    "services": "Services",
     "article": "Article",
     "event": "Event",
-    "route": "Route"
+    "route": "Route",
+    "organization": "Organization",
+    "service": "Service"
   },
   "poiCategories": {
     "artCulture": "Art & Culture",

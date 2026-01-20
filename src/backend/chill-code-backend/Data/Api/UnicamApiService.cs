@@ -66,6 +66,12 @@ namespace ChillCodeBackend.Data.Api
             CancellationToken cancellationToken = default
         ) => FetchDetailAsync("/api/organizations/detail/", taxCode, language, cancellationToken);
 
+        public Task<JsonElement> GetServiceDetailAsync(
+            string identifier,
+            string language = DefaultLanguage,
+            CancellationToken cancellationToken = default
+        ) => FetchDetailAsync("/api/services/detail/", identifier, language, cancellationToken);
+
         public Task<JsonElement> GetRouteDetailAsync(
             string identifier,
             string language = DefaultLanguage,
@@ -120,6 +126,58 @@ namespace ChillCodeBackend.Data.Api
             // POI card endpoints use "municipality" parameter
             var relativePath = BuildQueryPath(
                 PoiCardEndpoints[category],
+                new Dictionary<string, string?>
+                {
+                    ["municipality"] = municipality,
+                    ["language"] = language,
+                }
+            );
+
+            return FetchAndHandleAsync<JsonElement>(relativePath, cancellationToken);
+        }
+
+        public Task<JsonElement> GetOrganizationCardsAsync(
+            string municipality,
+            string language = DefaultLanguage,
+            CancellationToken cancellationToken = default
+        )
+        {
+            if (string.IsNullOrWhiteSpace(municipality))
+            {
+                throw new ArgumentException("Municipality is required", nameof(municipality));
+            }
+
+            municipality = municipality.Trim();
+            language = NormalizeLanguage(language);
+
+            var relativePath = BuildQueryPath(
+                "/api/organizations/card-list",
+                new Dictionary<string, string?>
+                {
+                    ["municipality"] = municipality,
+                    ["language"] = language,
+                }
+            );
+
+            return FetchAndHandleAsync<JsonElement>(relativePath, cancellationToken);
+        }
+
+        public Task<JsonElement> GetServiceCardsAsync(
+            string municipality,
+            string language = DefaultLanguage,
+            CancellationToken cancellationToken = default
+        )
+        {
+            if (string.IsNullOrWhiteSpace(municipality))
+            {
+                throw new ArgumentException("Municipality is required", nameof(municipality));
+            }
+
+            municipality = municipality.Trim();
+            language = NormalizeLanguage(language);
+
+            var relativePath = BuildQueryPath(
+                "/api/services/card-list",
                 new Dictionary<string, string?>
                 {
                     ["municipality"] = municipality,

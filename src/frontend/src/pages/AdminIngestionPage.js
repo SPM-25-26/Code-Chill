@@ -64,9 +64,15 @@ function AdminIngestionPage() {
       municipality: result.municipality ?? result.Municipality ?? '',
       articleCount: result.articleCount ?? result.ArticleCount ?? 0,
       eventCount: result.eventCount ?? result.EventCount ?? 0,
+      organizationCount: result.organizationCount ?? result.OrganizationCount ?? 0,
+      serviceCount: result.serviceCount ?? result.ServiceCount ?? 0,
       routeCount: result.routeCount ?? result.RouteCount ?? 0,
       unassignedArticleCount: result.unassignedArticleCount ?? result.UnassignedArticleCount ?? 0,
       unassignedEventCount: result.unassignedEventCount ?? result.UnassignedEventCount ?? 0,
+      unassignedOrganizationCount:
+        result.unassignedOrganizationCount ?? result.UnassignedOrganizationCount ?? 0,
+      unassignedServiceCount:
+        result.unassignedServiceCount ?? result.UnassignedServiceCount ?? 0,
       unassignedRouteCount: result.unassignedRouteCount ?? result.UnassignedRouteCount ?? 0,
       municipalityProfileExists:
         result.municipalityProfileExists ?? result.MunicipalityProfileExists ?? false,
@@ -238,6 +244,8 @@ function AdminIngestionPage() {
               <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1, mb: 1 }}>
                 <div>📄 Articles: {lastIngestionResult.articleCount || 0}</div>
                 <div>🎉 Events: {lastIngestionResult.eventCount || 0}</div>
+                <div>🏛️ Organizations: {lastIngestionResult.organizationCount || 0}</div>
+                <div>🛠️ Services: {lastIngestionResult.serviceCount || 0}</div>
                 <div>🚶 Routes: {lastIngestionResult.routeCount || 0}</div>
                 <div>📍 Total POIs: {lastIngestionResult.totalPoiCount || 0}</div>
               </Box>
@@ -286,19 +294,29 @@ function AdminIngestionPage() {
                 <span className="ingestion-label">Events (DB):</span> {summary.eventCount}
               </div>
               <div>
+                <span className="ingestion-label">Organizations (DB):</span> {summary.organizationCount}
+              </div>
+              <div>
+                <span className="ingestion-label">Services (DB):</span> {summary.serviceCount}
+              </div>
+              <div>
                 <span className="ingestion-label">Routes (DB):</span> {summary.routeCount}
               </div>
             </div>
 
             {(summary.unassignedArticleCount > 0 ||
               summary.unassignedEventCount > 0 ||
+              summary.unassignedOrganizationCount > 0 ||
+              summary.unassignedServiceCount > 0 ||
               summary.unassignedRouteCount > 0) && (
               <Alert severity="warning" sx={{ mt: 2 }}>
                 Some stored records are missing municipality linkage (older ingestions). Trigger
                 ingestion again for this municipality to update them.
                 <div style={{ marginTop: 8 }}>
                   Unassigned — Articles: {summary.unassignedArticleCount}, Events:{' '}
-                  {summary.unassignedEventCount}, Routes: {summary.unassignedRouteCount}
+                  {summary.unassignedEventCount}, Organizations:{' '}
+                  {summary.unassignedOrganizationCount}, Services:{' '}
+                  {summary.unassignedServiceCount}, Routes: {summary.unassignedRouteCount}
                 </div>
               </Alert>
             )}
@@ -319,6 +337,7 @@ function AdminIngestionPage() {
                     <TableCell align="right">POIs</TableCell>
                     <TableCell align="right">Articles</TableCell>
                     <TableCell align="right">Events</TableCell>
+                    <TableCell align="right">Organizations</TableCell>
                     <TableCell align="right">Routes</TableCell>
                     <TableCell align="right">Errors</TableCell>
                   </TableRow>
@@ -332,6 +351,9 @@ function AdminIngestionPage() {
                       <TableCell align="right">{r.totalPoiCount ?? r.TotalPoiCount ?? 0}</TableCell>
                       <TableCell align="right">{r.articleCount ?? r.ArticleCount ?? 0}</TableCell>
                       <TableCell align="right">{r.eventCount ?? r.EventCount ?? 0}</TableCell>
+                      <TableCell align="right">
+                        {r.organizationCount ?? r.OrganizationCount ?? 0}
+                      </TableCell>
                       <TableCell align="right">{r.routeCount ?? r.RouteCount ?? 0}</TableCell>
                       <TableCell align="right">
                         {Array.isArray(r.errors ?? r.Errors) ? (r.errors ?? r.Errors).length : 0}

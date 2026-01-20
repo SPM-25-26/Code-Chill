@@ -14,6 +14,8 @@ namespace ChillCodeBackend.Data.Db
         public DbSet<Event> Events => Set<Event>();
         public DbSet<Article> Articles => Set<Article>();
         public DbSet<IngestionRun> IngestionRuns => Set<IngestionRun>();
+        public DbSet<Organization> Organizations => Set<Organization>();
+        public DbSet<Service> Services => Set<Service>();
 
         public DbSet<Models.Entities.Route> Routes => Set<Models.Entities.Route>();
         public DbSet<PointOfInterest> PointsOfInterest => Set<PointOfInterest>();

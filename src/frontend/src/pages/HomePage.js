@@ -45,6 +45,7 @@ import HotelIcon from '@mui/icons-material/Hotel';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import BuildIcon from '@mui/icons-material/Build';
 import TheaterComedyIcon from '@mui/icons-material/TheaterComedy';
+import BusinessIcon from '@mui/icons-material/Business';
 
 import logoPng from '../assets/SPM-Logo.png';
 import instance from '../utilities/Utilities.js';
@@ -112,6 +113,8 @@ export default function HomePage() {
                     data.events?.forEach(event => combinedContent.push({ ...event, contentType: 'event', municipality }));
                     data.routes?.forEach(route => combinedContent.push({ ...route, contentType: 'route', municipality }));
                     data.pois?.forEach(poi => combinedContent.push({ ...poi, contentType: poi.category, municipality }));
+                    data.organizations?.forEach(org => combinedContent.push({ ...org, contentType: 'organization', municipality }));
+                    data.services?.forEach(service => combinedContent.push({ ...service, contentType: 'service', municipality }));
                 });
 
                 setAllContent(combinedContent);
@@ -241,7 +244,7 @@ export default function HomePage() {
     }, [allContent, selectedTypes, selectedCities, preferences]);
 
     const getTabContent = useMemo(() => {
-        const score = (item) => scoreMap[item.id ?? item.Id ?? item.identifier] ?? 0;
+        const score = (item) => scoreMap[item.id ?? item.Id ?? item.identifier ?? item.taxCode] ?? 0;
 
         if (tabValue === 'recommended') {
             return filteredContent.filter(item => score(item) >= 0.5);
@@ -257,7 +260,7 @@ export default function HomePage() {
     const sortedContent = useMemo(() => {
         const withScore = [...getTabContent];
         const getScore = (item) => {
-            const id = item.id ?? item.Id ?? item.identifier;
+            const id = item.id ?? item.Id ?? item.identifier ?? item.taxCode;
             return id && scoreMap[id] != null ? scoreMap[id] : 0;
         };
 
@@ -273,7 +276,11 @@ export default function HomePage() {
     }, [sortedContent, page]);
 
     const handleLogout = () => { localStorage.clear(); navigate('/login'); };
-    const handleCardClick = (item) => { navigate(`/login/content-detail/${item.id ?? item.Id}`); };
+    const handleCardClick = (item) => {
+        const id = item.id ?? item.Id ?? item.identifier ?? item.taxCode;
+        if (!id) return;
+        navigate(`/login/content-detail/${id}`);
+    };
     const handleTypeToggle = (_, newTypes) => setSelectedTypes(newTypes);
     const handleCityChange = (_, newValue) => setSelectedCities(newValue);
     const handleLanguageToggle = () => changeLanguage(language === 'en' ? 'it' : 'en');
@@ -283,6 +290,8 @@ export default function HomePage() {
             case 'article': return <ArticleIcon fontSize="small" />;
             case 'event': return <EventIcon fontSize="small" />;
             case 'route': return <MapIcon fontSize="small" />;
+            case 'organization': return <BusinessIcon fontSize="small" />;
+            case 'service': return <BuildIcon fontSize="small" />;
             case 'ArtCulture': return <MuseumIcon fontSize="small" />;
             case 'EatAndDrink': return <RestaurantIcon fontSize="small" />;
             case 'EntertainmentLeisure': return <TheaterComedyIcon fontSize="small" />;
@@ -300,6 +309,8 @@ export default function HomePage() {
             case 'article': return t('contentTypes.article');
             case 'event': return t('contentTypes.event');
             case 'route': return t('contentTypes.route');
+            case 'organization': return t('contentTypes.organization');
+            case 'service': return t('contentTypes.service');
             case 'ArtCulture': return t('poiCategories.artCulture');
             case 'EatAndDrink': return t('poiCategories.eatAndDrink');
             case 'EntertainmentLeisure': return t('poiCategories.entertainmentLeisure');
@@ -339,6 +350,13 @@ export default function HomePage() {
                     <>
                         {item.duration && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><AccessTimeIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary' }}>{item.duration}</Typography></Box>}
                         {item.routeLength && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><RouteIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary' }}>{item.routeLength}</Typography></Box>}
+                    </>
+                );
+            case 'organization':
+                return (
+                    <>
+                        {item.type && <Typography variant="caption" sx={{ display: 'block', mb: 0.5, color: 'text.secondary' }}>{item.type}</Typography>}
+                        {item.address && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><LocationOnIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.address}</Typography></Box>}
                     </>
                 );
             default:
@@ -425,6 +443,8 @@ export default function HomePage() {
                             <ToggleButton value="article" aria-label="articles" className="filter-toggle"><ArticleIcon fontSize="small" /><span>{t('contentTypes.articles')}</span></ToggleButton>
                             <ToggleButton value="event" aria-label="events" className="filter-toggle"><EventIcon fontSize="small" /><span>{t('contentTypes.events')}</span></ToggleButton>
                             <ToggleButton value="route" aria-label="routes" className="filter-toggle"><MapIcon fontSize="small" /><span>{t('contentTypes.routes')}</span></ToggleButton>
+                            <ToggleButton value="organization" aria-label="organizations" className="filter-toggle"><BusinessIcon fontSize="small" /><span>{t('contentTypes.organizations')}</span></ToggleButton>
+                            <ToggleButton value="service" aria-label="services" className="filter-toggle"><BuildIcon fontSize="small" /><span>{t('contentTypes.services')}</span></ToggleButton>
                             <ToggleButton value="ArtCulture" aria-label="art-culture" className="filter-toggle"><MuseumIcon fontSize="small" /><span>{t('poiCategories.artCulture')}</span></ToggleButton>
                             <ToggleButton value="EatAndDrink" aria-label="eat-drink" className="filter-toggle"><RestaurantIcon fontSize="small" /><span>{t('poiCategories.eatAndDrink')}</span></ToggleButton>
                             <ToggleButton value="EntertainmentLeisure" aria-label="entertainment" className="filter-toggle"><TheaterComedyIcon fontSize="small" /><span>{t('poiCategories.entertainmentLeisure')}</span></ToggleButton>
@@ -481,14 +501,14 @@ export default function HomePage() {
 
                             <Box className="content-grid">
                                 {paginatedContent.map(item => (
-                                    <Card key={item.id ?? item.Id} className="content-card" onClick={() => handleCardClick(item)}>
+                                    <Card key={item.id ?? item.Id ?? item.identifier ?? item.taxCode} className="content-card" onClick={() => handleCardClick(item)}>
                                         <Box className="card-type-badge">
                                             {getContentIcon(item.contentType)}
                                             <Typography variant="caption">{getContentLabel(item.contentType)}</Typography>
                                         </Box>
-                                        <CardMedia component="img" image={buildMediaUrl(item.imagePath ?? item.ImagePath ?? item.primaryImage ?? item.PrimaryImage)} alt={item.title ?? item.name} className="card-image" />
+                                        <CardMedia component="img" image={buildMediaUrl(item.imagePath ?? item.ImagePath ?? item.primaryImage ?? item.PrimaryImage ?? item.primaryImagePath ?? item.PrimaryImagePath)} alt={item.title ?? item.name ?? item.legalName} className="card-image" />
                                         <CardContent className="card-content">
-                                            <Typography variant="body2" className="card-title">{item.title ?? item.name}</Typography>
+                                            <Typography variant="body2" className="card-title">{item.title ?? item.name ?? item.legalName}</Typography>
                                             {getCardDetails(item)}
                                         </CardContent>
                                     </Card>

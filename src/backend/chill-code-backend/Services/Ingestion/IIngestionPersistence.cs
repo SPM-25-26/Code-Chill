@@ -26,6 +26,14 @@ namespace ChillCodeBackend.Services.Ingestion
         );
         Task PersistOrganizationDetailsAsync(
             IEnumerable<JsonElement> items,
+            MunicipalityInfo municipalityInfo,
+            string language,
+            CancellationToken cancellationToken
+        );
+        Task PersistServiceDetailsAsync(
+            IEnumerable<JsonElement> items,
+            MunicipalityInfo municipalityInfo,
+            string language,
             CancellationToken cancellationToken
         );
         Task PersistRouteDetailsAsync(

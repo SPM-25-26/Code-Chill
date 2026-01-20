@@ -148,6 +148,112 @@ namespace ChillCodeBackend.Services.Ingestion
                 result.ArticleCount = articleDetails.Count;
                 _logger.LogInformation("Fetched {Count} article details", articleDetails.Count);
 
+                // Organizations
+                _logger.LogInformation(
+                    "Fetching organization cards for {Municipality}",
+                    municipalityShortName
+                );
+                var organizationCardsResponse = await _apiService.GetOrganizationCardsAsync(
+                    municipalityShortName,
+                    language,
+                    cancellationToken
+                );
+                var organizationCards = new List<UnicamOrganizationCard>();
+                if (organizationCardsResponse.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var card in organizationCardsResponse.EnumerateArray())
+                    {
+                        var orgCard =
+                            JsonSerializer.Deserialize<UnicamOrganizationCard>(card.GetRawText());
+                        if (orgCard != null && !string.IsNullOrWhiteSpace(orgCard.EntityId))
+                        {
+                            organizationCards.Add(orgCard);
+                        }
+                    }
+                }
+
+                _logger.LogInformation(
+                    "Found {Count} organization cards for {Municipality}",
+                    organizationCards.Count,
+                    municipalityShortName
+                );
+
+                var organizationDetails = await FetchDetailsFromCardIdsAsync(
+                    organizationCards.Select(c => c.EntityId ?? string.Empty),
+                    id => _apiService.GetOrganizationDetailAsync(id, language, cancellationToken),
+                    "organization",
+                    cancellationToken
+                );
+                if (organizationDetails.Count > 0)
+                {
+                    await _persistence.PersistOrganizationDetailsAsync(
+                        organizationDetails,
+                        municipalityInfo,
+                        language,
+                        cancellationToken
+                    );
+                }
+
+                result.OrganizationDetails.AddRange(organizationDetails);
+                result.OrganizationCount = organizationDetails.Count;
+                _logger.LogInformation(
+                    "Fetched {Count} organization details for {Municipality}",
+                    organizationDetails.Count,
+                    municipalityShortName
+                );
+
+                // Services (non-POI services endpoint)
+                _logger.LogInformation(
+                    "Fetching service cards for {Municipality}",
+                    municipalityShortName
+                );
+                var serviceCardsResponse = await _apiService.GetServiceCardsAsync(
+                    municipalityShortName,
+                    language,
+                    cancellationToken
+                );
+                var serviceCards = new List<UnicamPoiCard>();
+                if (serviceCardsResponse.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var card in serviceCardsResponse.EnumerateArray())
+                    {
+                        var serviceCard =
+                            JsonSerializer.Deserialize<UnicamPoiCard>(card.GetRawText());
+                        if (serviceCard != null && !string.IsNullOrWhiteSpace(serviceCard.EntityId))
+                        {
+                            serviceCards.Add(serviceCard);
+                        }
+                    }
+                }
+
+                _logger.LogInformation(
+                    "Found {Count} service cards for {Municipality}",
+                    serviceCards.Count,
+                    municipalityShortName
+                );
+
+                var serviceDetails = await FetchDetailsFromCardIdsAsync(
+                    serviceCards.Select(c => c.EntityId ?? string.Empty),
+                    id => _apiService.GetServiceDetailAsync(id, language, cancellationToken),
+                    "service",
+                    cancellationToken
+                );
+                if (serviceDetails.Count > 0)
+                {
+                    await _persistence.PersistServiceDetailsAsync(
+                        serviceDetails,
+                        municipalityInfo,
+                        language,
+                        cancellationToken
+                    );
+                }
+                result.ServiceCount = serviceDetails.Count;
+                _logger.LogInformation(
+                    "Fetched {Count} service details for {Municipality}",
+                    serviceDetails.Count,
+                    municipalityShortName
+                );
+
                 // POIs - Load cards for each category and then fetch details
                 // Use short name (without "Comune di") for POI card endpoints
                 await IngestPoiCategoryAsync(
@@ -236,7 +342,68 @@ namespace ChillCodeBackend.Services.Ingestion
                 result.Errors.Add(ex.Message);
             }
 
-            return result;
+                return result;
+        }
+
+        private async Task<List<JsonElement>> FetchDetailsFromCardIdsAsync(
+            IEnumerable<string> entityIds,
+            Func<string, Task<JsonElement>> detailFetcher,
+            string itemLabel,
+            CancellationToken cancellationToken
+        )
+        {
+            var details = new List<JsonElement>();
+            var skipped = 0;
+
+            foreach (var entityId in entityIds)
+            {
+                if (string.IsNullOrWhiteSpace(entityId))
+                {
+                    continue;
+                }
+
+                cancellationToken.ThrowIfCancellationRequested();
+                try
+                {
+                    var detail = await detailFetcher(entityId);
+                    details.Add(detail);
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (UnicamApiException ex)
+                {
+                    skipped++;
+                    _logger.LogWarning(
+                        ex,
+                        "Skipping detail for {ItemLabel} {EntityId} due to Unicam API error.",
+                        itemLabel,
+                        entityId
+                    );
+                }
+                catch (Exception ex)
+                {
+                    skipped++;
+                    _logger.LogWarning(
+                        ex,
+                        "Skipping detail for {ItemLabel} {EntityId} due to unexpected error.",
+                        itemLabel,
+                        entityId
+                    );
+                }
+            }
+
+            if (skipped > 0)
+            {
+                _logger.LogInformation(
+                    "Skipped {Skipped} {ItemLabel} detail requests due to errors.",
+                    skipped,
+                    itemLabel
+                );
+            }
+
+            return details;
         }
 
         private async Task<List<JsonElement>> FetchDetailsFromHighlightsAsync(

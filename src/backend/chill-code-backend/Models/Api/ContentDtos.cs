@@ -7,6 +7,8 @@ namespace ChillCodeBackend.Models.Api
         public List<EventDto> Events { get; set; } = new();
         public List<RouteDto> Routes { get; set; } = new();
         public List<PoiDto> Pois { get; set; } = new();
+        public List<OrganizationCardDto> Organizations { get; set; } = new();
+        public List<ServiceCardDto> Services { get; set; } = new();
     }
 
     public class ArticleDto
@@ -52,4 +54,3 @@ namespace ChillCodeBackend.Models.Api
         public string PrimaryImage { get; set; } = string.Empty;
     }
 }
-

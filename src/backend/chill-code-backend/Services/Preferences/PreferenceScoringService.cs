@@ -77,6 +77,7 @@ namespace ChillCodeBackend.Services.Preferences
                 "Shopping & Markets",
                 "Local Traditions",
             },
+            [MobileCategory.Sleep] = Array.Empty<string>(),
         };
 
         private static readonly Dictionary<string, string[]> PoiTypologyInterestMap =
@@ -394,6 +395,12 @@ namespace ChillCodeBackend.Services.Preferences
                         {
                             score += 1.0;
                         }
+                    }
+
+                    // Boost Sleep POIs significantly when user wants overnight stay
+                    if (preference.OvernightStay == true && poi.Category == MobileCategory.Sleep)
+                    {
+                        score += 2.0;
                     }
 
                     var mappedInterests = MapPoiCategoryToInterests(poi.Category)

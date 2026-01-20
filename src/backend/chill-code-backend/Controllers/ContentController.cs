@@ -116,13 +116,47 @@ namespace ChillCodeBackend.Controllers
                 })
                 .ToListAsync(ct);
 
+            // Organizations
+            var organizations = await _dbContext.Organizations
+                .AsNoTracking()
+                .Where(o => o.MunicipalityData.Name == normalized && o.Language == lang)
+                .Select(o => new OrganizationCardDto
+                {
+                    TaxCode = o.TaxCode,
+                    LegalName = o.LegalName,
+                    PrimaryImagePath = o.PrimaryImagePath,
+                    Type = o.Type,
+                    Address = o.Address,
+                    MunicipalityName = o.MunicipalityData.Name ?? string.Empty,
+                    MunicipalityLogo = o.MunicipalityData.LogoPath ?? string.Empty
+                })
+                .ToListAsync(ct);
+
+            // Services
+            var services = await _dbContext.Services
+                .AsNoTracking()
+                .Where(s => s.MunicipalityData.Name == normalized && s.Language == lang)
+                .Select(s => new ServiceCardDto
+                {
+                    Identifier = s.Identifier,
+                    Name = s.Name,
+                    Address = s.Address,
+                    Typology = s.Typology,
+                    PrimaryImage = s.PrimaryImage,
+                    MunicipalityName = s.MunicipalityData.Name ?? string.Empty,
+                    MunicipalityLogo = s.MunicipalityData.LogoPath ?? string.Empty
+                })
+                .ToListAsync(ct);
+
             return Ok(new MunicipalityContentDto
             {
                 Municipality = normalized,
                 Articles = articles,
                 Events = events,
                 Routes = routes,
-                Pois = pois
+                Pois = pois,
+                Organizations = organizations,
+                Services = services
             });
         }
     }

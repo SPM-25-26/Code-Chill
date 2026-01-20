@@ -63,6 +63,22 @@ namespace ChillCodeBackend.Controllers
                 .Events.AsNoTracking()
                 .CountAsync(e => e.MunicipalityData.Name == string.Empty, cancellationToken);
 
+            var organizationCount = await _dbContext
+                .Organizations.AsNoTracking()
+                .CountAsync(o => o.MunicipalityData.Name == normalized, cancellationToken);
+
+            var unassignedOrganizationCount = await _dbContext
+                .Organizations.AsNoTracking()
+                .CountAsync(o => o.MunicipalityData.Name == string.Empty, cancellationToken);
+
+            var serviceCount = await _dbContext
+                .Services.AsNoTracking()
+                .CountAsync(s => s.MunicipalityData.Name == normalized, cancellationToken);
+
+            var unassignedServiceCount = await _dbContext
+                .Services.AsNoTracking()
+                .CountAsync(s => s.MunicipalityData.Name == string.Empty, cancellationToken);
+
             var routeCount = await _dbContext
                 .Routes.AsNoTracking()
                 .CountAsync(r => r.MunicipalityData.Name == normalized, cancellationToken);
@@ -99,9 +115,13 @@ namespace ChillCodeBackend.Controllers
                     MunicipalityProfileExists = municipalityProfileExists,
                     ArticleCount = articleCount,
                     EventCount = eventCount,
+                    OrganizationCount = organizationCount,
+                    ServiceCount = serviceCount,
                     RouteCount = routeCount,
                     UnassignedArticleCount = unassignedArticleCount,
                     UnassignedEventCount = unassignedEventCount,
+                    UnassignedOrganizationCount = unassignedOrganizationCount,
+                    UnassignedServiceCount = unassignedServiceCount,
                     UnassignedRouteCount = unassignedRouteCount,
                     Runs = runs,
                 }

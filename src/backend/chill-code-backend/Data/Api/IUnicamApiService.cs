@@ -24,6 +24,12 @@ namespace ChillCodeBackend.Data.Api
             CancellationToken cancellationToken = default
         );
 
+        Task<JsonElement> GetServiceDetailAsync(
+            string identifier,
+            string language = "it",
+            CancellationToken cancellationToken = default
+        );
+
         Task<JsonElement> GetRouteDetailAsync(
             string identifier,
             string language = "it",
@@ -45,6 +51,20 @@ namespace ChillCodeBackend.Data.Api
         // Card endpoints to get lists of POIs by municipality
         Task<JsonElement> GetPoiCardsAsync(
             UnicamPoiCategory category,
+            string municipality,
+            string language = "it",
+            CancellationToken cancellationToken = default
+        );
+
+        // Organization card list endpoint
+        Task<JsonElement> GetOrganizationCardsAsync(
+            string municipality,
+            string language = "it",
+            CancellationToken cancellationToken = default
+        );
+
+        // Service card list endpoint
+        Task<JsonElement> GetServiceCardsAsync(
             string municipality,
             string language = "it",
             CancellationToken cancellationToken = default

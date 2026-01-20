@@ -16,6 +16,7 @@ namespace ChillCodeBackend.Models.Api
         public Dictionary<UnicamPoiCategory, int> PoiCounts { get; set; } = new();
         public int EventCount { get; set; }
         public int OrganizationCount { get; set; }
+        public int ServiceCount { get; set; }
         public int RouteCount { get; set; }
         public int ArticleCount { get; set; }
         public List<string> Errors { get; set; } = new();

@@ -5,9 +5,13 @@ namespace ChillCodeBackend.Models.Api
         public string Municipality { get; set; } = string.Empty;
         public int ArticleCount { get; set; }
         public int EventCount { get; set; }
+        public int OrganizationCount { get; set; }
+        public int ServiceCount { get; set; }
         public int RouteCount { get; set; }
         public int UnassignedArticleCount { get; set; }
         public int UnassignedEventCount { get; set; }
+        public int UnassignedOrganizationCount { get; set; }
+        public int UnassignedServiceCount { get; set; }
         public int UnassignedRouteCount { get; set; }
         public bool MunicipalityProfileExists { get; set; }
         public List<IngestionRunDto> Runs { get; set; } = new();

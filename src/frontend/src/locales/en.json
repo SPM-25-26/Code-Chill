@@ -7,6 +7,9 @@
     "showingAll": "Showing all",
     "filtered": "Filtered",
     "contentType": "Content Type:",
+    "sorting": "Sort:",
+    "nearMe": "Near me",
+    "locationDenied": "Location access is off. Enable it to sort by distance.",
     "municipality": "Municipality:",
     "allMunicipalities": "All municipalities",
     "clearAll": "Clear all"

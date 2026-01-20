@@ -63,7 +63,9 @@ namespace ChillCodeBackend.Controllers
                     Title = a.Title,
                     Subtitle = a.Subtitle,
                     Region = a.Region,
-                    ImagePath = a.ImagePath
+                    ImagePath = a.ImagePath,
+                    Latitude = null,
+                    Longitude = null
                 })
                 .ToListAsync(ct);
 
@@ -79,7 +81,9 @@ namespace ChillCodeBackend.Controllers
                     Address = e.Address,
                     PrimaryImage = e.PrimaryImage,
                     StartDate = e.StartDate,
-                    EndDate = e.EndDate
+                    EndDate = e.EndDate,
+                    Latitude = e.Latitude,
+                    Longitude = e.Longitude
                 })
                 .ToListAsync(ct);
 
@@ -96,7 +100,9 @@ namespace ChillCodeBackend.Controllers
                     TravellingMethod = r.TravellingMethod,
                     Duration = r.Duration ?? string.Empty,
                     RouteLength = r.RouteLength ?? string.Empty,
-                    ImagePath = r.ImagePath
+                    ImagePath = r.ImagePath,
+                    Latitude = r.StartingPoint != null ? r.StartingPoint.Latitude : null,
+                    Longitude = r.StartingPoint != null ? r.StartingPoint.Longitude : null
                 })
                 .ToListAsync(ct);
 
@@ -112,7 +118,9 @@ namespace ChillCodeBackend.Controllers
                     Description = p.Description,
                     Address = p.Address,
                     Typology = p.Typology,
-                    PrimaryImage = p.PrimaryImage
+                    PrimaryImage = p.PrimaryImage,
+                    Latitude = p.Latitude,
+                    Longitude = p.Longitude
                 })
                 .ToListAsync(ct);
 
@@ -128,7 +136,9 @@ namespace ChillCodeBackend.Controllers
                     Type = o.Type,
                     Address = o.Address,
                     MunicipalityName = o.MunicipalityData.Name ?? string.Empty,
-                    MunicipalityLogo = o.MunicipalityData.LogoPath ?? string.Empty
+                    MunicipalityLogo = o.MunicipalityData.LogoPath ?? string.Empty,
+                    Latitude = o.Latitude,
+                    Longitude = o.Longitude
                 })
                 .ToListAsync(ct);
 
@@ -144,7 +154,9 @@ namespace ChillCodeBackend.Controllers
                     Typology = s.Typology,
                     PrimaryImage = s.PrimaryImage,
                     MunicipalityName = s.MunicipalityData.Name ?? string.Empty,
-                    MunicipalityLogo = s.MunicipalityData.LogoPath ?? string.Empty
+                    MunicipalityLogo = s.MunicipalityData.LogoPath ?? string.Empty,
+                    Latitude = s.Latitude,
+                    Longitude = s.Longitude
                 })
                 .ToListAsync(ct);
 

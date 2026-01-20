@@ -75,6 +75,7 @@ export default function HomePage() {
     const [selectedTypes, setSelectedTypes] = useState([]);
     const [selectedCities, setSelectedCities] = useState([]);
     const [filterCollapsed, setFilterCollapsed] = useState(false);
+    const [sortNearMe, setSortNearMe] = useState(false);
 
     const [tabValue, setTabValue] = useState('all');
 
@@ -259,14 +260,44 @@ export default function HomePage() {
 
     const sortedContent = useMemo(() => {
         const withScore = [...getTabContent];
+        const getCoords = (item) => {
+            const lat = item.latitude ?? item.Latitude;
+            const lng = item.longitude ?? item.Longitude;
+            return typeof lat === 'number' && typeof lng === 'number'
+                ? { lat, lng }
+                : null;
+        };
+        const distanceKm = (a, b) => {
+            const R = 6371;
+            const toRad = (v) => (v * Math.PI) / 180;
+            const dLat = toRad(b.lat - a.lat);
+            const dLng = toRad(b.lng - a.lng);
+            const lat1 = toRad(a.lat);
+            const lat2 = toRad(b.lat);
+            const h =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+            return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+        };
         const getScore = (item) => {
             const id = item.id ?? item.Id ?? item.identifier ?? item.taxCode;
             return id && scoreMap[id] != null ? scoreMap[id] : 0;
         };
 
-        withScore.sort((a, b) => getScore(b) - getScore(a));
+        if (sortNearMe && userLocation) {
+            withScore.sort((a, b) => {
+                const coordsA = getCoords(a);
+                const coordsB = getCoords(b);
+                if (!coordsA && !coordsB) return getScore(b) - getScore(a);
+                if (!coordsA) return 1;
+                if (!coordsB) return -1;
+                return distanceKm(userLocation, coordsA) - distanceKm(userLocation, coordsB);
+            });
+        } else {
+            withScore.sort((a, b) => getScore(b) - getScore(a));
+        }
         return withScore;
-    }, [getTabContent, scoreMap]);
+    }, [getTabContent, scoreMap, sortNearMe, userLocation]);
 
     // Paginated content
     const paginatedContent = useMemo(() => {
@@ -284,6 +315,7 @@ export default function HomePage() {
     const handleTypeToggle = (_, newTypes) => setSelectedTypes(newTypes);
     const handleCityChange = (_, newValue) => setSelectedCities(newValue);
     const handleLanguageToggle = () => changeLanguage(language === 'en' ? 'it' : 'en');
+    const toggleNearMe = () => setSortNearMe((prev) => !prev);
 
     const getContentIcon = (type) => {
         switch (type) {
@@ -373,6 +405,7 @@ export default function HomePage() {
         setSelectedTypes([]);
         setSelectedCities([]);
         setTabValue('all');
+        setSortNearMe(false);
     };
 
     /** Rendering */
@@ -454,6 +487,26 @@ export default function HomePage() {
                             <ToggleButton value="Sleep" aria-label="sleep" className="filter-toggle"><HotelIcon fontSize="small" /><span>{t('poiCategories.sleep')}</span></ToggleButton>
                             <ToggleButton value="TypicalProducts" aria-label="typical-products" className="filter-toggle"><LocalOfferIcon fontSize="small" /><span>{t('poiCategories.typicalProducts')}</span></ToggleButton>
                         </ToggleButtonGroup>
+                    </Box>
+
+                    <Box>
+                        <Typography variant="caption" sx={{ fontWeight: 600, mb: 0.5, display: 'block' }}>{t('filters.sorting')}</Typography>
+                        <ToggleButton
+                            value="near-me"
+                            selected={sortNearMe}
+                            onChange={toggleNearMe}
+                            aria-label="near me"
+                            className="filter-toggle"
+                            disabled={!userLocation}
+                        >
+                            <LocationOnIcon fontSize="small" />
+                            <span>{t('filters.nearMe')}</span>
+                        </ToggleButton>
+                        {!userLocation && locationDenied && (
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                                {t('filters.locationDenied')}
+                            </Typography>
+                        )}
                     </Box>
 
                     {/* City Filter */}

@@ -50,7 +50,9 @@ namespace ChillCodeBackend.Controllers
                     Type = o.Type,
                     Address = o.Address,
                     MunicipalityName = o.MunicipalityData?.Name ?? string.Empty,
-                    MunicipalityLogo = o.MunicipalityData?.LogoPath ?? string.Empty
+                    MunicipalityLogo = o.MunicipalityData?.LogoPath ?? string.Empty,
+                    Latitude = o.Latitude,
+                    Longitude = o.Longitude
                 })
                 .ToList();
 

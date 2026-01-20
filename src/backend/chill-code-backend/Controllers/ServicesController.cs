@@ -51,7 +51,9 @@ namespace ChillCodeBackend.Controllers
                     Typology = s.Typology,
                     PrimaryImage = s.PrimaryImage,
                     MunicipalityName = s.MunicipalityData?.Name ?? string.Empty,
-                    MunicipalityLogo = s.MunicipalityData?.LogoPath ?? string.Empty
+                    MunicipalityLogo = s.MunicipalityData?.LogoPath ?? string.Empty,
+                    Latitude = s.Latitude,
+                    Longitude = s.Longitude
                 })
                 .ToList();
 

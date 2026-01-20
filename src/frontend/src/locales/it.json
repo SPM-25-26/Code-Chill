@@ -7,6 +7,9 @@
     "showingAll": "Mostra tutto",
     "filtered": "Filtrato",
     "contentType": "Tipo di contenuto:",
+    "sorting": "Ordina:",
+    "nearMe": "Vicino a me",
+    "locationDenied": "Posizione disattivata. Attivala per ordinare per distanza.",
     "municipality": "Comune:",
     "allMunicipalities": "Tutti i comuni",
     "clearAll": "Cancella tutto"

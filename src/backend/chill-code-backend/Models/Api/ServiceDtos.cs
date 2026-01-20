@@ -13,6 +13,8 @@ namespace ChillCodeBackend.Models.Api
         public string PrimaryImage { get; set; } = string.Empty;
         public string MunicipalityName { get; set; } = string.Empty;
         public string MunicipalityLogo { get; set; } = string.Empty;
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
     }
 
     public class ServiceDetailDto

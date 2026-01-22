@@ -55,6 +55,8 @@ import ChatbotOverlay from '../components/ChatbotOverlay.js';
 import './styles/HomePage.css';
 
 const MEDIA_BASE = 'https://eppoi.io';
+const DISTANCE_THRESHOLD_KM = 1000;
+
 function buildMediaUrl(path) {
     if (!path) return '';
     if (path.startsWith('http')) return path;
@@ -124,17 +126,33 @@ export default function HomePage() {
         return distanceKm(userLocation, coords);
     };
 
-    const renderDistance = (item) => {
+    const getRegion = (item) => item.region ?? item.Region ?? 'Marche';
+
+    const renderDistanceOrRegion = (item) => {
         const distance = getDistanceFromUser(item);
-        if (distance == null) return null;
-        return (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
-                <LocationOnIcon sx={{ fontSize: 14, color: 'var(--teal)' }} />
-                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                    {distance.toFixed(1)} km
-                </Typography>
-            </Box>
-        );
+        const region = getRegion(item);
+
+        if (distance != null && distance <= DISTANCE_THRESHOLD_KM) {
+            return (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                    <LocationOnIcon sx={{ fontSize: 14, color: 'var(--teal)' }} />
+                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                        {distance.toFixed(1)} km
+                    </Typography>
+                </Box>
+            );
+        }
+        else if (region) {
+            return (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                    <LocationOnIcon sx={{ fontSize: 14, color: 'var(--teal)' }} />
+                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                        {region}
+                    </Typography>
+                </Box>
+            );
+        }
+        return null;
     };
 
     const getEventBoost = (item) => {
@@ -425,7 +443,7 @@ export default function HomePage() {
             case 'article':
                 return (
                     <>
-                        {renderDistance(item)}
+                        {renderDistanceOrRegion(item)}
                         {item.subtitle && <Typography variant="caption" sx={{ display: 'block', mb: 0.5, color: 'text.secondary' }}>{item.subtitle}</Typography>}
                         {item.region && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><LocationOnIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary' }}>{item.region}</Typography></Box>}
                     </>
@@ -440,7 +458,7 @@ export default function HomePage() {
                                 </Typography>
                             </Box>
                         )}
-                        {renderDistance(item)}
+                        {renderDistanceOrRegion(item)}
                         {item.startDate && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><CalendarTodayIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary' }}>{formatDate(item.startDate)}</Typography></Box>}
                         {item.address && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><LocationOnIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.address}</Typography></Box>}
                     </>
@@ -448,7 +466,7 @@ export default function HomePage() {
             case 'route':
                 return (
                     <>
-                        {renderDistance(item)}
+                        {renderDistanceOrRegion(item)}
                         {item.duration && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><AccessTimeIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary' }}>{item.duration}</Typography></Box>}
                         {item.routeLength && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><RouteIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary' }}>{item.routeLength}</Typography></Box>}
                     </>
@@ -456,7 +474,7 @@ export default function HomePage() {
             case 'organization':
                 return (
                     <>
-                        {renderDistance(item)}
+                        {renderDistanceOrRegion(item)}
                         {item.type && <Typography variant="caption" sx={{ display: 'block', mb: 0.5, color: 'text.secondary' }}>{item.type}</Typography>}
                         {item.address && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><LocationOnIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.address}</Typography></Box>}
                     </>
@@ -464,7 +482,7 @@ export default function HomePage() {
             default:
                 return (
                     <>
-                        {renderDistance(item)}
+                        {renderDistanceOrRegion(item)}
                         {item.typology && <Typography variant="caption" sx={{ display: 'block', mb: 0.5, color: 'text.secondary' }}>{item.typology}</Typography>}
                         {item.address && <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}><LocationOnIcon sx={{ fontSize: 14, color: 'var(--teal)' }} /><Typography variant="caption" sx={{ color: 'text.secondary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.address}</Typography></Box>}
                     </>
@@ -569,7 +587,6 @@ export default function HomePage() {
                             <ToggleButton value="EatAndDrink" aria-label="eat-drink" className="filter-toggle"><RestaurantIcon fontSize="small" /><span>{t('poiCategories.eatAndDrink')}</span></ToggleButton>
                             <ToggleButton value="EntertainmentLeisure" aria-label="entertainment" className="filter-toggle"><TheaterComedyIcon fontSize="small" /><span>{t('poiCategories.entertainmentLeisure')}</span></ToggleButton>
                             <ToggleButton value="Nature" aria-label="nature" className="filter-toggle"><ParkIcon fontSize="small" /><span>{t('poiCategories.nature')}</span></ToggleButton>
-                            <ToggleButton value="Services" aria-label="services" className="filter-toggle"><BuildIcon fontSize="small" /><span>{t('poiCategories.services')}</span></ToggleButton>
                             <ToggleButton value="Shopping" aria-label="shopping" className="filter-toggle"><ShoppingBagIcon fontSize="small" /><span>{t('poiCategories.shopping')}</span></ToggleButton>
                             <ToggleButton value="Sleep" aria-label="sleep" className="filter-toggle"><HotelIcon fontSize="small" /><span>{t('poiCategories.sleep')}</span></ToggleButton>
                             <ToggleButton value="TypicalProducts" aria-label="typical-products" className="filter-toggle"><LocalOfferIcon fontSize="small" /><span>{t('poiCategories.typicalProducts')}</span></ToggleButton>

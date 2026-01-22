@@ -231,7 +231,7 @@ export default function HomePage() {
         }
     }, []);
 
-    /** Aggiorna feed se il questionario modifica le preferenze */
+    /** Listen for preference changes */
     useEffect(() => {
         const handlePreferencesChange = (event) => {
             const detail = event?.detail;
@@ -252,7 +252,7 @@ export default function HomePage() {
         return () => window.removeEventListener('preferencesChanged', handlePreferencesChange);
     }, []);
 
-    /** Carica preview con score dal backend */
+    /** Load preview scores */
     useEffect(() => {
         const loadPreview = async () => {
             if (!token) return;

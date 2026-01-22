@@ -7,6 +7,9 @@
     "showingAll": "Showing all",
     "filtered": "Filtered",
     "contentType": "Content Type:",
+    "sorting": "Sort:",
+    "nearMe": "Near me",
+    "locationDenied": "Location access is off. Enable it to sort by distance.",
     "municipality": "Municipality:",
     "allMunicipalities": "All municipalities",
     "clearAll": "Clear all"
@@ -15,14 +18,30 @@
     "articles": "Articles",
     "events": "Events",
     "routes": "Routes",
+    "organizations": "Organizations",
+    "services": "Services",
     "article": "Article",
     "event": "Event",
-    "route": "Route"
+    "route": "Route",
+    "organization": "Organization",
+    "service": "Service"
+  },
+  "poiCategories": {
+    "artCulture": "Art & Culture",
+    "eatAndDrink": "Restaurant",
+    "entertainmentLeisure": "Entertainment",
+    "nature": "Nature",
+    "services": "Services",
+    "shopping": "Shopping",
+    "sleep": "Accommodation",
+    "typicalProducts": "Local Products"
   },
   "menu": {
     "preferences": "Preferences",
     "adminIngestion": "Admin Ingestion",
-    "logout": "Logout"
+    "adminLlmHealth": "LLM Health Check",
+    "logout": "Logout",
+    "discover": "Discover"
   },
   "messages": {
     "loading": "Loading content…",
@@ -36,6 +55,28 @@
     "recommendedForYou": "Recommended for you",
     "otherRecommendations": "Other recommendations",
     "mightLike": "You might like…",
-    "AllActivities": "All activities"
+    "AllActivities": "All activities",
+    "OpenGoogleMaps": "Open in Google Maps",
+    "Location": "Location",
+    "contant&social": "Contacts and social",
+    "eventInformation": "Event Information",
+    "eventLive": "Live now",
+    "eventUpcoming": "Upcoming soon",
+    "routeDetails": "Route Details",
+    "bestTimeToVisit": "Best time to visit",
+    "themes": "Themes",
+    "methodsOfTravel": "Methods of travel",
+    "stages": "Stages",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "virtualTour": "Virtual Tour",
+    "viewVirtualTour": "View virtual tour"
+  },
+  "chat": {
+    "title": "ChillCode Chat",
+    "empty": "Ask me about nearby activities or events.",
+    "placeholder": "Type your message…",
+    "thinking": "Thinking…",
+    "error": "Chat request failed."
   }
 }

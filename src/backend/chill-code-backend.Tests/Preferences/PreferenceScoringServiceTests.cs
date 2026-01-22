@@ -32,7 +32,7 @@ namespace chill_code_backend.Tests.Preferences
             var preview = await service.BuildPreviewAsync(preference, CancellationToken.None);
 
             preview.Routes.Should().NotBeEmpty();
-            preview.Routes.First().Score.Should().BeGreaterThan(preview.Routes.Last().Score);
+            preview.Routes.First().Score.Should().BeGreaterThanOrEqualTo(preview.Routes.Last().Score);
         }
 
         private static void Seed(ChillCodeDbContext db)

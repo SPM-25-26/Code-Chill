@@ -23,11 +23,13 @@ namespace ChillCodeBackend.Controllers
             var articleNames = _dbContext.Articles.Select(a => a.MunicipalityData.Name);
             var eventNames = _dbContext.Events.Select(e => e.MunicipalityData.Name);
             var routeNames = _dbContext.Routes.Select(r => r.MunicipalityData.Name);
+            var poiNames = _dbContext.PointsOfInterest.Select(p => p.MunicipalityData.Name);
             var muniNames = _dbContext.Municipalities.Select(m => m.Name);
 
             var names = await articleNames
                 .Concat(eventNames)
                 .Concat(routeNames)
+                .Concat(poiNames)
                 .Concat(muniNames)
                 .Where(n => !string.IsNullOrWhiteSpace(n))
                 .Distinct()
@@ -61,7 +63,9 @@ namespace ChillCodeBackend.Controllers
                     Title = a.Title,
                     Subtitle = a.Subtitle,
                     Region = a.Region,
-                    ImagePath = a.ImagePath
+                    ImagePath = a.ImagePath,
+                    Latitude = null,
+                    Longitude = null
                 })
                 .ToListAsync(ct);
 
@@ -77,7 +81,9 @@ namespace ChillCodeBackend.Controllers
                     Address = e.Address,
                     PrimaryImage = e.PrimaryImage,
                     StartDate = e.StartDate,
-                    EndDate = e.EndDate
+                    EndDate = e.EndDate,
+                    Latitude = e.Latitude,
+                    Longitude = e.Longitude
                 })
                 .ToListAsync(ct);
 
@@ -94,7 +100,63 @@ namespace ChillCodeBackend.Controllers
                     TravellingMethod = r.TravellingMethod,
                     Duration = r.Duration ?? string.Empty,
                     RouteLength = r.RouteLength ?? string.Empty,
-                    ImagePath = r.ImagePath
+                    ImagePath = r.ImagePath,
+                    Latitude = r.StartingPoint != null ? r.StartingPoint.Latitude : null,
+                    Longitude = r.StartingPoint != null ? r.StartingPoint.Longitude : null
+                })
+                .ToListAsync(ct);
+
+            // POIs
+            var pois = await _dbContext.PointsOfInterest
+                .AsNoTracking()
+                .Where(p => p.MunicipalityData.Name == normalized && p.Language == lang)
+                .Select(p => new PoiDto
+                {
+                    Id = p.Identifier,
+                    Title = !string.IsNullOrWhiteSpace(p.Title) ? p.Title : p.OfficialName,
+                    Category = p.Category.ToString(),
+                    Description = p.Description,
+                    Address = p.Address,
+                    Typology = p.Typology,
+                    PrimaryImage = p.PrimaryImage,
+                    Latitude = p.Latitude,
+                    Longitude = p.Longitude
+                })
+                .ToListAsync(ct);
+
+            // Organizations
+            var organizations = await _dbContext.Organizations
+                .AsNoTracking()
+                .Where(o => o.MunicipalityData.Name == normalized && o.Language == lang)
+                .Select(o => new OrganizationCardDto
+                {
+                    TaxCode = o.TaxCode,
+                    LegalName = o.LegalName,
+                    PrimaryImagePath = o.PrimaryImagePath,
+                    Type = o.Type,
+                    Address = o.Address,
+                    MunicipalityName = o.MunicipalityData.Name ?? string.Empty,
+                    MunicipalityLogo = o.MunicipalityData.LogoPath ?? string.Empty,
+                    Latitude = o.Latitude,
+                    Longitude = o.Longitude
+                })
+                .ToListAsync(ct);
+
+            // Services
+            var services = await _dbContext.Services
+                .AsNoTracking()
+                .Where(s => s.MunicipalityData.Name == normalized && s.Language == lang)
+                .Select(s => new ServiceCardDto
+                {
+                    Identifier = s.Identifier,
+                    Name = s.Name,
+                    Address = s.Address,
+                    Typology = s.Typology,
+                    PrimaryImage = s.PrimaryImage,
+                    MunicipalityName = s.MunicipalityData.Name ?? string.Empty,
+                    MunicipalityLogo = s.MunicipalityData.LogoPath ?? string.Empty,
+                    Latitude = s.Latitude,
+                    Longitude = s.Longitude
                 })
                 .ToListAsync(ct);
 
@@ -103,7 +165,10 @@ namespace ChillCodeBackend.Controllers
                 Municipality = normalized,
                 Articles = articles,
                 Events = events,
-                Routes = routes
+                Routes = routes,
+                Pois = pois,
+                Organizations = organizations,
+                Services = services
             });
         }
     }

@@ -1,8 +1,11 @@
-using System.Text.Json;
 using ChillCodeBackend.Models.Unicam;
 
 namespace ChillCodeBackend.Models.Api
 {
+    /// <summary>
+    /// Response DTO for ingestion operations.
+    /// Contains only summary information (counts and errors), not the full detail data.
+    /// </summary>
     public class IngestionResponseDto
     {
         public string Municipality { get; set; } = string.Empty;
@@ -13,13 +16,9 @@ namespace ChillCodeBackend.Models.Api
         public Dictionary<UnicamPoiCategory, int> PoiCounts { get; set; } = new();
         public int EventCount { get; set; }
         public int OrganizationCount { get; set; }
+        public int ServiceCount { get; set; }
         public int RouteCount { get; set; }
         public int ArticleCount { get; set; }
         public List<string> Errors { get; set; } = new();
-        public List<JsonElement> PoiDetails { get; set; } = new();
-        public List<JsonElement> EventDetails { get; set; } = new();
-        public List<JsonElement> OrganizationDetails { get; set; } = new();
-        public List<JsonElement> RouteDetails { get; set; } = new();
-        public List<JsonElement> ArticleDetails { get; set; } = new();
     }
 }

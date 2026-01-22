@@ -42,12 +42,29 @@ namespace ChillCodeBackend.Controllers
 
             await PersistIngestionRunAsync(result, HttpContext.RequestAborted);
 
+            var response = Map(result);
+
+            // Return appropriate status code based on ingestion results:
+            // - If there are errors but some data was successfully ingested, return 200 OK with errors in response
+            // - If there are errors and NO data was ingested, return 500 Internal Server Error
+            // - Otherwise return 200 OK
             if (result.Errors.Count > 0)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, Map(result));
+                var hasAnyData =
+                    result.TotalPoiCount > 0
+                    || result.EventCount > 0
+                    || result.RouteCount > 0
+                    || result.ArticleCount > 0
+                    || result.OrganizationCount > 0
+                    || result.ServiceCount > 0;
+
+                if (!hasAnyData)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, response);
+                }
             }
 
-            return Ok(Map(result));
+            return Ok(response);
         }
 
         private async Task PersistIngestionRunAsync(
@@ -92,15 +109,9 @@ namespace ChillCodeBackend.Controllers
                 PoiCounts = new Dictionary<UnicamPoiCategory, int>(result.PoiCounts),
                 EventCount = result.EventCount,
                 OrganizationCount = result.OrganizationCount,
+                ServiceCount = result.ServiceCount,
                 RouteCount = result.RouteCount,
                 ArticleCount = result.ArticleCount,
-                PoiDetails = new List<System.Text.Json.JsonElement>(result.PoiDetails),
-                EventDetails = new List<System.Text.Json.JsonElement>(result.EventDetails),
-                OrganizationDetails = new List<System.Text.Json.JsonElement>(
-                    result.OrganizationDetails
-                ),
-                RouteDetails = new List<System.Text.Json.JsonElement>(result.RouteDetails),
-                ArticleDetails = new List<System.Text.Json.JsonElement>(result.ArticleDetails),
                 Errors = new List<string>(result.Errors),
             };
         }

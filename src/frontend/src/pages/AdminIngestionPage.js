@@ -40,6 +40,7 @@ function AdminIngestionPage() {
 
   const [error, setError] = useState('');
   const [result, setResult] = useState(null);
+  const [lastIngestionResult, setLastIngestionResult] = useState(null);
 
   useEffect(() => {
     const loadMunicipalities = async () => {
@@ -63,9 +64,15 @@ function AdminIngestionPage() {
       municipality: result.municipality ?? result.Municipality ?? '',
       articleCount: result.articleCount ?? result.ArticleCount ?? 0,
       eventCount: result.eventCount ?? result.EventCount ?? 0,
+      organizationCount: result.organizationCount ?? result.OrganizationCount ?? 0,
+      serviceCount: result.serviceCount ?? result.ServiceCount ?? 0,
       routeCount: result.routeCount ?? result.RouteCount ?? 0,
       unassignedArticleCount: result.unassignedArticleCount ?? result.UnassignedArticleCount ?? 0,
       unassignedEventCount: result.unassignedEventCount ?? result.UnassignedEventCount ?? 0,
+      unassignedOrganizationCount:
+        result.unassignedOrganizationCount ?? result.UnassignedOrganizationCount ?? 0,
+      unassignedServiceCount:
+        result.unassignedServiceCount ?? result.UnassignedServiceCount ?? 0,
       unassignedRouteCount: result.unassignedRouteCount ?? result.UnassignedRouteCount ?? 0,
       municipalityProfileExists:
         result.municipalityProfileExists ?? result.MunicipalityProfileExists ?? false,
@@ -104,6 +111,7 @@ function AdminIngestionPage() {
 
   const triggerIngestion = async () => {
     setError('');
+    setLastIngestionResult(null);
 
     const muni = (customMunicipality || selectedMunicipality).trim();
     if (!muni) {
@@ -113,10 +121,11 @@ function AdminIngestionPage() {
 
     setLoadingIngest(true);
     try {
-      await instance.post('/api/admin/ingest', {
+      const response = await instance.post('/api/admin/ingest', {
         municipality: muni,
         language,
       });
+      setLastIngestionResult(response.data);
       await loadSummary();
     } catch (e) {
       const msg =
@@ -223,6 +232,47 @@ function AdminIngestionPage() {
               {error}
             </Alert>
           )}
+
+          {lastIngestionResult && (
+            <Alert
+              severity={lastIngestionResult.errors?.length > 0 ? 'warning' : 'success'}
+              sx={{ mt: 2 }}
+            >
+              <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
+                Ingestion completed for {lastIngestionResult.municipality}
+              </Typography>
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1, mb: 1 }}>
+                <div>📄 Articles: {lastIngestionResult.articleCount || 0}</div>
+                <div>🎉 Events: {lastIngestionResult.eventCount || 0}</div>
+                <div>🏛️ Organizations: {lastIngestionResult.organizationCount || 0}</div>
+                <div>🛠️ Services: {lastIngestionResult.serviceCount || 0}</div>
+                <div>🚶 Routes: {lastIngestionResult.routeCount || 0}</div>
+                <div>📍 Total POIs: {lastIngestionResult.totalPoiCount || 0}</div>
+              </Box>
+              {lastIngestionResult.totalPoiCount > 0 && lastIngestionResult.poiCounts && (
+                <Box sx={{ mt: 1 }}>
+                  <Typography variant="caption" sx={{ fontWeight: 'bold' }}>POIs by Category:</Typography>
+                  <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 0.5, mt: 0.5, fontSize: '0.875rem' }}>
+                    {Object.entries(lastIngestionResult.poiCounts).map(([category, count]) => (
+                      <div key={category}>• {category}: {count}</div>
+                    ))}
+                  </Box>
+                </Box>
+              )}
+              {lastIngestionResult.errors?.length > 0 && (
+                <Box sx={{ mt: 1, pt: 1, borderTop: '1px solid rgba(0,0,0,0.1)' }}>
+                  <Typography variant="caption" sx={{ fontWeight: 'bold' }}>
+                    Errors ({lastIngestionResult.errors.length}):
+                  </Typography>
+                  <ul style={{ margin: '4px 0 0 0', paddingLeft: '20px', fontSize: '0.75rem' }}>
+                    {lastIngestionResult.errors.map((err, idx) => (
+                      <li key={idx}>{err}</li>
+                    ))}
+                  </ul>
+                </Box>
+              )}
+            </Alert>
+          )}
         </CardContent>
       </Card>
 
@@ -244,19 +294,29 @@ function AdminIngestionPage() {
                 <span className="ingestion-label">Events (DB):</span> {summary.eventCount}
               </div>
               <div>
+                <span className="ingestion-label">Organizations (DB):</span> {summary.organizationCount}
+              </div>
+              <div>
+                <span className="ingestion-label">Services (DB):</span> {summary.serviceCount}
+              </div>
+              <div>
                 <span className="ingestion-label">Routes (DB):</span> {summary.routeCount}
               </div>
             </div>
 
             {(summary.unassignedArticleCount > 0 ||
               summary.unassignedEventCount > 0 ||
+              summary.unassignedOrganizationCount > 0 ||
+              summary.unassignedServiceCount > 0 ||
               summary.unassignedRouteCount > 0) && (
               <Alert severity="warning" sx={{ mt: 2 }}>
                 Some stored records are missing municipality linkage (older ingestions). Trigger
                 ingestion again for this municipality to update them.
                 <div style={{ marginTop: 8 }}>
                   Unassigned — Articles: {summary.unassignedArticleCount}, Events:{' '}
-                  {summary.unassignedEventCount}, Routes: {summary.unassignedRouteCount}
+                  {summary.unassignedEventCount}, Organizations:{' '}
+                  {summary.unassignedOrganizationCount}, Services:{' '}
+                  {summary.unassignedServiceCount}, Routes: {summary.unassignedRouteCount}
                 </div>
               </Alert>
             )}
@@ -274,8 +334,10 @@ function AdminIngestionPage() {
                     <TableCell>Started</TableCell>
                     <TableCell>Completed</TableCell>
                     <TableCell>Language</TableCell>
+                    <TableCell align="right">POIs</TableCell>
                     <TableCell align="right">Articles</TableCell>
                     <TableCell align="right">Events</TableCell>
+                    <TableCell align="right">Organizations</TableCell>
                     <TableCell align="right">Routes</TableCell>
                     <TableCell align="right">Errors</TableCell>
                   </TableRow>
@@ -286,8 +348,12 @@ function AdminIngestionPage() {
                       <TableCell>{formatDateTime(r.startedAt ?? r.StartedAt)}</TableCell>
                       <TableCell>{formatDateTime(r.completedAt ?? r.CompletedAt)}</TableCell>
                       <TableCell>{r.language ?? r.Language ?? '-'}</TableCell>
+                      <TableCell align="right">{r.totalPoiCount ?? r.TotalPoiCount ?? 0}</TableCell>
                       <TableCell align="right">{r.articleCount ?? r.ArticleCount ?? 0}</TableCell>
                       <TableCell align="right">{r.eventCount ?? r.EventCount ?? 0}</TableCell>
+                      <TableCell align="right">
+                        {r.organizationCount ?? r.OrganizationCount ?? 0}
+                      </TableCell>
                       <TableCell align="right">{r.routeCount ?? r.RouteCount ?? 0}</TableCell>
                       <TableCell align="right">
                         {Array.isArray(r.errors ?? r.Errors) ? (r.errors ?? r.Errors).length : 0}

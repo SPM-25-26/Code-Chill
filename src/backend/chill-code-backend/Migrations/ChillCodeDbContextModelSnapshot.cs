@@ -301,6 +301,240 @@ namespace chill_code_backend.Migrations
                     b.ToTable("Municipalities");
                 });
 
+            modelBuilder.Entity("ChillCodeBackend.Models.Entities.Organization", b =>
+                {
+                    b.Property<string>("TaxCode")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Events")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Facebook")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("FoundationDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Gallery")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Instagram")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("it");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("LegalName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LegalStatus")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("MainFunction")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Neighbors")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Offers")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OwnedPoi")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PrimaryImagePath")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("SourceLastUpdated")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Telephone")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Website")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("TaxCode");
+
+                    b.HasIndex("Language");
+
+                    b.ToTable("Organizations", (string)null);
+                });
+
+            modelBuilder.Entity("ChillCodeBackend.Models.Entities.PointOfInterest", b =>
+                {
+                    b.Property<string>("Identifier")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Accessibility")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Facebook")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Facilities")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Gallery")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ImageThumbPath")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Instagram")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("TEXT");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("REAL");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("Neighbors")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OfficialName")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OpeningHours")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OrganizationLegalName")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OrganizationTaxCode")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Prices")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PrimaryImage")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Services")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("SourceLastUpdated")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Telephone")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Typology")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("VirtualTours")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Website")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Identifier");
+
+                    b.ToTable("PointsOfInterest");
+                });
+
             modelBuilder.Entity("ChillCodeBackend.Models.Entities.PreferenceResponse", b =>
                 {
                     b.Property<Guid>("Id")
@@ -464,6 +698,118 @@ namespace chill_code_backend.Migrations
                     b.ToTable("Routes");
                 });
 
+            modelBuilder.Entity("ChillCodeBackend.Models.Entities.Service", b =>
+                {
+                    b.Property<string>("Identifier")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AssociatedServices")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("AvailableParkingSpaces")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Facebook")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Gallery")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Instagram")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("it");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("Locations")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Neighbors")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("PayingParkingSpaces")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("PostiAutoVenduti")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Price")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PrimaryImage")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReservationUrl")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("SourceLastUpdated")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("SpacesForDisabled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Telephone")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("TotalNumberOfCarParkSpaces")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Typology")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Website")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Identifier");
+
+                    b.HasIndex("Language");
+
+                    b.ToTable("Services", (string)null);
+                });
+
             modelBuilder.Entity("ChillCodeBackend.Models.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -596,6 +942,29 @@ namespace chill_code_backend.Migrations
 
             modelBuilder.Entity("ChillCodeBackend.Models.Entities.Event", b =>
                 {
+                    b.OwnsOne("ChillCodeBackend.Models.Entities.MunicipalityInfo", "MunicipalityData", b1 =>
+                        {
+                            b1.Property<string>("EventIdentifier")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("LogoPath")
+                                .IsRequired()
+                                .HasMaxLength(500)
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("Name")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("TEXT");
+
+                            b1.HasKey("EventIdentifier");
+
+                            b1.ToTable("Events");
+
+                            b1.WithOwner()
+                                .HasForeignKey("EventIdentifier");
+                        });
+
                     b.OwnsOne("ChillCodeBackend.Models.Entities.CarParkInfo", "NearestCarPark", b1 =>
                         {
                             b1.Property<string>("EventIdentifier")
@@ -614,29 +983,6 @@ namespace chill_code_backend.Migrations
 
                             b1.Property<double?>("Longitude")
                                 .HasColumnType("REAL");
-
-                            b1.HasKey("EventIdentifier");
-
-                            b1.ToTable("Events");
-
-                            b1.WithOwner()
-                                .HasForeignKey("EventIdentifier");
-                        });
-
-                    b.OwnsOne("ChillCodeBackend.Models.Entities.MunicipalityInfo", "MunicipalityData", b1 =>
-                        {
-                            b1.Property<string>("EventIdentifier")
-                                .HasColumnType("TEXT");
-
-                            b1.Property<string>("LogoPath")
-                                .IsRequired()
-                                .HasMaxLength(500)
-                                .HasColumnType("TEXT");
-
-                            b1.Property<string>("Name")
-                                .IsRequired()
-                                .HasMaxLength(200)
-                                .HasColumnType("TEXT");
 
                             b1.HasKey("EventIdentifier");
 
@@ -726,6 +1072,119 @@ namespace chill_code_backend.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ChillCodeBackend.Models.Entities.Organization", b =>
+                {
+                    b.OwnsOne("ChillCodeBackend.Models.Entities.MunicipalityInfo", "MunicipalityData", b1 =>
+                        {
+                            b1.Property<string>("OrganizationTaxCode")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("LogoPath")
+                                .IsRequired()
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("Name")
+                                .IsRequired()
+                                .HasColumnType("TEXT");
+
+                            b1.HasKey("OrganizationTaxCode");
+
+                            b1.ToTable("Organizations");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrganizationTaxCode");
+                        });
+
+                    b.OwnsOne("ChillCodeBackend.Models.Entities.CarParkInfo", "NearestCarPark", b1 =>
+                        {
+                            b1.Property<string>("OrganizationTaxCode")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("Address")
+                                .IsRequired()
+                                .HasColumnType("TEXT");
+
+                            b1.Property<double?>("Distance")
+                                .HasColumnType("REAL");
+
+                            b1.Property<double?>("Latitude")
+                                .HasColumnType("REAL");
+
+                            b1.Property<double?>("Longitude")
+                                .HasColumnType("REAL");
+
+                            b1.HasKey("OrganizationTaxCode");
+
+                            b1.ToTable("Organizations");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrganizationTaxCode");
+                        });
+
+                    b.Navigation("MunicipalityData")
+                        .IsRequired();
+
+                    b.Navigation("NearestCarPark");
+                });
+
+            modelBuilder.Entity("ChillCodeBackend.Models.Entities.PointOfInterest", b =>
+                {
+                    b.OwnsOne("ChillCodeBackend.Models.Entities.MunicipalityInfo", "MunicipalityData", b1 =>
+                        {
+                            b1.Property<string>("PointOfInterestIdentifier")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("LogoPath")
+                                .IsRequired()
+                                .HasMaxLength(500)
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("Name")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("TEXT");
+
+                            b1.HasKey("PointOfInterestIdentifier");
+
+                            b1.ToTable("PointsOfInterest");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PointOfInterestIdentifier");
+                        });
+
+                    b.OwnsOne("ChillCodeBackend.Models.Entities.CarParkInfo", "NearestCarPark", b1 =>
+                        {
+                            b1.Property<string>("PointOfInterestIdentifier")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("Address")
+                                .IsRequired()
+                                .HasMaxLength(500)
+                                .HasColumnType("TEXT");
+
+                            b1.Property<double?>("Distance")
+                                .HasColumnType("REAL");
+
+                            b1.Property<double?>("Latitude")
+                                .HasColumnType("REAL");
+
+                            b1.Property<double?>("Longitude")
+                                .HasColumnType("REAL");
+
+                            b1.HasKey("PointOfInterestIdentifier");
+
+                            b1.ToTable("PointsOfInterest");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PointOfInterestIdentifier");
+                        });
+
+                    b.Navigation("MunicipalityData")
+                        .IsRequired();
+
+                    b.Navigation("NearestCarPark");
+                });
+
             modelBuilder.Entity("ChillCodeBackend.Models.Entities.Route", b =>
                 {
                     b.OwnsOne("ChillCodeBackend.Models.Entities.Point", "StartingPoint", b1 =>
@@ -779,6 +1238,241 @@ namespace chill_code_backend.Migrations
 
                     b.Navigation("StartingPoint")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ChillCodeBackend.Models.Entities.Service", b =>
+                {
+                    b.OwnsOne("ChillCodeBackend.Models.Entities.MunicipalityInfo", "MunicipalityData", b1 =>
+                        {
+                            b1.Property<string>("ServiceIdentifier")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("LogoPath")
+                                .IsRequired()
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("Name")
+                                .IsRequired()
+                                .HasColumnType("TEXT");
+
+                            b1.HasKey("ServiceIdentifier");
+
+                            b1.ToTable("Services");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ServiceIdentifier");
+                        });
+
+                    b.OwnsOne("ChillCodeBackend.Models.Entities.CarParkInfo", "NearestCarPark", b1 =>
+                        {
+                            b1.Property<string>("ServiceIdentifier")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("Address")
+                                .IsRequired()
+                                .HasColumnType("TEXT");
+
+                            b1.Property<double?>("Distance")
+                                .HasColumnType("REAL");
+
+                            b1.Property<double?>("Latitude")
+                                .HasColumnType("REAL");
+
+                            b1.Property<double?>("Longitude")
+                                .HasColumnType("REAL");
+
+                            b1.HasKey("ServiceIdentifier");
+
+                            b1.ToTable("Services");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ServiceIdentifier");
+                        });
+
+                    b.OwnsOne("ChillCodeBackend.Models.Entities.ServiceBooking", "Booking", b1 =>
+                        {
+                            b1.Property<string>("ServiceIdentifier")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("Description")
+                                .IsRequired()
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("Name")
+                                .IsRequired()
+                                .HasColumnType("TEXT");
+
+                            b1.HasKey("ServiceIdentifier");
+
+                            b1.ToTable("Services");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ServiceIdentifier");
+
+                            b1.OwnsOne("ChillCodeBackend.Models.Entities.TimeIntervalInfo", "TimeInterval", b2 =>
+                                {
+                                    b2.Property<string>("ServiceBookingServiceIdentifier")
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<DateTime?>("Date")
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<DateTime?>("EndDate")
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<DateTime?>("StartDate")
+                                        .HasColumnType("TEXT");
+
+                                    b2.HasKey("ServiceBookingServiceIdentifier");
+
+                                    b2.ToTable("Services");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("ServiceBookingServiceIdentifier");
+                                });
+
+                            b1.Navigation("TimeInterval");
+                        });
+
+                    b.OwnsOne("ChillCodeBackend.Models.Entities.ServiceOpeningHours", "OpeningHours", b1 =>
+                        {
+                            b1.Property<string>("ServiceIdentifier")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<TimeOnly?>("Closes")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("Day")
+                                .IsRequired()
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("Description")
+                                .IsRequired()
+                                .HasColumnType("TEXT");
+
+                            b1.Property<TimeOnly?>("Opens")
+                                .HasColumnType("TEXT");
+
+                            b1.HasKey("ServiceIdentifier");
+
+                            b1.ToTable("Services");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ServiceIdentifier");
+
+                            b1.OwnsOne("ChillCodeBackend.Models.Entities.AdmissionTypeInfo", "AdmissionType", b2 =>
+                                {
+                                    b2.Property<string>("ServiceOpeningHoursServiceIdentifier")
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<string>("Description")
+                                        .IsRequired()
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<string>("Name")
+                                        .IsRequired()
+                                        .HasColumnType("TEXT");
+
+                                    b2.HasKey("ServiceOpeningHoursServiceIdentifier");
+
+                                    b2.ToTable("Services");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("ServiceOpeningHoursServiceIdentifier");
+                                });
+
+                            b1.OwnsOne("ChillCodeBackend.Models.Entities.TimeIntervalInfo", "TimeInterval", b2 =>
+                                {
+                                    b2.Property<string>("ServiceOpeningHoursServiceIdentifier")
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<DateTime?>("Date")
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<DateTime?>("EndDate")
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<DateTime?>("StartDate")
+                                        .HasColumnType("TEXT");
+
+                                    b2.HasKey("ServiceOpeningHoursServiceIdentifier");
+
+                                    b2.ToTable("Services");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("ServiceOpeningHoursServiceIdentifier");
+                                });
+
+                            b1.Navigation("AdmissionType");
+
+                            b1.Navigation("TimeInterval");
+                        });
+
+                    b.OwnsOne("ChillCodeBackend.Models.Entities.ServiceTemporaryClosure", "TemporaryClosure", b1 =>
+                        {
+                            b1.Property<string>("ServiceIdentifier")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<TimeOnly?>("Closes")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("Day")
+                                .IsRequired()
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("Description")
+                                .IsRequired()
+                                .HasColumnType("TEXT");
+
+                            b1.Property<TimeOnly?>("Opens")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("ReasonForClosure")
+                                .IsRequired()
+                                .HasColumnType("TEXT");
+
+                            b1.HasKey("ServiceIdentifier");
+
+                            b1.ToTable("Services");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ServiceIdentifier");
+
+                            b1.OwnsOne("ChillCodeBackend.Models.Entities.TimeIntervalInfo", "TimeInterval", b2 =>
+                                {
+                                    b2.Property<string>("ServiceTemporaryClosureServiceIdentifier")
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<DateTime?>("Date")
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<DateTime?>("EndDate")
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<DateTime?>("StartDate")
+                                        .HasColumnType("TEXT");
+
+                                    b2.HasKey("ServiceTemporaryClosureServiceIdentifier");
+
+                                    b2.ToTable("Services");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("ServiceTemporaryClosureServiceIdentifier");
+                                });
+
+                            b1.Navigation("TimeInterval");
+                        });
+
+                    b.Navigation("Booking");
+
+                    b.Navigation("MunicipalityData")
+                        .IsRequired();
+
+                    b.Navigation("NearestCarPark");
+
+                    b.Navigation("OpeningHours");
+
+                    b.Navigation("TemporaryClosure");
                 });
 #pragma warning restore 612, 618
         }

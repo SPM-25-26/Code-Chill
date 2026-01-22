@@ -13,6 +13,9 @@ namespace ChillCodeBackend.Services.Ingestion
         );
         Task PersistPoiDetailsAsync(
             IEnumerable<JsonElement> items,
+            UnicamPoiCategory category,
+            MunicipalityInfo municipalityInfo,
+            string language,
             CancellationToken cancellationToken
         );
         Task PersistEventDetailsAsync(
@@ -23,6 +26,14 @@ namespace ChillCodeBackend.Services.Ingestion
         );
         Task PersistOrganizationDetailsAsync(
             IEnumerable<JsonElement> items,
+            MunicipalityInfo municipalityInfo,
+            string language,
+            CancellationToken cancellationToken
+        );
+        Task PersistServiceDetailsAsync(
+            IEnumerable<JsonElement> items,
+            MunicipalityInfo municipalityInfo,
+            string language,
             CancellationToken cancellationToken
         );
         Task PersistRouteDetailsAsync(

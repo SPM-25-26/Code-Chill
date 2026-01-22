@@ -15,7 +15,16 @@ namespace ChillCodeBackend.Services.Ingestion.Mappers
             {
                 if (element.TryGetProperty(propertyName, out var value))
                 {
-                    return value.GetString() ?? string.Empty;
+                    // Only try to get string if the value is actually a string
+                    if (value.ValueKind == JsonValueKind.String)
+                    {
+                        return value.GetString() ?? string.Empty;
+                    }
+                    // If it's null, return empty string
+                    if (value.ValueKind == JsonValueKind.Null)
+                    {
+                        return string.Empty;
+                    }
                 }
             }
 
@@ -129,7 +138,16 @@ namespace ChillCodeBackend.Services.Ingestion.Mappers
                 {
                     return value
                         .EnumerateArray()
-                        .Select(v => v.GetString())
+                        .Select(v =>
+                        {
+                            // Handle string elements
+                            if (v.ValueKind == JsonValueKind.String)
+                            {
+                                return v.GetString();
+                            }
+                            // Handle object elements (skip them)
+                            return null;
+                        })
                         .Where(v => !string.IsNullOrWhiteSpace(v))
                         .Select(v => v!.Trim())
                         .ToList();

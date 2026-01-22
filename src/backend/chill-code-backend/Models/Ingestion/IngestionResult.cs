@@ -13,6 +13,7 @@ namespace ChillCodeBackend.Models.Ingestion
         public Dictionary<UnicamPoiCategory, int> PoiCounts { get; } = new();
         public int EventCount { get; set; }
         public int OrganizationCount { get; set; }
+        public int ServiceCount { get; set; }
         public int RouteCount { get; set; }
         public int ArticleCount { get; set; }
         public List<string> Errors { get; } = new();

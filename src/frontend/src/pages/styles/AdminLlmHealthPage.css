@@ -1,0 +1,19 @@
+.llm-health-page {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.llm-health-header {
+  margin-bottom: 2rem;
+}
+
+.llm-health-card {
+  margin-bottom: 2rem;
+}
+
+.llm-health-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}

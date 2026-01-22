@@ -16,6 +16,8 @@ namespace ChillCodeBackend.Models.Api
         public IReadOnlyCollection<string> Interests { get; init; } = Array.Empty<string>();
 
         public bool? FamilyFriendly { get; init; }
+
+        public bool? OvernightStay { get; init; }
     }
 
     public static class PreferenceValidation

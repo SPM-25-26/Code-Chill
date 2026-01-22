@@ -7,6 +7,9 @@
     "showingAll": "Mostra tutto",
     "filtered": "Filtrato",
     "contentType": "Tipo di contenuto:",
+    "sorting": "Ordina:",
+    "nearMe": "Vicino a me",
+    "locationDenied": "Posizione disattivata. Attivala per ordinare per distanza.",
     "municipality": "Comune:",
     "allMunicipalities": "Tutti i comuni",
     "clearAll": "Cancella tutto"
@@ -15,14 +18,30 @@
     "articles": "Articoli",
     "events": "Eventi",
     "routes": "Percorsi",
+    "organizations": "Organizzazioni",
+    "services": "Servizi",
     "article": "Articolo",
     "event": "Evento",
-    "route": "Percorso"
+    "route": "Percorso",
+    "organization": "Organizzazione",
+    "service": "Servizio"
+  },
+  "poiCategories": {
+    "artCulture": "Arte e Cultura",
+    "eatAndDrink": "Ristorazione",
+    "entertainmentLeisure": "Intrattenimento",
+    "nature": "Natura",
+    "services": "Servizi",
+    "shopping": "Shopping",
+    "sleep": "Alloggio",
+    "typicalProducts": "Prodotti Tipici"
   },
   "menu": {
     "preferences": "Preferenze",
     "adminIngestion": "Admin Ingestion",
-    "logout": "Esci"
+    "adminLlmHealth": "Check LLM",
+    "logout": "Esci",
+    "discover": "Scopri"
   },
   "messages": {
     "loading": "Caricamento contenuti…",
@@ -36,6 +55,28 @@
     "recommendedForYou": "Consigliati per te",
     "otherRecommendations": "Altri consigli",
     "mightLike": "Potrebbero interessarti…",
-    "AllActivities": "Tutte le attività"
+    "AllActivities": "Tutte le attività",
+    "OpenGoogleMaps": "Apri in Google Maps",
+    "Location": "Posizione",
+    "contant&social": "Contatti e social",
+    "eventInformation": "Informazioni sull'evento",
+    "eventLive": "In corso",
+    "eventUpcoming": "In arrivo",
+    "routeDetails": "Dettagli del percorso",
+    "bestTimeToVisit": "Periodo migliore per visitare",
+    "themes": "Temi",
+    "methodsOfTravel": "Modalità di viaggio",
+    "stages": "Tappe",
+    "startDate": "Data di inizio",
+    "endDate": "Data di fine",
+    "virtualTour": "Tour virtuale",
+    "viewVirtualTour": "Visualizza tour virtuale"
+  },
+  "chat": {
+    "title": "ChillCode Chat",
+    "empty": "Chiedimi cosa fare nei dintorni.",
+    "placeholder": "Scrivi un messaggio…",
+    "thinking": "Sto pensando…",
+    "error": "Richiesta chat fallita."
   }
 }

@@ -139,6 +139,31 @@ namespace ChillCodeBackend.Models.Api
                 MunicipalityLogo = r.MunicipalityData?.LogoPath
             };
         }
+
+        public static ContentDetailDto FromPoi(PointOfInterest poi)
+        {
+            return new ContentDetailDto
+            {
+                Id = poi.Identifier,
+                Type = "poi",
+                Title = !string.IsNullOrWhiteSpace(poi.Title) ? poi.Title : poi.OfficialName,
+                Description = poi.Description,
+                Address = poi.Address,
+                Image = poi.PrimaryImage,
+                Gallery = poi.Gallery ?? new List<string>(),
+                VirtualTours = poi.VirtualTours ?? new List<string>(),
+                Website = string.IsNullOrWhiteSpace(poi.Website) ? null : poi.Website,
+                Phone = string.IsNullOrWhiteSpace(poi.Telephone) ? null : poi.Telephone,
+                Email = string.IsNullOrWhiteSpace(poi.Email) ? null : poi.Email,
+                Facebook = string.IsNullOrWhiteSpace(poi.Facebook) ? null : poi.Facebook,
+                Instagram = string.IsNullOrWhiteSpace(poi.Instagram) ? null : poi.Instagram,
+                Typology = poi.Typology,
+                Latitude = poi.Latitude,
+                Longitude = poi.Longitude,
+                MunicipalityName = poi.MunicipalityData?.Name,
+                MunicipalityLogo = poi.MunicipalityData?.LogoPath
+            };
+        }
     }
 
     public class ArticleParagraphDto

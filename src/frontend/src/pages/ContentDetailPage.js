@@ -83,7 +83,7 @@ export default function ContentDetailPage() {
             setActiveStep((prevStep) =>
                 prevStep === maxSteps - 1 ? 0 : prevStep + 1
             );
-        }, 4000); // Change slide every 4 seconds
+        }, 3000); // Change slide every 3 seconds
 
         return () => clearInterval(interval);
     }, [maxSteps, isPaused]);
@@ -130,6 +130,11 @@ export default function ContentDetailPage() {
             )}
         </Box>
     );
+
+    function buildGoogleMapsUrl(address) {
+        if (!address) return '#';
+        return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+    }
 
     return (
         <Box className="cdp-page">
@@ -287,7 +292,9 @@ export default function ContentDetailPage() {
                         {/* Themes */}
                         {content.themes && content.themes.length > 0 && (
                             <Box mb={3}>
-                                <Typography variant="h6" fontWeight={600} mb={1}>Themes</Typography>
+                                <Typography variant="h6" fontWeight={600} mb={1}>
+                                    {t('home.themes')}
+                                </Typography>
                                 <Box display="flex" gap={1} flexWrap="wrap">
                                     {content.themes.map((theme, idx) => (
                                         <Chip key={idx} label={theme} size="small" sx={{ bgcolor: 'var(--teal)', color: 'white' }} />
@@ -299,24 +306,29 @@ export default function ContentDetailPage() {
                         {/* Route Details */}
                         {(content.pathTheme || content.travellingMethod || content.numberOfStages) && (
                             <Paper elevation={1} sx={{ p: 2, mb: 3 }}>
-                                <Typography variant="h6" fontWeight={600} mb={2}>Route Details</Typography>
+                                <Typography variant="h6" fontWeight={600} mb={2}>
+                                    {t('home.routeDetails')}
+                                </Typography>
                                 <Box display="flex" flexDirection="column" gap={1}>
                                     {content.pathTheme && (
                                         <Box display="flex" alignItems="center" gap={1}>
                                             <TerrainIcon sx={{ color: 'var(--teal)' }} />
-                                            <Typography><strong>Theme:</strong> {content.pathTheme}</Typography>
+                                            <Typography><strong>
+                                                {t('home.themes')}:</strong> {content.pathTheme}</Typography>
                                         </Box>
                                     )}
                                     {content.travellingMethod && (
                                         <Box display="flex" alignItems="center" gap={1}>
                                             <HikingIcon sx={{ color: 'var(--teal)' }} />
-                                            <Typography><strong>Method:</strong> {content.travellingMethod}</Typography>
+                                            <Typography><strong>
+                                                {t('home.methodsOfTravel')}:</strong> {content.travellingMethod}</Typography>
                                         </Box>
                                     )}
-                                    {content.numberOfStages && (
+                                    {content.numberOfStages !== 0 && (
                                         <Box display="flex" alignItems="center" gap={1}>
                                             <RouteIcon sx={{ color: 'var(--teal)' }} />
-                                            <Typography><strong>Stages:</strong> {content.numberOfStages}</Typography>
+                                            <Typography><strong>
+                                                {t('home.stages')}:</strong> {content.numberOfStages}</Typography>
                                         </Box>
                                     )}
                                 </Box>
@@ -326,7 +338,9 @@ export default function ContentDetailPage() {
                         {/* Best When (Route) */}
                         {content.bestWhen && content.bestWhen.length > 0 && (
                             <Box mb={3}>
-                                <Typography variant="h6" fontWeight={600} mb={1}>Best Time to Visit</Typography>
+                                <Typography variant="h6" fontWeight={600} mb={1}>
+                                    {t('home.bestTimeToVisit')}
+                                </Typography>
                                 <Box display="flex" gap={1} flexWrap="wrap">
                                     {content.bestWhen.map((season, idx) => (
                                         <Chip key={idx} label={season} size="small" color="primary" />
@@ -336,36 +350,76 @@ export default function ContentDetailPage() {
                         )}
 
                         {/* Event Details */}
-                        {(content.startDate || content.endDate || content.address) && (
+                        {(content.startDate || content.endDate) && (
                             <Paper elevation={1} sx={{ p: 2, mb: 3 }}>
-                                <Typography variant="h6" fontWeight={600} mb={2}>Event Information</Typography>
+                                <Typography variant="h6" fontWeight={600} mb={2}>
+                                    {t('home.eventInformation')}
+                                </Typography>
                                 <Box display="flex" flexDirection="column" gap={1}>
                                     {content.startDate && (
                                         <Box display="flex" alignItems="center" gap={1}>
                                             <CalendarTodayIcon sx={{ color: 'var(--teal)' }} />
-                                            <Typography><strong>Start:</strong> {formatDate(content.startDate)}</Typography>
+                                            <Typography><strong>
+                                                {t('home.startDate')}:</strong> {formatDate(content.startDate)}</Typography>
                                         </Box>
                                     )}
                                     {content.endDate && (
                                         <Box display="flex" alignItems="center" gap={1}>
                                             <CalendarTodayIcon sx={{ color: 'var(--teal)' }} />
-                                            <Typography><strong>End:</strong> {formatDate(content.endDate)}</Typography>
-                                        </Box>
-                                    )}
-                                    {content.address && (
-                                        <Box display="flex" alignItems="center" gap={1}>
-                                            <LocationOnIcon sx={{ color: 'var(--teal)' }} />
-                                            <Typography><strong>Location:</strong> {content.address}</Typography>
+                                            <Typography><strong>
+                                                {t('home.endDate')}:</strong> {formatDate(content.endDate)}</Typography>
                                         </Box>
                                     )}
                                 </Box>
                             </Paper>
                         )}
 
+                        {/* Location (Restaurants / POIs) */}
+                        {content.address && (
+                            <Paper elevation={1} sx={{ p: 2, mb: 3 }}>
+                                <Typography variant="h6" fontWeight={600} mb={2}>
+                                    {t('home.Location')}
+                                </Typography>
+
+                                <Box display="flex" alignItems="center" gap={1}>
+                                    <LocationOnIcon sx={{ color: 'var(--teal)' }} />
+
+                                    <Typography>
+                                        {content.address}
+                                    </Typography>
+                                </Box>
+
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<RouteIcon />}
+                                    fullWidth
+                                    href={buildGoogleMapsUrl(content.address)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    sx={{
+                                        borderColor: 'var(--teal)',
+                                        color: 'var(--teal)',
+                                        fontWeight: 600,
+                                        textTransform: 'none',
+                                        marginTop: 2,
+                                        '&:hover': {
+                                            bgcolor: 'rgba(46, 196, 182, 0.08)',
+                                            borderColor: 'var(--teal-dark)'
+                                        }
+                                    }}
+                                >
+                                    {t('home.OpenGoogleMaps')}
+                                </Button>
+                            </Paper>
+                        )}
+
+
                         {/* Contact Information */}
                         {(content.website || content.phone || content.email || content.facebook || content.instagram) && (
                             <Paper elevation={1} sx={{ p: 2, mb: 3 }}>
-                                <Typography variant="h6" fontWeight={600} mb={2}>Contact & Social</Typography>
+                                <Typography variant="h6" fontWeight={600} mb={2}>
+                                    {t('home.contant&social')}
+                                </Typography>
                                 <Box display="flex" flexDirection="column" gap={1.5}>
                                     {content.website && (
                                         <Box display="flex" alignItems="center" gap={1}>
@@ -414,7 +468,9 @@ export default function ContentDetailPage() {
                         {/* Virtual Tours */}
                         {content.virtualTours && content.virtualTours.length > 0 && (
                             <Box mb={3}>
-                                <Typography variant="h6" fontWeight={600} mb={2}>Virtual Tours</Typography>
+                                <Typography variant="h6" fontWeight={600} mb={2}>
+                                    {t('home.virtualTour')}
+                                </Typography>
                                 {content.virtualTours.map((tour, idx) => (
                                     <Button
                                         key={idx}
@@ -424,7 +480,7 @@ export default function ContentDetailPage() {
                                         href={tour}
                                         target="_blank"
                                     >
-                                        View Virtual Tour {idx + 1}
+                                        {t('home.viewVirtualTour')} {idx + 1}
                                     </Button>
                                 ))}
                             </Box>

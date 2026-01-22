@@ -14,6 +14,7 @@ namespace ChillCodeBackend.Controllers
     {
         private readonly IPreferenceRepository _preferenceRepository;
         private readonly ChatContextService _contextService;
+        private readonly ChatContextCache _contextCache;
         private readonly ChatPromptBuilder _promptBuilder;
         private readonly IChatCompletionClient _chatClient;
         private readonly ChatResponseNormalizer _responseNormalizer;
@@ -21,6 +22,7 @@ namespace ChillCodeBackend.Controllers
         public ChatController(
             IPreferenceRepository preferenceRepository,
             ChatContextService contextService,
+            ChatContextCache contextCache,
             ChatPromptBuilder promptBuilder,
             IChatCompletionClient chatClient,
             ChatResponseNormalizer responseNormalizer
@@ -28,6 +30,7 @@ namespace ChillCodeBackend.Controllers
         {
             _preferenceRepository = preferenceRepository;
             _contextService = contextService;
+            _contextCache = contextCache;
             _promptBuilder = promptBuilder;
             _chatClient = chatClient;
             _responseNormalizer = responseNormalizer;
@@ -60,15 +63,19 @@ namespace ChillCodeBackend.Controllers
                 request.Location?.Longitude
             );
 
-            var contextItems = await _contextService.BuildContextAsync(
-                new ChatContextRequest
-                {
-                    Language = request.Language,
-                    Municipality = request.Municipality,
-                    Latitude = request.Location?.Latitude,
-                    Longitude = request.Location?.Longitude,
-                    MaxItems = request.MaxContextItems ?? 40
-                },
+            var contextRequest = new ChatContextRequest
+            {
+                Language = request.Language,
+                Municipality = request.Municipality,
+                Latitude = request.Location?.Latitude,
+                Longitude = request.Location?.Longitude,
+                MaxItems = request.MaxContextItems ?? 40
+            };
+
+            var contextItems = await _contextCache.GetOrAddAsync(
+                userId,
+                contextRequest,
+                ct => _contextService.BuildContextAsync(contextRequest, ct),
                 cancellationToken
             );
 

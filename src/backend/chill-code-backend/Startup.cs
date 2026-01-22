@@ -79,6 +79,7 @@ namespace ChillCodeBackend
             services.AddSingleton<ITokenService, JwtTokenService>();
             services.AddScoped<IEmailService, SmtpEmailService>();
             services.AddScoped<IEmailTemplateService, EmailTemplateService>();
+            services.AddMemoryCache(options => { options.SizeLimit = 2000; });
 
             // DB
             services.AddScoped<IIngestionPersistence, IngestionPersistence>();
@@ -95,6 +96,7 @@ namespace ChillCodeBackend
             services.AddScoped<IPreferenceScoringService, PreferenceScoringService>();
             services.AddSingleton<IQuestionnaireSchemaProvider, QuestionnaireSchemaProvider>();
             services.AddScoped<ChatContextService>();
+            services.AddScoped<ChatContextCache>();
             services.AddScoped<ChatPromptBuilder>();
             services.AddScoped<ChatResponseNormalizer>();
 

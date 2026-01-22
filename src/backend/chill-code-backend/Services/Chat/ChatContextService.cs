@@ -26,7 +26,9 @@ namespace ChillCodeBackend.Services.Chat
 
             var items = new List<TourismContextItem>();
 
-            var poiQuery = _dbContext.PointsOfInterest.AsNoTracking().Where(p => p.Language == language);
+            var poiQuery = _dbContext
+                .PointsOfInterest.AsNoTracking()
+                .Where(p => p.Language == language);
             if (!string.IsNullOrWhiteSpace(municipality))
             {
                 poiQuery = poiQuery.Where(p => p.MunicipalityData.Name == municipality);
@@ -49,7 +51,7 @@ namespace ChillCodeBackend.Services.Chat
                         request.Longitude,
                         p.Latitude,
                         p.Longitude
-                    )
+                    ),
                 })
             );
 
@@ -76,7 +78,7 @@ namespace ChillCodeBackend.Services.Chat
                         request.Longitude,
                         e.Latitude,
                         e.Longitude
-                    )
+                    ),
                 })
             );
 
@@ -103,11 +105,13 @@ namespace ChillCodeBackend.Services.Chat
                         request.Longitude,
                         r.StartingPoint?.Latitude,
                         r.StartingPoint?.Longitude
-                    )
+                    ),
                 })
             );
 
-            var orgQuery = _dbContext.Organizations.AsNoTracking().Where(o => o.Language == language);
+            var orgQuery = _dbContext
+                .Organizations.AsNoTracking()
+                .Where(o => o.Language == language);
             if (!string.IsNullOrWhiteSpace(municipality))
             {
                 orgQuery = orgQuery.Where(o => o.MunicipalityData.Name == municipality);
@@ -129,7 +133,7 @@ namespace ChillCodeBackend.Services.Chat
                         request.Longitude,
                         o.Latitude,
                         o.Longitude
-                    )
+                    ),
                 })
             );
 

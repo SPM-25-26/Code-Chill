@@ -30,6 +30,9 @@ function ChatbotOverlay({ open, onClose, location, municipality, language }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const messagesEndRef = useRef(null);
+  const [isOnline, setIsOnline] = useState(
+    typeof navigator !== 'undefined' ? navigator.onLine : true
+  );
 
   const conversationPayload = useMemo(
     () =>
@@ -42,7 +45,7 @@ function ChatbotOverlay({ open, onClose, location, municipality, language }) {
 
   const handleSend = async () => {
     const trimmed = input.trim();
-    if (!trimmed || loading) return;
+    if (!trimmed || loading || !isOnline) return;
 
     setError('');
     setInput('');
@@ -98,6 +101,17 @@ function ChatbotOverlay({ open, onClose, location, municipality, language }) {
       // ignore persistence errors
     }
   }, [messages]);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   useEffect(() => {
     if (!messagesEndRef.current) return;
@@ -302,6 +316,11 @@ function ChatbotOverlay({ open, onClose, location, municipality, language }) {
             {error}
           </Typography>
         )}
+        {!isOnline && (
+          <Typography variant="caption" className="chatbot-offline">
+            {t('chat.offlineMessage')}
+          </Typography>
+        )}
 
         <Box className="chatbot-input">
           <TextField
@@ -320,7 +339,7 @@ function ChatbotOverlay({ open, onClose, location, municipality, language }) {
           <Button
             variant="contained"
             onClick={handleSend}
-            disabled={loading || !input.trim()}
+            disabled={loading || !input.trim() || !isOnline}
             className="chatbot-send"
           >
             <SendIcon fontSize="small" />

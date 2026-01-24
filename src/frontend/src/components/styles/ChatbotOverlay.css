@@ -119,6 +119,16 @@
   padding: 0 12px 8px 12px;
 }
 
+.chatbot-offline {
+  color: #856404;
+  background: #fff3cd;
+  padding: 6px 10px;
+  margin: 0 10px 8px 10px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+}
+
 .chatbot-input {
   display: flex;
   gap: 8px;

@@ -6,76 +6,102 @@
 }
 
 .chatbot-panel {
-  width: 480px;
+  width: 340px;
   max-width: calc(100vw - 32px);
   display: flex;
   flex-direction: column;
-  max-height: 75vh;
-  border-radius: 18px;
-  border: 2px solid var(--teal);
+  max-height: 600px;
+  border-radius: 20px;
   background: #ffffff;
-  box-shadow: 0 14px 32px rgba(46, 196, 182, 0.24);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
 }
 
 .chatbot-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 18px;
-  border-bottom: 1px solid rgba(46, 196, 182, 0.2);
-  color: var(--dark);
+  padding: 12px;
+  color: #ffffff;
+  background: var(--teal);
 }
 
 .chatbot-messages {
-  padding: 16px 18px;
+  padding: 10px;
   overflow-y: auto;
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
+  background: #f9f9f9;
 }
 
 .chatbot-message {
-  padding: 10px 14px;
-  border-radius: 14px;
-  max-width: 88%;
-  background: rgba(0, 0, 0, 0.06);
+  padding: 8px 12px;
+  border-radius: 24px;
+  max-width: 75%;
+  background: #e0e0e0;
+  word-break: break-word;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .chatbot-message.user {
   align-self: flex-end;
-  background: rgba(46, 196, 182, 0.2);
-  border: 1px solid rgba(46, 196, 182, 0.4);
+  background: var(--teal);
+  color: #ffffff;
+  border-bottom-right-radius: 4px;
 }
 
 .chatbot-message.assistant {
   align-self: flex-start;
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: #e0e0e0;
+  color: #000000;
+  border-bottom-left-radius: 4px;
 }
 
 .chatbot-loading {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #666;
+  color: #666666;
 }
 
 .chatbot-error {
   color: #b00020;
-  padding: 0 16px 8px 16px;
+  padding: 0 12px 8px 12px;
 }
 
 .chatbot-input {
   display: flex;
   gap: 8px;
-  padding: 14px 18px 18px;
-  border-top: 1px solid rgba(46, 196, 182, 0.2);
+  padding: 12px;
+  border-top: 1px solid #dddddd;
+  background: #ffffff;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
 }
 
 .chatbot-send {
+  margin-left: 8px;
   min-width: 48px;
-  border-radius: 12px;
+  border-radius: 16px;
+  background-color: var(--teal) !important;
+}
+
+.chatbot-send:hover {
+  background-color: var(--teal-dark) !important;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 600px) {

@@ -46,7 +46,7 @@ import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import BuildIcon from '@mui/icons-material/Build';
 import TheaterComedyIcon from '@mui/icons-material/TheaterComedy';
 import BusinessIcon from '@mui/icons-material/Business';
-import ChatIcon from '@mui/icons-material/Chat';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 
 import logoPng from '../assets/SPM-Logo.png';
 import instance from '../utilities/Utilities.js';
@@ -509,7 +509,7 @@ export default function HomePage() {
             />
             <Box className="chatbot-launcher">
                 <IconButton color="primary" onClick={toggleChat} className="chatbot-launcher-btn">
-                    <ChatIcon />
+                    <SupportAgentIcon />
                 </IconButton>
             </Box>
 

@@ -73,9 +73,17 @@
     "viewVirtualTour": "View virtual tour"
   },
   "chat": {
-    "title": "ChillCode Chat",
-    "empty": "Ask me about nearby activities or events.",
-    "placeholder": "Type your message…",
+    "title": "Chilly, your AI Assistant",
+    "subtitle": "Chat with our virtual assistant for personalized suggestions",
+    "welcomeMessage": "Hi! I'm your virtual assistant. How can I help you today?",
+    "empty": "Hi! I'm your virtual assistant. How can I help you today?",
+    "placeholder": "Type a message...",
+    "inputPlaceholder": "Type a message...",
+    "sendButton": "Send",
+    "defaultResponse": "I'm still learning 🙂 Try asking me something simple!",
+    "newChat": "Initiate a new chat",
+    "offlineMessage": "You are offline. Please try again when connected to the Internet.",
+    "errorMessage": "An error occurred. Please try again later.",
     "thinking": "Thinking…",
     "error": "Chat request failed."
   }

@@ -73,9 +73,17 @@
     "viewVirtualTour": "Visualizza tour virtuale"
   },
   "chat": {
-    "title": "ChillCode Chat",
-    "empty": "Chiedimi cosa fare nei dintorni.",
-    "placeholder": "Scrivi un messaggio…",
+    "title": "Chilly, il tuo assistente AI",
+    "subtitle": "Chatta con il nostro assistente virtuale per suggerimenti personalizzati",
+    "welcomeMessage": "Ciao! Sono il tuo assistente virtuale. Come posso aiutarti oggi?",
+    "empty": "Ciao! Sono il tuo assistente virtuale. Come posso aiutarti oggi?",
+    "placeholder": "Scrivi un messaggio...",
+    "inputPlaceholder": "Scrivi un messaggio...",
+    "sendButton": "Invia",
+    "defaultResponse": "Sto ancora imparando 🙂 Prova a chiedermi qualcosa di semplice!",
+    "newChat": "Inizia una nuova chat",
+    "offlineMessage": "Sei offline. Riprova quando sei connesso a Internet.",
+    "errorMessage": "Si è verificato un errore. Riprova più tardi.",
     "thinking": "Sto pensando…",
     "error": "Richiesta chat fallita."
   }

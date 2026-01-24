@@ -134,7 +134,7 @@ function ChatbotOverlay({ open, onClose, location, municipality, language }) {
 
   const renderInline = (text) => {
     const parts = [];
-    const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+    const linkRegex = /\*\*\[([^\]]+)\]\(([^)]+)\)\*\*|\[([^\]]+)\]\(([^)]+)\)/g;
     let lastIndex = 0;
     let match;
     let idx = 0;
@@ -142,13 +142,18 @@ function ChatbotOverlay({ open, onClose, location, municipality, language }) {
       if (match.index > lastIndex) {
         parts.push(...renderInlineText(text.slice(lastIndex, match.index), `t-${idx}`));
       }
-      const label = match[1];
-      let href = match[2];
-      if (href.startsWith('https://login/')) {
-        href = href.replace('https://login', '/login');
-      } else if (href.startsWith('http://login/')) {
-        href = href.replace('http://login', '/login');
-      } else if (href.startsWith('login/')) {
+      const isBoldLink = Boolean(match[1]);
+      const label = isBoldLink ? match[1] : match[3];
+      let href = isBoldLink ? match[2] : match[4];
+      if (href.startsWith('http')) {
+        try {
+          const url = new URL(href);
+          href = url.pathname;
+        } catch {
+          // keep as-is if parsing fails
+        }
+      }
+      if (href.startsWith('login/')) {
         href = `/${href}`;
       } else if (href.startsWith('/content-detail/')) {
         href = `/login${href}`;
@@ -163,7 +168,7 @@ function ChatbotOverlay({ open, onClose, location, municipality, language }) {
           rel={href.startsWith('http') ? 'noreferrer' : undefined}
           target={href.startsWith('http') ? '_blank' : undefined}
         >
-          {renderInlineText(label, `l-${idx}`)}
+          {isBoldLink ? <strong>{renderInlineText(label, `l-${idx}`)}</strong> : renderInlineText(label, `l-${idx}`)}
         </a>
       );
       lastIndex = match.index + match[0].length;

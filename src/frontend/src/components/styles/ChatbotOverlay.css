@@ -96,6 +96,17 @@
   margin: 2px 0;
 }
 
+.chatbot-md-link {
+  color: var(--teal-dark);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: 600;
+}
+
+.chatbot-md-link:hover {
+  color: var(--teal);
+}
+
 .chatbot-loading {
   display: flex;
   align-items: center;

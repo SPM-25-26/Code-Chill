@@ -17,7 +17,15 @@ import './styles/ChatbotOverlay.css';
 
 function ChatbotOverlay({ open, onClose, location, municipality, language }) {
   const { t } = useTranslation();
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(() => {
+    try {
+      const raw = localStorage.getItem('chatbotMessages');
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  });
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -80,7 +88,16 @@ function ChatbotOverlay({ open, onClose, location, municipality, language }) {
     setMessages([]);
     setError('');
     setInput('');
+    localStorage.removeItem('chatbotMessages');
   };
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('chatbotMessages', JSON.stringify(messages));
+    } catch {
+      // ignore persistence errors
+    }
+  }, [messages]);
 
   useEffect(() => {
     if (!messagesEndRef.current) return;
@@ -126,7 +143,18 @@ function ChatbotOverlay({ open, onClose, location, municipality, language }) {
         parts.push(...renderInlineText(text.slice(lastIndex, match.index), `t-${idx}`));
       }
       const label = match[1];
-      const href = match[2];
+      let href = match[2];
+      if (href.startsWith('https://login/')) {
+        href = href.replace('https://login', '/login');
+      } else if (href.startsWith('http://login/')) {
+        href = href.replace('http://login', '/login');
+      } else if (href.startsWith('login/')) {
+        href = `/${href}`;
+      } else if (href.startsWith('/content-detail/')) {
+        href = `/login${href}`;
+      } else if (href.startsWith('content-detail/')) {
+        href = `/login/${href}`;
+      }
       parts.push(
         <a
           key={`l-${idx++}`}

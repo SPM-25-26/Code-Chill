@@ -128,6 +128,16 @@ function ChatbotOverlay({ open, onClose, location, municipality, language }) {
         flushList();
         continue;
       }
+      const headingMatch = trimmed.match(/^###\s+(.*)$/);
+      if (headingMatch) {
+        flushList();
+        blocks.push(
+          <h4 className="chatbot-md-h4" key={`h4-${blockIndex++}`}>
+            {renderInline(headingMatch[1])}
+          </h4>
+        );
+        continue;
+      }
       const olMatch = trimmed.match(/^\d+\.\s+(.*)$/);
       if (olMatch) {
         listItems.push(olMatch[1]);

@@ -15,7 +15,7 @@ namespace ChillCodeBackend.Data.Db.Configurations
 
         public void Configure(EntityTypeBuilder<PointOfInterest> builder)
         {
-            builder.HasKey(p => p.Identifier);
+            builder.HasKey(p => new { p.Identifier, p.Language });
             builder.Property(p => p.Title).IsRequired();
             builder.Property(p => p.Category).IsRequired();
             builder.Property(p => p.PrimaryImage).IsRequired();

@@ -7,6 +7,7 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
     {
         Task<PointOfInterest?> GetByIdentifierAsync(
             string identifier,
+            string? language = null,
             CancellationToken cancellationToken = default
         );
         Task AddOrUpdateAsync(PointOfInterest poi, CancellationToken cancellationToken = default);

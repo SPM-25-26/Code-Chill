@@ -16,13 +16,17 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
 
         public async Task<Article?> GetByIdentifierAsync(
             string identifier,
+            string? language = null,
             CancellationToken cancellationToken = default
         )
         {
-            return await _dbContext.Articles.FirstOrDefaultAsync(
-                a => a.Identifier == identifier,
-                cancellationToken
-            );
+            var query = _dbContext.Articles.AsQueryable();
+            query = query.Where(a => a.Identifier == identifier);
+            if (!string.IsNullOrWhiteSpace(language))
+            {
+                query = query.Where(a => a.Language == language);
+            }
+            return await query.FirstOrDefaultAsync(cancellationToken);
         }
 
         public async Task AddOrUpdateAsync(
@@ -49,7 +53,7 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
                 .Articles.Where(a => identifiers.Contains(a.Identifier))
                 .ToListAsync(cancellationToken);
 
-            var existingById = existing.ToDictionary(a => a.Identifier);
+            var existingByKey = existing.ToDictionary(a => (a.Identifier, a.Language));
             var now = DateTimeOffset.UtcNow;
             var inserted = 0;
             var updated = 0;
@@ -62,7 +66,8 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    if (!existingById.TryGetValue(article.Identifier, out var existingArticle))
+                    var key = (article.Identifier, article.Language);
+                    if (!existingByKey.TryGetValue(key, out var existingArticle))
                     {
                         article.CreatedAt = article.CreatedAt == default ? now : article.CreatedAt;
                         article.UpdatedAt = now;

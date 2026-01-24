@@ -16,13 +16,17 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
 
         public async Task<Event?> GetByIdentifierAsync(
             string identifier,
+            string? language = null,
             CancellationToken cancellationToken = default
         )
         {
-            return await _dbContext.Events.FirstOrDefaultAsync(
-                e => e.Identifier == identifier,
-                cancellationToken
-            );
+            var query = _dbContext.Events.AsQueryable();
+            query = query.Where(e => e.Identifier == identifier);
+            if (!string.IsNullOrWhiteSpace(language))
+            {
+                query = query.Where(e => e.Language == language);
+            }
+            return await query.FirstOrDefaultAsync(cancellationToken);
         }
 
         public async Task AddOrUpdateAsync(Event evt, CancellationToken cancellationToken = default)
@@ -45,7 +49,7 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
             var existing = await _dbContext
                 .Events.Where(e => identifiers.Contains(e.Identifier))
                 .ToListAsync(cancellationToken);
-            var existingById = existing.ToDictionary(e => e.Identifier);
+            var existingByKey = existing.ToDictionary(e => (e.Identifier, e.Language));
 
             var now = DateTimeOffset.UtcNow;
             var inserted = 0;
@@ -58,7 +62,8 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
                 foreach (var evt in incoming)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    if (!existingById.TryGetValue(evt.Identifier, out var existingEvent))
+                    var key = (evt.Identifier, evt.Language);
+                    if (!existingByKey.TryGetValue(key, out var existingEvent))
                     {
                         evt.CreatedAt = evt.CreatedAt == default ? now : evt.CreatedAt;
                         evt.UpdatedAt = now;

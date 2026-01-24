@@ -7,6 +7,7 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
     {
         Task<Article?> GetByIdentifierAsync(
             string identifier,
+            string? language = null,
             CancellationToken cancellationToken = default
         );
 

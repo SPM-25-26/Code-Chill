@@ -16,13 +16,17 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
 
         public async Task<PointOfInterest?> GetByIdentifierAsync(
             string identifier,
+            string? language = null,
             CancellationToken cancellationToken = default
         )
         {
-            return await _dbContext.PointsOfInterest.FirstOrDefaultAsync(
-                p => p.Identifier == identifier,
-                cancellationToken
-            );
+            var query = _dbContext.PointsOfInterest.AsQueryable();
+            query = query.Where(p => p.Identifier == identifier);
+            if (!string.IsNullOrWhiteSpace(language))
+            {
+                query = query.Where(p => p.Language == language);
+            }
+            return await query.FirstOrDefaultAsync(cancellationToken);
         }
 
         public async Task AddOrUpdateAsync(
@@ -48,7 +52,7 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
             var existing = await _dbContext
                 .PointsOfInterest.Where(p => identifiers.Contains(p.Identifier))
                 .ToListAsync(cancellationToken);
-            var existingById = existing.ToDictionary(p => p.Identifier);
+            var existingByKey = existing.ToDictionary(p => (p.Identifier, p.Language));
 
             var now = DateTimeOffset.UtcNow;
             var inserted = 0;
@@ -61,7 +65,8 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
                 foreach (var poi in incoming)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    if (!existingById.TryGetValue(poi.Identifier, out var existingPoi))
+                    var key = (poi.Identifier, poi.Language);
+                    if (!existingByKey.TryGetValue(key, out var existingPoi))
                     {
                         poi.CreatedAt = poi.CreatedAt == default ? now : poi.CreatedAt;
                         poi.UpdatedAt = now;

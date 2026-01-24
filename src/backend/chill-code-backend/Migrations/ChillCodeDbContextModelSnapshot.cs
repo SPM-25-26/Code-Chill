@@ -22,16 +22,15 @@ namespace chill_code_backend.Migrations
                     b.Property<string>("Identifier")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Language")
+                        .HasMaxLength(10)
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ImagePath")
                         .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Language")
-                        .IsRequired()
-                        .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Paragraphs")
@@ -71,7 +70,7 @@ namespace chill_code_backend.Migrations
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("Identifier");
+                    b.HasKey("Identifier", "Language");
 
                     b.ToTable("Articles");
                 });
@@ -79,6 +78,10 @@ namespace chill_code_backend.Migrations
             modelBuilder.Entity("ChillCodeBackend.Models.Entities.Event", b =>
                 {
                     b.Property<string>("Identifier")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Language")
+                        .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Address")
@@ -121,11 +124,6 @@ namespace chill_code_backend.Migrations
                     b.Property<string>("Instagram")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Language")
-                        .IsRequired()
-                        .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
                     b.Property<double?>("Latitude")
@@ -177,7 +175,7 @@ namespace chill_code_backend.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
-                    b.HasKey("Identifier");
+                    b.HasKey("Identifier", "Language");
 
                     b.ToTable("Events");
                 });
@@ -232,7 +230,11 @@ namespace chill_code_backend.Migrations
 
             modelBuilder.Entity("ChillCodeBackend.Models.Entities.Municipality", b =>
                 {
-                    b.Property<string>("Name")
+                    b.Property<string>("ExternalId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Language")
+                        .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ArticlesAndPaths")
@@ -246,10 +248,6 @@ namespace chill_code_backend.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Events")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ExternalId")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("HomeImages")
@@ -268,6 +266,10 @@ namespace chill_code_backend.Migrations
 
                     b.Property<double>("Longitude")
                         .HasColumnType("REAL");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("NameAndProvince")
                         .IsRequired()
@@ -290,12 +292,12 @@ namespace chill_code_backend.Migrations
                     b.Property<string>("VirtualTourUrls")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("Name");
+                    b.HasKey("ExternalId", "Language");
 
-                    b.HasIndex("ExternalId")
+                    b.HasIndex("ExternalId", "Language")
                         .IsUnique();
 
-                    b.HasIndex("Name")
+                    b.HasIndex("Name", "Language")
                         .IsUnique();
 
                     b.ToTable("Municipalities");
@@ -305,6 +307,11 @@ namespace chill_code_backend.Migrations
                 {
                     b.Property<string>("TaxCode")
                         .HasColumnType("TEXT");
+
+                    b.Property<string>("Language")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("it");
 
                     b.Property<string>("Address")
                         .IsRequired()
@@ -339,12 +346,6 @@ namespace chill_code_backend.Migrations
                     b.Property<string>("Instagram")
                         .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<string>("Language")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT")
-                        .HasDefaultValue("it");
 
                     b.Property<double?>("Latitude")
                         .HasColumnType("REAL");
@@ -398,9 +399,10 @@ namespace chill_code_backend.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("TaxCode");
+                    b.HasKey("TaxCode", "Language");
 
-                    b.HasIndex("Language");
+                    b.HasIndex("TaxCode", "Language")
+                        .IsUnique();
 
                     b.ToTable("Organizations", (string)null);
                 });
@@ -408,6 +410,10 @@ namespace chill_code_backend.Migrations
             modelBuilder.Entity("ChillCodeBackend.Models.Entities.PointOfInterest", b =>
                 {
                     b.Property<string>("Identifier")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Language")
+                        .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Accessibility")
@@ -455,11 +461,6 @@ namespace chill_code_backend.Migrations
                     b.Property<string>("Instagram")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Language")
-                        .IsRequired()
-                        .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
                     b.Property<double?>("Latitude")
@@ -530,7 +531,7 @@ namespace chill_code_backend.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
-                    b.HasKey("Identifier");
+                    b.HasKey("Identifier", "Language");
 
                     b.ToTable("PointsOfInterest");
                 });
@@ -577,7 +578,11 @@ namespace chill_code_backend.Migrations
 
             modelBuilder.Entity("ChillCodeBackend.Models.Entities.Route", b =>
                 {
-                    b.Property<string>("Name")
+                    b.Property<string>("ExternalId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Language")
+                        .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("BestWhen")
@@ -598,10 +603,6 @@ namespace chill_code_backend.Migrations
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("ExternalId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Gallery")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -610,9 +611,8 @@ namespace chill_code_backend.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Language")
+                    b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Number")
@@ -690,9 +690,9 @@ namespace chill_code_backend.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
-                    b.HasKey("Name");
+                    b.HasKey("ExternalId", "Language");
 
-                    b.HasIndex("ExternalId")
+                    b.HasIndex("ExternalId", "Language")
                         .IsUnique();
 
                     b.ToTable("Routes");
@@ -702,6 +702,11 @@ namespace chill_code_backend.Migrations
                 {
                     b.Property<string>("Identifier")
                         .HasColumnType("TEXT");
+
+                    b.Property<string>("Language")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("it");
 
                     b.Property<string>("Address")
                         .IsRequired()
@@ -736,12 +741,6 @@ namespace chill_code_backend.Migrations
                     b.Property<string>("Instagram")
                         .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<string>("Language")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT")
-                        .HasDefaultValue("it");
 
                     b.Property<double?>("Latitude")
                         .HasColumnType("REAL");
@@ -803,9 +802,10 @@ namespace chill_code_backend.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("Identifier");
+                    b.HasKey("Identifier", "Language");
 
-                    b.HasIndex("Language");
+                    b.HasIndex("Identifier", "Language")
+                        .IsUnique();
 
                     b.ToTable("Services", (string)null);
                 });
@@ -918,6 +918,9 @@ namespace chill_code_backend.Migrations
                             b1.Property<string>("ArticleIdentifier")
                                 .HasColumnType("TEXT");
 
+                            b1.Property<string>("ArticleLanguage")
+                                .HasColumnType("TEXT");
+
                             b1.Property<string>("LogoPath")
                                 .IsRequired()
                                 .HasMaxLength(500)
@@ -928,12 +931,12 @@ namespace chill_code_backend.Migrations
                                 .HasMaxLength(200)
                                 .HasColumnType("TEXT");
 
-                            b1.HasKey("ArticleIdentifier");
+                            b1.HasKey("ArticleIdentifier", "ArticleLanguage");
 
                             b1.ToTable("Articles");
 
                             b1.WithOwner()
-                                .HasForeignKey("ArticleIdentifier");
+                                .HasForeignKey("ArticleIdentifier", "ArticleLanguage");
                         });
 
                     b.Navigation("MunicipalityData")
@@ -947,6 +950,9 @@ namespace chill_code_backend.Migrations
                             b1.Property<string>("EventIdentifier")
                                 .HasColumnType("TEXT");
 
+                            b1.Property<string>("EventLanguage")
+                                .HasColumnType("TEXT");
+
                             b1.Property<string>("LogoPath")
                                 .IsRequired()
                                 .HasMaxLength(500)
@@ -957,17 +963,20 @@ namespace chill_code_backend.Migrations
                                 .HasMaxLength(200)
                                 .HasColumnType("TEXT");
 
-                            b1.HasKey("EventIdentifier");
+                            b1.HasKey("EventIdentifier", "EventLanguage");
 
                             b1.ToTable("Events");
 
                             b1.WithOwner()
-                                .HasForeignKey("EventIdentifier");
+                                .HasForeignKey("EventIdentifier", "EventLanguage");
                         });
 
                     b.OwnsOne("ChillCodeBackend.Models.Entities.CarParkInfo", "NearestCarPark", b1 =>
                         {
                             b1.Property<string>("EventIdentifier")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("EventLanguage")
                                 .HasColumnType("TEXT");
 
                             b1.Property<string>("Address")
@@ -984,17 +993,20 @@ namespace chill_code_backend.Migrations
                             b1.Property<double?>("Longitude")
                                 .HasColumnType("REAL");
 
-                            b1.HasKey("EventIdentifier");
+                            b1.HasKey("EventIdentifier", "EventLanguage");
 
                             b1.ToTable("Events");
 
                             b1.WithOwner()
-                                .HasForeignKey("EventIdentifier");
+                                .HasForeignKey("EventIdentifier", "EventLanguage");
                         });
 
                     b.OwnsOne("ChillCodeBackend.Models.Entities.EventOrganizer", "Organizer", b1 =>
                         {
                             b1.Property<string>("EventIdentifier")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("EventLanguage")
                                 .HasColumnType("TEXT");
 
                             b1.Property<string>("LegalName")
@@ -1012,12 +1024,12 @@ namespace chill_code_backend.Migrations
                                 .HasMaxLength(500)
                                 .HasColumnType("TEXT");
 
-                            b1.HasKey("EventIdentifier");
+                            b1.HasKey("EventIdentifier", "EventLanguage");
 
                             b1.ToTable("Events");
 
                             b1.WithOwner()
-                                .HasForeignKey("EventIdentifier");
+                                .HasForeignKey("EventIdentifier", "EventLanguage");
                         });
 
                     b.Navigation("MunicipalityData")
@@ -1032,7 +1044,10 @@ namespace chill_code_backend.Migrations
                 {
                     b.OwnsOne("ChillCodeBackend.Models.Entities.Contact", "Contacts", b1 =>
                         {
-                            b1.Property<string>("MunicipalityName")
+                            b1.Property<string>("MunicipalityExternalId")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("MunicipalityLanguage")
                                 .HasColumnType("TEXT");
 
                             b1.Property<string>("Email")
@@ -1060,12 +1075,12 @@ namespace chill_code_backend.Migrations
                                 .HasMaxLength(500)
                                 .HasColumnType("TEXT");
 
-                            b1.HasKey("MunicipalityName");
+                            b1.HasKey("MunicipalityExternalId", "MunicipalityLanguage");
 
                             b1.ToTable("Municipalities");
 
                             b1.WithOwner()
-                                .HasForeignKey("MunicipalityName");
+                                .HasForeignKey("MunicipalityExternalId", "MunicipalityLanguage");
                         });
 
                     b.Navigation("Contacts")
@@ -1079,6 +1094,10 @@ namespace chill_code_backend.Migrations
                             b1.Property<string>("OrganizationTaxCode")
                                 .HasColumnType("TEXT");
 
+                            b1.Property<string>("OrganizationLanguage")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("TEXT");
+
                             b1.Property<string>("LogoPath")
                                 .IsRequired()
                                 .HasColumnType("TEXT");
@@ -1087,17 +1106,21 @@ namespace chill_code_backend.Migrations
                                 .IsRequired()
                                 .HasColumnType("TEXT");
 
-                            b1.HasKey("OrganizationTaxCode");
+                            b1.HasKey("OrganizationTaxCode", "OrganizationLanguage");
 
                             b1.ToTable("Organizations");
 
                             b1.WithOwner()
-                                .HasForeignKey("OrganizationTaxCode");
+                                .HasForeignKey("OrganizationTaxCode", "OrganizationLanguage");
                         });
 
                     b.OwnsOne("ChillCodeBackend.Models.Entities.CarParkInfo", "NearestCarPark", b1 =>
                         {
                             b1.Property<string>("OrganizationTaxCode")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("OrganizationLanguage")
+                                .ValueGeneratedOnAdd()
                                 .HasColumnType("TEXT");
 
                             b1.Property<string>("Address")
@@ -1113,12 +1136,12 @@ namespace chill_code_backend.Migrations
                             b1.Property<double?>("Longitude")
                                 .HasColumnType("REAL");
 
-                            b1.HasKey("OrganizationTaxCode");
+                            b1.HasKey("OrganizationTaxCode", "OrganizationLanguage");
 
                             b1.ToTable("Organizations");
 
                             b1.WithOwner()
-                                .HasForeignKey("OrganizationTaxCode");
+                                .HasForeignKey("OrganizationTaxCode", "OrganizationLanguage");
                         });
 
                     b.Navigation("MunicipalityData")
@@ -1134,6 +1157,9 @@ namespace chill_code_backend.Migrations
                             b1.Property<string>("PointOfInterestIdentifier")
                                 .HasColumnType("TEXT");
 
+                            b1.Property<string>("PointOfInterestLanguage")
+                                .HasColumnType("TEXT");
+
                             b1.Property<string>("LogoPath")
                                 .IsRequired()
                                 .HasMaxLength(500)
@@ -1144,17 +1170,20 @@ namespace chill_code_backend.Migrations
                                 .HasMaxLength(200)
                                 .HasColumnType("TEXT");
 
-                            b1.HasKey("PointOfInterestIdentifier");
+                            b1.HasKey("PointOfInterestIdentifier", "PointOfInterestLanguage");
 
                             b1.ToTable("PointsOfInterest");
 
                             b1.WithOwner()
-                                .HasForeignKey("PointOfInterestIdentifier");
+                                .HasForeignKey("PointOfInterestIdentifier", "PointOfInterestLanguage");
                         });
 
                     b.OwnsOne("ChillCodeBackend.Models.Entities.CarParkInfo", "NearestCarPark", b1 =>
                         {
                             b1.Property<string>("PointOfInterestIdentifier")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("PointOfInterestLanguage")
                                 .HasColumnType("TEXT");
 
                             b1.Property<string>("Address")
@@ -1171,12 +1200,12 @@ namespace chill_code_backend.Migrations
                             b1.Property<double?>("Longitude")
                                 .HasColumnType("REAL");
 
-                            b1.HasKey("PointOfInterestIdentifier");
+                            b1.HasKey("PointOfInterestIdentifier", "PointOfInterestLanguage");
 
                             b1.ToTable("PointsOfInterest");
 
                             b1.WithOwner()
-                                .HasForeignKey("PointOfInterestIdentifier");
+                                .HasForeignKey("PointOfInterestIdentifier", "PointOfInterestLanguage");
                         });
 
                     b.Navigation("MunicipalityData")
@@ -1189,7 +1218,10 @@ namespace chill_code_backend.Migrations
                 {
                     b.OwnsOne("ChillCodeBackend.Models.Entities.Point", "StartingPoint", b1 =>
                         {
-                            b1.Property<string>("RouteName")
+                            b1.Property<string>("RouteExternalId")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("RouteLanguage")
                                 .HasColumnType("TEXT");
 
                             b1.Property<string>("Address")
@@ -1202,17 +1234,20 @@ namespace chill_code_backend.Migrations
                             b1.Property<double>("Longitude")
                                 .HasColumnType("REAL");
 
-                            b1.HasKey("RouteName");
+                            b1.HasKey("RouteExternalId", "RouteLanguage");
 
                             b1.ToTable("Routes");
 
                             b1.WithOwner()
-                                .HasForeignKey("RouteName");
+                                .HasForeignKey("RouteExternalId", "RouteLanguage");
                         });
 
                     b.OwnsOne("ChillCodeBackend.Models.Entities.MunicipalityInfo", "MunicipalityData", b1 =>
                         {
-                            b1.Property<string>("RouteName")
+                            b1.Property<string>("RouteExternalId")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("RouteLanguage")
                                 .HasColumnType("TEXT");
 
                             b1.Property<string>("LogoPath")
@@ -1225,12 +1260,12 @@ namespace chill_code_backend.Migrations
                                 .HasMaxLength(200)
                                 .HasColumnType("TEXT");
 
-                            b1.HasKey("RouteName");
+                            b1.HasKey("RouteExternalId", "RouteLanguage");
 
                             b1.ToTable("Routes");
 
                             b1.WithOwner()
-                                .HasForeignKey("RouteName");
+                                .HasForeignKey("RouteExternalId", "RouteLanguage");
                         });
 
                     b.Navigation("MunicipalityData")
@@ -1247,6 +1282,10 @@ namespace chill_code_backend.Migrations
                             b1.Property<string>("ServiceIdentifier")
                                 .HasColumnType("TEXT");
 
+                            b1.Property<string>("ServiceLanguage")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("TEXT");
+
                             b1.Property<string>("LogoPath")
                                 .IsRequired()
                                 .HasColumnType("TEXT");
@@ -1255,17 +1294,21 @@ namespace chill_code_backend.Migrations
                                 .IsRequired()
                                 .HasColumnType("TEXT");
 
-                            b1.HasKey("ServiceIdentifier");
+                            b1.HasKey("ServiceIdentifier", "ServiceLanguage");
 
                             b1.ToTable("Services");
 
                             b1.WithOwner()
-                                .HasForeignKey("ServiceIdentifier");
+                                .HasForeignKey("ServiceIdentifier", "ServiceLanguage");
                         });
 
                     b.OwnsOne("ChillCodeBackend.Models.Entities.CarParkInfo", "NearestCarPark", b1 =>
                         {
                             b1.Property<string>("ServiceIdentifier")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("ServiceLanguage")
+                                .ValueGeneratedOnAdd()
                                 .HasColumnType("TEXT");
 
                             b1.Property<string>("Address")
@@ -1281,17 +1324,21 @@ namespace chill_code_backend.Migrations
                             b1.Property<double?>("Longitude")
                                 .HasColumnType("REAL");
 
-                            b1.HasKey("ServiceIdentifier");
+                            b1.HasKey("ServiceIdentifier", "ServiceLanguage");
 
                             b1.ToTable("Services");
 
                             b1.WithOwner()
-                                .HasForeignKey("ServiceIdentifier");
+                                .HasForeignKey("ServiceIdentifier", "ServiceLanguage");
                         });
 
                     b.OwnsOne("ChillCodeBackend.Models.Entities.ServiceBooking", "Booking", b1 =>
                         {
                             b1.Property<string>("ServiceIdentifier")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("ServiceLanguage")
+                                .ValueGeneratedOnAdd()
                                 .HasColumnType("TEXT");
 
                             b1.Property<string>("Description")
@@ -1302,16 +1349,20 @@ namespace chill_code_backend.Migrations
                                 .IsRequired()
                                 .HasColumnType("TEXT");
 
-                            b1.HasKey("ServiceIdentifier");
+                            b1.HasKey("ServiceIdentifier", "ServiceLanguage");
 
                             b1.ToTable("Services");
 
                             b1.WithOwner()
-                                .HasForeignKey("ServiceIdentifier");
+                                .HasForeignKey("ServiceIdentifier", "ServiceLanguage");
 
                             b1.OwnsOne("ChillCodeBackend.Models.Entities.TimeIntervalInfo", "TimeInterval", b2 =>
                                 {
                                     b2.Property<string>("ServiceBookingServiceIdentifier")
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<string>("ServiceBookingServiceLanguage")
+                                        .ValueGeneratedOnAdd()
                                         .HasColumnType("TEXT");
 
                                     b2.Property<DateTime?>("Date")
@@ -1323,12 +1374,12 @@ namespace chill_code_backend.Migrations
                                     b2.Property<DateTime?>("StartDate")
                                         .HasColumnType("TEXT");
 
-                                    b2.HasKey("ServiceBookingServiceIdentifier");
+                                    b2.HasKey("ServiceBookingServiceIdentifier", "ServiceBookingServiceLanguage");
 
                                     b2.ToTable("Services");
 
                                     b2.WithOwner()
-                                        .HasForeignKey("ServiceBookingServiceIdentifier");
+                                        .HasForeignKey("ServiceBookingServiceIdentifier", "ServiceBookingServiceLanguage");
                                 });
 
                             b1.Navigation("TimeInterval");
@@ -1337,6 +1388,10 @@ namespace chill_code_backend.Migrations
                     b.OwnsOne("ChillCodeBackend.Models.Entities.ServiceOpeningHours", "OpeningHours", b1 =>
                         {
                             b1.Property<string>("ServiceIdentifier")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("ServiceLanguage")
+                                .ValueGeneratedOnAdd()
                                 .HasColumnType("TEXT");
 
                             b1.Property<TimeOnly?>("Closes")
@@ -1353,16 +1408,20 @@ namespace chill_code_backend.Migrations
                             b1.Property<TimeOnly?>("Opens")
                                 .HasColumnType("TEXT");
 
-                            b1.HasKey("ServiceIdentifier");
+                            b1.HasKey("ServiceIdentifier", "ServiceLanguage");
 
                             b1.ToTable("Services");
 
                             b1.WithOwner()
-                                .HasForeignKey("ServiceIdentifier");
+                                .HasForeignKey("ServiceIdentifier", "ServiceLanguage");
 
                             b1.OwnsOne("ChillCodeBackend.Models.Entities.AdmissionTypeInfo", "AdmissionType", b2 =>
                                 {
                                     b2.Property<string>("ServiceOpeningHoursServiceIdentifier")
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<string>("ServiceOpeningHoursServiceLanguage")
+                                        .ValueGeneratedOnAdd()
                                         .HasColumnType("TEXT");
 
                                     b2.Property<string>("Description")
@@ -1373,17 +1432,21 @@ namespace chill_code_backend.Migrations
                                         .IsRequired()
                                         .HasColumnType("TEXT");
 
-                                    b2.HasKey("ServiceOpeningHoursServiceIdentifier");
+                                    b2.HasKey("ServiceOpeningHoursServiceIdentifier", "ServiceOpeningHoursServiceLanguage");
 
                                     b2.ToTable("Services");
 
                                     b2.WithOwner()
-                                        .HasForeignKey("ServiceOpeningHoursServiceIdentifier");
+                                        .HasForeignKey("ServiceOpeningHoursServiceIdentifier", "ServiceOpeningHoursServiceLanguage");
                                 });
 
                             b1.OwnsOne("ChillCodeBackend.Models.Entities.TimeIntervalInfo", "TimeInterval", b2 =>
                                 {
                                     b2.Property<string>("ServiceOpeningHoursServiceIdentifier")
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<string>("ServiceOpeningHoursServiceLanguage")
+                                        .ValueGeneratedOnAdd()
                                         .HasColumnType("TEXT");
 
                                     b2.Property<DateTime?>("Date")
@@ -1395,12 +1458,12 @@ namespace chill_code_backend.Migrations
                                     b2.Property<DateTime?>("StartDate")
                                         .HasColumnType("TEXT");
 
-                                    b2.HasKey("ServiceOpeningHoursServiceIdentifier");
+                                    b2.HasKey("ServiceOpeningHoursServiceIdentifier", "ServiceOpeningHoursServiceLanguage");
 
                                     b2.ToTable("Services");
 
                                     b2.WithOwner()
-                                        .HasForeignKey("ServiceOpeningHoursServiceIdentifier");
+                                        .HasForeignKey("ServiceOpeningHoursServiceIdentifier", "ServiceOpeningHoursServiceLanguage");
                                 });
 
                             b1.Navigation("AdmissionType");
@@ -1411,6 +1474,10 @@ namespace chill_code_backend.Migrations
                     b.OwnsOne("ChillCodeBackend.Models.Entities.ServiceTemporaryClosure", "TemporaryClosure", b1 =>
                         {
                             b1.Property<string>("ServiceIdentifier")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("ServiceLanguage")
+                                .ValueGeneratedOnAdd()
                                 .HasColumnType("TEXT");
 
                             b1.Property<TimeOnly?>("Closes")
@@ -1431,16 +1498,20 @@ namespace chill_code_backend.Migrations
                                 .IsRequired()
                                 .HasColumnType("TEXT");
 
-                            b1.HasKey("ServiceIdentifier");
+                            b1.HasKey("ServiceIdentifier", "ServiceLanguage");
 
                             b1.ToTable("Services");
 
                             b1.WithOwner()
-                                .HasForeignKey("ServiceIdentifier");
+                                .HasForeignKey("ServiceIdentifier", "ServiceLanguage");
 
                             b1.OwnsOne("ChillCodeBackend.Models.Entities.TimeIntervalInfo", "TimeInterval", b2 =>
                                 {
                                     b2.Property<string>("ServiceTemporaryClosureServiceIdentifier")
+                                        .HasColumnType("TEXT");
+
+                                    b2.Property<string>("ServiceTemporaryClosureServiceLanguage")
+                                        .ValueGeneratedOnAdd()
                                         .HasColumnType("TEXT");
 
                                     b2.Property<DateTime?>("Date")
@@ -1452,12 +1523,12 @@ namespace chill_code_backend.Migrations
                                     b2.Property<DateTime?>("StartDate")
                                         .HasColumnType("TEXT");
 
-                                    b2.HasKey("ServiceTemporaryClosureServiceIdentifier");
+                                    b2.HasKey("ServiceTemporaryClosureServiceIdentifier", "ServiceTemporaryClosureServiceLanguage");
 
                                     b2.ToTable("Services");
 
                                     b2.WithOwner()
-                                        .HasForeignKey("ServiceTemporaryClosureServiceIdentifier");
+                                        .HasForeignKey("ServiceTemporaryClosureServiceIdentifier", "ServiceTemporaryClosureServiceLanguage");
                                 });
 
                             b1.Navigation("TimeInterval");

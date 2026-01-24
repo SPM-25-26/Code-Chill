@@ -10,7 +10,7 @@ namespace ChillCodeBackend.Data.Db.Configurations
         public void Configure(EntityTypeBuilder<Service> builder)
         {
             builder.ToTable("Services");
-            builder.HasKey(s => s.Identifier);
+            builder.HasKey(s => new { s.Identifier, s.Language });
 
             builder.Property(s => s.Identifier).IsRequired();
             builder.Property(s => s.Language).IsRequired().HasDefaultValue("it");
@@ -76,7 +76,7 @@ namespace ChillCodeBackend.Data.Db.Configurations
             });
 
             // Indexes
-            builder.HasIndex(s => new { s.Language });
+            builder.HasIndex(s => new { s.Identifier, s.Language }).IsUnique();
         }
     }
 }

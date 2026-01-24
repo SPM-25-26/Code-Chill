@@ -13,11 +13,18 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
             _context = context;
         }
 
-        public async Task<Service?> GetByIdentifierAsync(string identifier, CancellationToken ct)
+        public async Task<Service?> GetByIdentifierAsync(
+            string identifier,
+            string? language = null,
+            CancellationToken ct = default
+        )
         {
-            return await _context.Services
-                .AsNoTracking()
-                .FirstOrDefaultAsync(s => s.Identifier == identifier, ct);
+            var query = _context.Services.AsNoTracking().Where(s => s.Identifier == identifier);
+            if (!string.IsNullOrWhiteSpace(language))
+            {
+                query = query.Where(s => s.Language == language);
+            }
+            return await query.FirstOrDefaultAsync(ct);
         }
 
         public async Task<IReadOnlyCollection<Service>> GetAllAsync(CancellationToken ct)
@@ -27,19 +34,24 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
 
         public async Task<IReadOnlyCollection<Service>> GetByMunicipalityAsync(
             string municipality,
-            CancellationToken ct
+            string? language = null,
+            CancellationToken ct = default
         )
         {
-            return await _context.Services
+            var query = _context.Services
                 .AsNoTracking()
-                .Where(s => s.MunicipalityData.Name == municipality)
-                .ToListAsync(ct);
+                .Where(s => s.MunicipalityData.Name == municipality);
+            if (!string.IsNullOrWhiteSpace(language))
+            {
+                query = query.Where(s => s.Language == language);
+            }
+            return await query.ToListAsync(ct);
         }
 
         public async Task AddOrUpdateAsync(Service service, CancellationToken ct)
         {
             var existing = await _context.Services.FindAsync(
-                new object[] { service.Identifier },
+                new object[] { service.Identifier, service.Language },
                 ct
             );
 
@@ -70,14 +82,15 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
 
             var existing = await _context.Services
                 .Where(s => identifiers.Contains(s.Identifier))
-                .ToDictionaryAsync(s => s.Identifier, ct);
+                .ToDictionaryAsync(s => (s.Identifier, s.Language), ct);
 
             var inserted = 0;
             var updated = 0;
 
             foreach (var service in serviceList)
             {
-                if (existing.TryGetValue(service.Identifier, out var existingService))
+                var key = (service.Identifier, service.Language);
+                if (existing.TryGetValue(key, out var existingService))
                 {
                     service.CreatedAt = existingService.CreatedAt;
                     service.UpdatedAt = DateTimeOffset.UtcNow;

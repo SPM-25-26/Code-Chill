@@ -15,7 +15,7 @@ namespace ChillCodeBackend.Data.Db.Configurations
 
         public void Configure(EntityTypeBuilder<Article> builder)
         {
-            builder.HasKey(a => a.Identifier);
+            builder.HasKey(a => new { a.Identifier, a.Language });
             builder.Property(a => a.Title).IsRequired();
             builder.Property(a => a.Script).IsRequired();
             builder.Property(a => a.ImagePath).IsRequired();

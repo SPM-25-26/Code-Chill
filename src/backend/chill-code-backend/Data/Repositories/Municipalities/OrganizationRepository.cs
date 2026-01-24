@@ -13,11 +13,18 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
             _context = context;
         }
 
-        public async Task<Organization?> GetByTaxCodeAsync(string taxCode, CancellationToken ct)
+        public async Task<Organization?> GetByTaxCodeAsync(
+            string taxCode,
+            string? language = null,
+            CancellationToken ct = default
+        )
         {
-            return await _context.Organizations
-                .AsNoTracking()
-                .FirstOrDefaultAsync(o => o.TaxCode == taxCode, ct);
+            var query = _context.Organizations.AsNoTracking().Where(o => o.TaxCode == taxCode);
+            if (!string.IsNullOrWhiteSpace(language))
+            {
+                query = query.Where(o => o.Language == language);
+            }
+            return await query.FirstOrDefaultAsync(ct);
         }
 
         public async Task<IReadOnlyCollection<Organization>> GetAllAsync(CancellationToken ct)
@@ -27,19 +34,24 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
 
         public async Task<IReadOnlyCollection<Organization>> GetByMunicipalityAsync(
             string municipality,
-            CancellationToken ct
+            string? language = null,
+            CancellationToken ct = default
         )
         {
-            return await _context.Organizations
+            var query = _context.Organizations
                 .AsNoTracking()
-                .Where(o => o.MunicipalityData.Name == municipality)
-                .ToListAsync(ct);
+                .Where(o => o.MunicipalityData.Name == municipality);
+            if (!string.IsNullOrWhiteSpace(language))
+            {
+                query = query.Where(o => o.Language == language);
+            }
+            return await query.ToListAsync(ct);
         }
 
         public async Task AddOrUpdateAsync(Organization organization, CancellationToken ct)
         {
             var existing = await _context.Organizations.FindAsync(
-                new object[] { organization.TaxCode },
+                new object[] { organization.TaxCode, organization.Language },
                 ct
             );
 
@@ -70,14 +82,15 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
 
             var existing = await _context.Organizations
                 .Where(o => taxCodes.Contains(o.TaxCode))
-                .ToDictionaryAsync(o => o.TaxCode, ct);
+                .ToDictionaryAsync(o => (o.TaxCode, o.Language), ct);
 
             var inserted = 0;
             var updated = 0;
 
             foreach (var org in orgList)
             {
-                if (existing.TryGetValue(org.TaxCode, out var existingOrg))
+                var key = (org.TaxCode, org.Language);
+                if (existing.TryGetValue(key, out var existingOrg))
                 {
                     org.CreatedAt = existingOrg.CreatedAt;
                     org.UpdatedAt = DateTimeOffset.UtcNow;

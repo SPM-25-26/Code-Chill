@@ -15,10 +15,10 @@ namespace ChillCodeBackend.Data.Db.Configurations
 
         public void Configure(EntityTypeBuilder<Models.Entities.Route> builder)
         {
-            builder.HasKey(r => r.Name);
+            builder.HasKey(r => new { r.ExternalId, r.Language });
 
             builder.Property(r => r.ExternalId).IsRequired();
-            builder.HasIndex(r => r.ExternalId).IsUnique();
+            builder.HasIndex(r => new { r.ExternalId, r.Language }).IsUnique();
 
             builder.Property(r => r.Language).IsRequired().HasMaxLength(10);
 

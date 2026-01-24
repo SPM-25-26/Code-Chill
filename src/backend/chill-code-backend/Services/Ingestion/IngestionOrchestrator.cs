@@ -73,6 +73,7 @@ namespace ChillCodeBackend.Services.Ingestion
                 await _persistence.PersistMunicipalityVisitAsync(
                     normalizedMunicipality,
                     municipalityVisit,
+                    language,
                     cancellationToken
                 );
                 _logger.LogInformation(

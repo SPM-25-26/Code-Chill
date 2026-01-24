@@ -10,6 +10,7 @@ namespace ChillCodeBackend.Services.Chat
             new List<ChatMessageDto>();
         public string PreferenceSummary { get; set; } = string.Empty;
         public string LocationSummary { get; set; } = string.Empty;
+        public string LanguageHint { get; set; } = string.Empty;
         public IReadOnlyCollection<TourismContextItem> Items { get; set; } =
             new List<TourismContextItem>();
     }

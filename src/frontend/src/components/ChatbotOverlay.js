@@ -9,6 +9,7 @@ import {
   Typography,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import SendIcon from '@mui/icons-material/Send';
 import instance from '../utilities/Utilities.js';
 import { useTranslation } from '../hooks/useTranslation.js';
@@ -73,6 +74,76 @@ function ChatbotOverlay({ open, onClose, location, municipality, language }) {
     }
   };
 
+  const handleReset = () => {
+    if (loading) return;
+    setMessages([]);
+    setError('');
+    setInput('');
+  };
+
+  const renderInline = (text) => {
+    const parts = [];
+    const regex = /\*\*(.+?)\*\*/g;
+    let lastIndex = 0;
+    let match;
+    let idx = 0;
+    while ((match = regex.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push(text.slice(lastIndex, match.index));
+      }
+      parts.push(<strong key={`b-${idx++}`}>{match[1]}</strong>);
+      lastIndex = match.index + match[0].length;
+    }
+    if (lastIndex < text.length) {
+      parts.push(text.slice(lastIndex));
+    }
+    return parts;
+  };
+
+  const renderMarkdown = (text) => {
+    if (!text) return null;
+    const lines = text.split(/\r?\n/);
+    const blocks = [];
+    let listItems = [];
+    let blockIndex = 0;
+
+    const flushList = () => {
+      if (listItems.length === 0) return;
+      const items = listItems;
+      listItems = [];
+      blocks.push(
+        <ol className="chatbot-md-ol" key={`ol-${blockIndex++}`}>
+          {items.map((item, i) => (
+            <li className="chatbot-md-li" key={`li-${i}`}>
+              {renderInline(item)}
+            </li>
+          ))}
+        </ol>
+      );
+    };
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed) {
+        flushList();
+        continue;
+      }
+      const olMatch = trimmed.match(/^\d+\.\s+(.*)$/);
+      if (olMatch) {
+        listItems.push(olMatch[1]);
+        continue;
+      }
+      flushList();
+      blocks.push(
+        <p className="chatbot-md-p" key={`p-${blockIndex++}`}>
+          {renderInline(trimmed)}
+        </p>
+      );
+    }
+    flushList();
+    return blocks;
+  };
+
   if (!open) return null;
 
   return (
@@ -80,9 +151,20 @@ function ChatbotOverlay({ open, onClose, location, municipality, language }) {
       <Paper elevation={4} className="chatbot-panel">
         <Box className="chatbot-header">
           <Typography variant="subtitle1">{t('chat.title')}</Typography>
-          <IconButton size="small" onClick={onClose} aria-label="close chat">
-            <CloseIcon fontSize="small" />
-          </IconButton>
+          <Box className="chatbot-header-actions">
+            <IconButton
+              size="small"
+              onClick={handleReset}
+              aria-label={t('chat.newChat')}
+              title={t('chat.newChat')}
+              disabled={loading}
+            >
+              <DeleteOutlineIcon fontSize="small" />
+            </IconButton>
+            <IconButton size="small" onClick={onClose} aria-label="close chat">
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </Box>
         </Box>
 
         <Box className="chatbot-messages">
@@ -96,7 +178,7 @@ function ChatbotOverlay({ open, onClose, location, municipality, language }) {
               key={`${m.role}-${idx}`}
               className={`chatbot-message ${m.role === 'user' ? 'user' : 'assistant'}`}
             >
-              <Typography variant="body2">{m.content}</Typography>
+              <Box className="chatbot-message-text">{renderMarkdown(m.content)}</Box>
             </Box>
           ))}
           {loading && (

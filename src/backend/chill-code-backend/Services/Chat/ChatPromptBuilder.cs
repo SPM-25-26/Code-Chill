@@ -15,6 +15,13 @@ namespace ChillCodeBackend.Services.Chat
                 "Use ONLY the tourism data provided below. If data is missing, say you don't know."
             );
             sb.AppendLine("Keep answers concise and practical.");
+            sb.AppendLine("Format responses for readability:");
+            sb.AppendLine("- Use short paragraphs.");
+            sb.AppendLine("- When listing options, use a bulleted list with one item per line.");
+            sb.AppendLine("- Each bullet should include the name, availability (dates/times), and a short reason.");
+            sb.AppendLine(
+                "Always respond in the same language as the USER_MESSAGE. If unclear, use LANGUAGE_HINT."
+            );
             sb.AppendLine();
 
             sb.AppendLine("USER_PROFILE:");
@@ -31,6 +38,10 @@ namespace ChillCodeBackend.Services.Chat
 
             sb.AppendLine("USER_MESSAGE:");
             sb.AppendLine(input.UserMessage.Trim());
+            sb.AppendLine();
+
+            sb.AppendLine("LANGUAGE_HINT:");
+            sb.AppendLine(string.IsNullOrWhiteSpace(input.LanguageHint) ? "-" : input.LanguageHint.Trim());
             sb.AppendLine();
 
             sb.AppendLine("TOURISM_DATA:");

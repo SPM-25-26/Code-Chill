@@ -86,6 +86,7 @@ namespace ChillCodeBackend.Controllers
                     Conversation = request.Conversation ?? new List<ChatMessageDto>(),
                     PreferenceSummary = preferenceSummary,
                     LocationSummary = locationSummary,
+                    LanguageHint = request.Language ?? string.Empty,
                     Items = contextItems
                 }
             );
@@ -122,6 +123,7 @@ namespace ChillCodeBackend.Controllers
                     Conversation = new List<ChatMessageDto>(),
                     PreferenceSummary = "-",
                     LocationSummary = "-",
+                    LanguageHint = "-",
                     Items = new List<TourismContextItem>()
                 }
             );

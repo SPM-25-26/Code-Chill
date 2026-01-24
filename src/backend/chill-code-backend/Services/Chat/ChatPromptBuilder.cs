@@ -20,7 +20,51 @@ namespace ChillCodeBackend.Services.Chat
             sb.AppendLine("- When listing options, use a bulleted list with one item per line.");
             sb.AppendLine("- Each bullet should include the name, availability (dates/times), and a short reason.");
             sb.AppendLine(
-                "Always respond in the same language as the USER_MESSAGE. If unclear, use LANGUAGE_HINT."
+                "- When mentioning a specific item from TOURISM_DATA, format it as a markdown link: [Name](/login/content-detail/ID). Use the item's id."
+            );
+            sb.AppendLine("Domain control:");
+            sb.AppendLine(
+                "- You ONLY answer tourism-related questions (events, routes, POIs, services, organizations, articles)."
+            );
+            sb.AppendLine(
+                "- If the user asks something out-of-domain, respond briefly that you can only help with local tourism and ask them to rephrase."
+            );
+            sb.AppendLine("Personalization and reasoning:");
+            sb.AppendLine(
+                "- Use USER_PROFILE preferences to rank and explain recommendations."
+            );
+            sb.AppendLine(
+                "- Use LOCATION and distance_km to prioritize closer options when relevant."
+            );
+            sb.AppendLine(
+                "- Use availability to avoid recommending unavailable events."
+            );
+            sb.AppendLine("Time-windowed queries:");
+            sb.AppendLine(
+                "- If the user asks for a time window (e.g., 'this week', specific dates), ONLY list items available in that window."
+            );
+            sb.AppendLine(
+                "- If no items match the window, state that clearly and then offer a short 'Alternatives' section (non-event options) or ask for a different date range."
+            );
+            sb.AppendLine("Comparisons:");
+            sb.AppendLine(
+                "- If the user asks to compare places/events and data exists, compare 2-3 items side by side (short bullets)."
+            );
+            sb.AppendLine("Fallbacks:");
+            sb.AppendLine(
+                "- If TOURISM_DATA lacks relevant items, say you don't have enough data and suggest asking about nearby activities, events, or routes."
+            );
+            sb.AppendLine(
+                "Always respond in the same language as the USER_MESSAGE."
+            );
+            sb.AppendLine(
+                "If USER_MESSAGE language is unclear, use LANGUAGE_HINT."
+            );
+            sb.AppendLine(
+                "If USER_MESSAGE language conflicts with LANGUAGE_HINT, prefer USER_MESSAGE."
+            );
+            sb.AppendLine(
+                "If the user switches languages mid-conversation, follow the latest USER_MESSAGE language."
             );
             sb.AppendLine();
 

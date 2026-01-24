@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -17,10 +17,22 @@ import './styles/ChatbotOverlay.css';
 
 function ChatbotOverlay({ open, onClose, location, municipality, language }) {
   const { t } = useTranslation();
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(() => {
+    try {
+      const raw = localStorage.getItem('chatbotMessages');
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  });
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const messagesEndRef = useRef(null);
+  const [isOnline, setIsOnline] = useState(
+    typeof navigator !== 'undefined' ? navigator.onLine : true
+  );
 
   const conversationPayload = useMemo(
     () =>
@@ -33,7 +45,7 @@ function ChatbotOverlay({ open, onClose, location, municipality, language }) {
 
   const handleSend = async () => {
     const trimmed = input.trim();
-    if (!trimmed || loading) return;
+    if (!trimmed || loading || !isOnline) return;
 
     setError('');
     setInput('');
@@ -79,11 +91,36 @@ function ChatbotOverlay({ open, onClose, location, municipality, language }) {
     setMessages([]);
     setError('');
     setInput('');
+    localStorage.removeItem('chatbotMessages');
   };
 
-  const renderInline = (text) => {
+  useEffect(() => {
+    try {
+      localStorage.setItem('chatbotMessages', JSON.stringify(messages));
+    } catch {
+      // ignore persistence errors
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!messagesEndRef.current) return;
+    messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, [messages, loading]);
+
+  const renderInlineText = (text, keyPrefix) => {
     const parts = [];
-    const regex = /\*\*(.+?)\*\*/g;
+    const regex = /(\*\*[^*]+\*\*|\*[^*]+\*)/g;
     let lastIndex = 0;
     let match;
     let idx = 0;
@@ -91,11 +128,67 @@ function ChatbotOverlay({ open, onClose, location, municipality, language }) {
       if (match.index > lastIndex) {
         parts.push(text.slice(lastIndex, match.index));
       }
-      parts.push(<strong key={`b-${idx++}`}>{match[1]}</strong>);
-      lastIndex = match.index + match[0].length;
+      const token = match[0];
+      if (token.startsWith('**')) {
+        parts.push(
+          <strong key={`${keyPrefix}-b-${idx++}`}>{token.slice(2, -2)}</strong>
+        );
+      } else {
+        parts.push(
+          <em key={`${keyPrefix}-i-${idx++}`}>{token.slice(1, -1)}</em>
+        );
+      }
+      lastIndex = match.index + token.length;
     }
     if (lastIndex < text.length) {
       parts.push(text.slice(lastIndex));
+    }
+    return parts;
+  };
+
+  const renderInline = (text) => {
+    const parts = [];
+    const linkRegex = /\*\*\[([^\]]+)\]\(([^)]+)\)\*\*|\[([^\]]+)\]\(([^)]+)\)/g;
+    let lastIndex = 0;
+    let match;
+    let idx = 0;
+    while ((match = linkRegex.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push(...renderInlineText(text.slice(lastIndex, match.index), `t-${idx}`));
+      }
+      const isBoldLink = Boolean(match[1]);
+      const label = isBoldLink ? match[1] : match[3];
+      let href = isBoldLink ? match[2] : match[4];
+      if (href.startsWith('http')) {
+        try {
+          const url = new URL(href);
+          href = url.pathname;
+        } catch {
+          // keep as-is if parsing fails
+        }
+      }
+      if (href.startsWith('login/')) {
+        href = `/${href}`;
+      } else if (href.startsWith('/content-detail/')) {
+        href = `/login${href}`;
+      } else if (href.startsWith('content-detail/')) {
+        href = `/login/${href}`;
+      }
+      parts.push(
+        <a
+          key={`l-${idx++}`}
+          href={href}
+          className="chatbot-md-link"
+          rel={href.startsWith('http') ? 'noreferrer' : undefined}
+          target={href.startsWith('http') ? '_blank' : undefined}
+        >
+          {isBoldLink ? <strong>{renderInlineText(label, `l-${idx}`)}</strong> : renderInlineText(label, `l-${idx}`)}
+        </a>
+      );
+      lastIndex = match.index + match[0].length;
+    }
+    if (lastIndex < text.length) {
+      parts.push(...renderInlineText(text.slice(lastIndex), `t-${idx}`));
     }
     return parts;
   };
@@ -105,27 +198,32 @@ function ChatbotOverlay({ open, onClose, location, municipality, language }) {
     const lines = text.split(/\r?\n/);
     const blocks = [];
     let listItems = [];
+    let listType = null;
     let blockIndex = 0;
 
     const flushList = () => {
       if (listItems.length === 0) return;
       const items = listItems;
       listItems = [];
+      const ListTag = listType === 'ul' ? 'ul' : 'ol';
       blocks.push(
-        <ol className="chatbot-md-ol" key={`ol-${blockIndex++}`}>
+        <ListTag
+          className={listType === 'ul' ? 'chatbot-md-ul' : 'chatbot-md-ol'}
+          key={`list-${blockIndex++}`}
+        >
           {items.map((item, i) => (
             <li className="chatbot-md-li" key={`li-${i}`}>
               {renderInline(item)}
             </li>
           ))}
-        </ol>
+        </ListTag>
       );
+      listType = null;
     };
 
     for (const line of lines) {
       const trimmed = line.trim();
       if (!trimmed) {
-        flushList();
         continue;
       }
       const headingMatch = trimmed.match(/^###\s+(.*)$/);
@@ -140,7 +238,20 @@ function ChatbotOverlay({ open, onClose, location, municipality, language }) {
       }
       const olMatch = trimmed.match(/^\d+\.\s+(.*)$/);
       if (olMatch) {
+        if (listType && listType !== 'ol') {
+          flushList();
+        }
+        listType = 'ol';
         listItems.push(olMatch[1]);
+        continue;
+      }
+      const ulMatch = trimmed.match(/^[-*]\s+(.*)$/);
+      if (ulMatch) {
+        if (listType && listType !== 'ul') {
+          flushList();
+        }
+        listType = 'ul';
+        listItems.push(ulMatch[1]);
         continue;
       }
       flushList();
@@ -197,11 +308,17 @@ function ChatbotOverlay({ open, onClose, location, municipality, language }) {
               <Typography variant="caption">{t('chat.thinking')}</Typography>
             </Box>
           )}
+          <div ref={messagesEndRef} />
         </Box>
 
         {error && (
           <Typography variant="caption" className="chatbot-error">
             {error}
+          </Typography>
+        )}
+        {!isOnline && (
+          <Typography variant="caption" className="chatbot-offline">
+            {t('chat.offlineMessage')}
           </Typography>
         )}
 
@@ -222,7 +339,7 @@ function ChatbotOverlay({ open, onClose, location, municipality, language }) {
           <Button
             variant="contained"
             onClick={handleSend}
-            disabled={loading || !input.trim()}
+            disabled={loading || !input.trim() || !isOnline}
             className="chatbot-send"
           >
             <SendIcon fontSize="small" />

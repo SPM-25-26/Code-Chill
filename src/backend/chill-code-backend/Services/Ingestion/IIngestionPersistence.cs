@@ -9,6 +9,7 @@ namespace ChillCodeBackend.Services.Ingestion
         Task PersistMunicipalityVisitAsync(
             string municipalityExternalId,
             UnicamMunicipalityVisit municipalityVisit,
+            string language,
             CancellationToken cancellationToken
         );
         Task PersistPoiDetailsAsync(

@@ -15,10 +15,11 @@ namespace ChillCodeBackend.Data.Db.Configurations
 
         public void Configure(EntityTypeBuilder<Municipality> builder)
         {
-            builder.HasKey(m => m.Name);
-            builder.HasIndex(m => m.Name).IsUnique();
+            builder.HasKey(m => new { m.ExternalId, m.Language });
+            builder.HasIndex(m => new { m.Name, m.Language }).IsUnique();
             builder.Property(m => m.ExternalId).IsRequired();
-            builder.HasIndex(m => m.ExternalId).IsUnique();
+            builder.Property(m => m.Language).IsRequired().HasMaxLength(10);
+            builder.HasIndex(m => new { m.ExternalId, m.Language }).IsUnique();
 
             builder.Property(m => m.CreatedAt).IsRequired();
             builder.Property(m => m.UpdatedAt).IsRequired();

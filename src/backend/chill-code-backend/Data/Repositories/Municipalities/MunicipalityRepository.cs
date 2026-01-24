@@ -15,24 +15,32 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
 
         public async Task<Municipality?> GetByNameAsync(
             string name,
+            string? language = null,
             CancellationToken cancellationToken = default
         )
         {
-            return await _dbContext.Municipalities.FirstOrDefaultAsync(
-                m => m.Name == name,
-                cancellationToken
-            );
+            var query = _dbContext.Municipalities.AsQueryable();
+            query = query.Where(m => m.Name == name);
+            if (!string.IsNullOrWhiteSpace(language))
+            {
+                query = query.Where(m => m.Language == language);
+            }
+            return await query.FirstOrDefaultAsync(cancellationToken);
         }
 
         public async Task<Municipality?> GetByExternalIdAsync(
             string externalId,
+            string? language = null,
             CancellationToken cancellationToken = default
         )
         {
-            return await _dbContext.Municipalities.FirstOrDefaultAsync(
-                m => m.ExternalId == externalId,
-                cancellationToken
-            );
+            var query = _dbContext.Municipalities.AsQueryable();
+            query = query.Where(m => m.ExternalId == externalId);
+            if (!string.IsNullOrWhiteSpace(language))
+            {
+                query = query.Where(m => m.Language == language);
+            }
+            return await query.FirstOrDefaultAsync(cancellationToken);
         }
 
         public async Task AddOrUpdateAsync(
@@ -57,7 +65,7 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
             }
 
             var existingMunicipality = await _dbContext.Municipalities.FirstOrDefaultAsync(
-                m => m.ExternalId == municipality.ExternalId,
+                m => m.ExternalId == municipality.ExternalId && m.Language == municipality.Language,
                 cancellationToken
             );
 

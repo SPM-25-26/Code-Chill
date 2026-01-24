@@ -3,6 +3,7 @@ namespace ChillCodeBackend.Models.Entities
     public class Municipality
     {
         public string ExternalId { get; set; } = string.Empty;
+        public string Language { get; set; } = "it";
 
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset UpdatedAt { get; set; }

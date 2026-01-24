@@ -38,11 +38,10 @@ namespace ChillCodeBackend.Controllers
             else
             {
                 var normalized = municipality.Trim();
-                services = await _serviceRepository.GetByMunicipalityAsync(normalized, ct);
+                services = await _serviceRepository.GetByMunicipalityAsync(normalized, lang, ct);
             }
 
             var result = services
-                .Where(s => s.Language == lang)
                 .Select(s => new ServiceCardDto
                 {
                     Identifier = s.Identifier,
@@ -75,19 +74,14 @@ namespace ChillCodeBackend.Controllers
                 return BadRequest("Identifier is required.");
             }
 
-            var service = await _serviceRepository.GetByIdentifierAsync(identifier.Trim(), ct);
+            var service = await _serviceRepository.GetByIdentifierAsync(
+                identifier.Trim(),
+                language,
+                ct
+            );
             if (service == null)
             {
                 return NotFound(new { error = "Service not found." });
-            }
-
-            if (!string.IsNullOrWhiteSpace(language))
-            {
-                var lang = language.Trim();
-                if (!string.Equals(service.Language, lang, StringComparison.OrdinalIgnoreCase))
-                {
-                    return NotFound(new { error = "Service not found." });
-                }
             }
 
             var dto = new ServiceDetailDto

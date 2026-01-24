@@ -56,10 +56,15 @@ namespace ChillCodeBackend.Services.Ingestion
         public Task PersistMunicipalityVisitAsync(
             string municipalityExternalId,
             UnicamMunicipalityVisit municipalityVisit,
+            string language,
             CancellationToken cancellationToken
         )
         {
-            var municipality = _municipalityMapper.Map(municipalityExternalId, municipalityVisit);
+            var municipality = _municipalityMapper.Map(
+                municipalityExternalId,
+                municipalityVisit,
+                language
+            );
             return PersistMunicipalityAsync(municipality, cancellationToken);
         }
 

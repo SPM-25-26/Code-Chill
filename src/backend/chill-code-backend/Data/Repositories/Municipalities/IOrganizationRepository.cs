@@ -4,11 +4,12 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
 {
     public interface IOrganizationRepository
     {
-        Task<Organization?> GetByTaxCodeAsync(string taxCode, CancellationToken ct);
+        Task<Organization?> GetByTaxCodeAsync(string taxCode, string? language = null, CancellationToken ct = default);
         Task<IReadOnlyCollection<Organization>> GetAllAsync(CancellationToken ct);
         Task<IReadOnlyCollection<Organization>> GetByMunicipalityAsync(
             string municipality,
-            CancellationToken ct
+            string? language = null,
+            CancellationToken ct = default
         );
         Task AddOrUpdateAsync(Organization organization, CancellationToken ct);
         Task<UpsertBatchResult> UpsertManyAsync(

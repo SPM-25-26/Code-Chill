@@ -10,7 +10,7 @@ namespace ChillCodeBackend.Data.Db.Configurations
         public void Configure(EntityTypeBuilder<Organization> builder)
         {
             builder.ToTable("Organizations");
-            builder.HasKey(o => o.TaxCode);
+            builder.HasKey(o => new { o.TaxCode, o.Language });
 
             builder.Property(o => o.TaxCode).IsRequired();
             builder.Property(o => o.Language).IsRequired().HasDefaultValue("it");
@@ -72,7 +72,7 @@ namespace ChillCodeBackend.Data.Db.Configurations
             builder.OwnsOne(o => o.MunicipalityData);
 
             // Indexes
-            builder.HasIndex(o => new { o.Language });
+            builder.HasIndex(o => new { o.TaxCode, o.Language }).IsUnique();
         }
     }
 }

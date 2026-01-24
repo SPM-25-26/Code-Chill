@@ -6,10 +6,12 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
     {
         Task<Models.Entities.Route?> GetByNameAsync(
             string name,
+            string? language = null,
             CancellationToken cancellationToken = default
         );
         Task<Models.Entities.Route?> GetByExternalIdAsync(
             string externalId,
+            string? language = null,
             CancellationToken cancellationToken = default
         );
         Task AddOrUpdateAsync(

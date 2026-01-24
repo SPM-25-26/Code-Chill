@@ -16,24 +16,32 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
 
         public async Task<Models.Entities.Route?> GetByNameAsync(
             string name,
+            string? language = null,
             CancellationToken cancellationToken = default
         )
         {
-            return await _dbContext.Routes.FirstOrDefaultAsync(
-                r => r.Name == name,
-                cancellationToken
-            );
+            var query = _dbContext.Routes.AsQueryable();
+            query = query.Where(r => r.Name == name);
+            if (!string.IsNullOrWhiteSpace(language))
+            {
+                query = query.Where(r => r.Language == language);
+            }
+            return await query.FirstOrDefaultAsync(cancellationToken);
         }
 
         public async Task<Models.Entities.Route?> GetByExternalIdAsync(
             string externalId,
+            string? language = null,
             CancellationToken cancellationToken = default
         )
         {
-            return await _dbContext.Routes.FirstOrDefaultAsync(
-                r => r.ExternalId == externalId,
-                cancellationToken
-            );
+            var query = _dbContext.Routes.AsQueryable();
+            query = query.Where(r => r.ExternalId == externalId);
+            if (!string.IsNullOrWhiteSpace(language))
+            {
+                query = query.Where(r => r.Language == language);
+            }
+            return await query.FirstOrDefaultAsync(cancellationToken);
         }
 
         public async Task AddOrUpdateAsync(
@@ -59,7 +67,7 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
             var existing = await _dbContext
                 .Routes.Where(r => externalIds.Contains(r.ExternalId))
                 .ToListAsync(cancellationToken);
-            var existingByExternalId = existing.ToDictionary(r => r.ExternalId);
+            var existingByKey = existing.ToDictionary(r => (r.ExternalId, r.Language));
 
             var now = DateTimeOffset.UtcNow;
             var inserted = 0;
@@ -72,7 +80,8 @@ namespace ChillCodeBackend.Data.Repositories.Municipalities
                 foreach (var route in incoming)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    if (!existingByExternalId.TryGetValue(route.ExternalId, out var existingRoute))
+                    var key = (route.ExternalId, route.Language);
+                    if (!existingByKey.TryGetValue(key, out var existingRoute))
                     {
                         route.CreatedAt = route.CreatedAt == default ? now : route.CreatedAt;
                         route.UpdatedAt = now;

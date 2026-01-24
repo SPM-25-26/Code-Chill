@@ -37,11 +37,11 @@ namespace ChillCodeBackend.Controllers
             var normalized = municipality.Trim();
             var organizations = await _organizationRepository.GetByMunicipalityAsync(
                 normalized,
+                lang,
                 ct
             );
-            var filtered = organizations.Where(o => o.Language == lang);
 
-            var result = filtered
+            var result = organizations
                 .Select(o => new OrganizationCardDto
                 {
                     TaxCode = o.TaxCode,
@@ -74,19 +74,14 @@ namespace ChillCodeBackend.Controllers
                 return BadRequest("Tax code is required.");
             }
 
-            var organization = await _organizationRepository.GetByTaxCodeAsync(taxCode.Trim(), ct);
+            var organization = await _organizationRepository.GetByTaxCodeAsync(
+                taxCode.Trim(),
+                language,
+                ct
+            );
             if (organization == null)
             {
                 return NotFound(new { error = "Organization not found." });
-            }
-
-            if (!string.IsNullOrWhiteSpace(language))
-            {
-                var lang = language.Trim();
-                if (!string.Equals(organization.Language, lang, StringComparison.OrdinalIgnoreCase))
-                {
-                    return NotFound(new { error = "Organization not found." });
-                }
             }
 
             var dto = new OrganizationDetailDto

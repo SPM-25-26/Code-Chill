@@ -47,6 +47,9 @@ import BuildIcon from '@mui/icons-material/Build';
 import TheaterComedyIcon from '@mui/icons-material/TheaterComedy';
 import BusinessIcon from '@mui/icons-material/Business';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import SearchIcon from '@mui/icons-material/Search';
+import CloseIcon from '@mui/icons-material/Close';
+import InputAdornment from '@mui/material/InputAdornment';
 
 import logoPng from '../assets/SPM-Logo.png';
 import instance from '../utilities/Utilities.js';
@@ -81,6 +84,7 @@ export default function HomePage() {
     const [filterCollapsed, setFilterCollapsed] = useState(false);
     const [sortNearMe, setSortNearMe] = useState(false);
     const [chatOpen, setChatOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const [tabValue, setTabValue] = useState('all');
 
@@ -335,8 +339,16 @@ export default function HomePage() {
             });
         }
 
+        if (searchQuery.trim().length > 0) {
+            const q = searchQuery.trim().toLowerCase();
+            filtered = filtered.filter(item => {
+                const title = (item.title ?? item.name ?? item.legalName ?? '').toString().toLowerCase();
+                return title.includes(q);
+            });
+        }
+
         return filtered;
-    }, [allContent, selectedTypes, selectedCities, preferences]);
+    }, [allContent, selectedTypes, selectedCities, preferences, searchQuery]);
 
     const getTabContent = useMemo(() => {
         const score = (item) => scoreMap[item.id ?? item.Id ?? item.identifier ?? item.taxCode] ?? 0;
@@ -553,6 +565,33 @@ export default function HomePage() {
                             <Typography variant="caption" sx={{ ml: 0.5, fontWeight: 600 }}>{language.toUpperCase()}</Typography>
                         </IconButton>
                     </Box>
+                </Box>
+
+                <Box className="search-bar-wrapper">
+                    <TextField
+                        fullWidth
+                        size="small"
+                        placeholder={t('home.searchPlaceholder') ?? "Search activities..."}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon />
+                                </InputAdornment>
+                            ),
+                            endAdornment: searchQuery.length > 0 && (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        size="small"
+                                        onClick={() => setSearchQuery('')}
+                                    >
+                                        <CloseIcon />
+                                    </IconButton>
+                                </InputAdornment>
+                            )
+                        }}
+                    />
                 </Box>
 
                 {/* Filter Toolbar */}

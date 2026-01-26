@@ -70,7 +70,8 @@
     "startDate": "Start Date",
     "endDate": "End Date",
     "virtualTour": "Virtual Tour",
-    "viewVirtualTour": "View virtual tour"
+    "viewVirtualTour": "View virtual tour",
+    "searchPlaceholder": "Search articles, events, routes..."
   },
   "chat": {
     "title": "Chilly, your AI Assistant",

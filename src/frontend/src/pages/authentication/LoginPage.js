@@ -103,6 +103,21 @@ export default function LoginPage() {
         localStorage.setItem('refreshToken', refreshToken);
         localStorage.setItem('refreshTokenExpiresAt', refreshTokenExpiresAt);
         if (userName) localStorage.setItem('username', userName);
+        try {
+          const previousUser = sessionStorage.getItem('chatbotSessionUser');
+          if (previousUser) {
+            sessionStorage.removeItem(`chatbotMessages:${previousUser}`);
+          }
+          sessionStorage.removeItem('chatbotMessages');
+          if (userName) {
+            sessionStorage.removeItem(`chatbotMessages:${userName}`);
+            sessionStorage.setItem('chatbotSessionUser', userName);
+          } else {
+            sessionStorage.removeItem('chatbotSessionUser');
+          }
+        } catch {
+          // ignore storage errors
+        }
 
         // Load user preferences
         await loadPreferences(token);

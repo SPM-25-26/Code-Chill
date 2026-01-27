@@ -15,7 +15,7 @@ public class MunicipalityMapperTests
         var visit = new UnicamMunicipalityVisit();
 
         var mapper = new MunicipalityMapper();
-        var municipality = mapper.Map("test-municipality", visit);
+        var municipality = mapper.Map("test-municipality", visit, "it");
 
         municipality.ExternalId.Should().Be("test-municipality");
         municipality.Name.Should().BeEmpty();
@@ -50,7 +50,7 @@ public class MunicipalityMapperTests
         };
 
         var mapper = new MunicipalityMapper();
-        var municipality = mapper.Map("castignano", visit);
+        var municipality = mapper.Map("castignano", visit, "it");
 
         municipality.ExternalId.Should().Be("castignano");
         municipality.Events.Should().HaveCount(2);

@@ -37,5 +37,66 @@ namespace chill_code_backend.Tests.Preferences
             isValid.Should().BeTrue();
             error.Should().BeNull();
         }
+
+        [Test]
+        public void Validate_ReturnsError_WhenTravelVibeInvalid()
+        {
+            var dto = new TravelPreferenceDto
+            {
+                TravelVibe = "relaxed",
+                ActivityLevel = "low",
+                CitySize = "small",
+            };
+
+            var (isValid, error) = PreferenceValidation.Validate(dto);
+            isValid.Should().BeFalse();
+            error.Should().Contain("TravelVibe");
+        }
+
+        [Test]
+        public void Validate_ReturnsError_WhenActivityLevelInvalid()
+        {
+            var dto = new TravelPreferenceDto
+            {
+                TravelVibe = "chill",
+                ActivityLevel = "super-high",
+                CitySize = "small",
+            };
+
+            var (isValid, error) = PreferenceValidation.Validate(dto);
+            isValid.Should().BeFalse();
+            error.Should().Contain("ActivityLevel");
+        }
+
+        [Test]
+        public void Validate_ReturnsError_WhenCitySizeInvalid()
+        {
+            var dto = new TravelPreferenceDto
+            {
+                TravelVibe = "chill",
+                ActivityLevel = "low",
+                CitySize = "medium",
+            };
+
+            var (isValid, error) = PreferenceValidation.Validate(dto);
+            isValid.Should().BeFalse();
+            error.Should().Contain("CitySize");
+        }
+
+        [Test]
+        public void Validate_ReturnsError_WhenInterestUnsupported()
+        {
+            var dto = new TravelPreferenceDto
+            {
+                TravelVibe = "chill",
+                ActivityLevel = "low",
+                CitySize = "small",
+                Interests = new[] { "Unknown Interest" },
+            };
+
+            var (isValid, error) = PreferenceValidation.Validate(dto);
+            isValid.Should().BeFalse();
+            error.Should().Contain("Interests");
+        }
     }
 }

@@ -15,11 +15,15 @@ import instance from '../utilities/Utilities.js';
 import { useTranslation } from '../hooks/useTranslation.js';
 import './styles/ChatbotOverlay.css';
 
-function ChatbotOverlay({ open, onClose, location, municipality, language }) {
+function ChatbotOverlay({ open, onClose, location, municipality, language, userName }) {
   const { t } = useTranslation();
+  const storageKey = useMemo(
+    () => (userName ? `chatbotMessages:${userName}` : 'chatbotMessages'),
+    [userName]
+  );
   const [messages, setMessages] = useState(() => {
     try {
-      const raw = localStorage.getItem('chatbotMessages');
+      const raw = sessionStorage.getItem(storageKey);
       const parsed = raw ? JSON.parse(raw) : [];
       return Array.isArray(parsed) ? parsed : [];
     } catch {
@@ -91,16 +95,26 @@ function ChatbotOverlay({ open, onClose, location, municipality, language }) {
     setMessages([]);
     setError('');
     setInput('');
-    localStorage.removeItem('chatbotMessages');
+    sessionStorage.removeItem(storageKey);
   };
 
   useEffect(() => {
     try {
-      localStorage.setItem('chatbotMessages', JSON.stringify(messages));
+      sessionStorage.setItem(storageKey, JSON.stringify(messages));
     } catch {
       // ignore persistence errors
     }
-  }, [messages]);
+  }, [messages, storageKey]);
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(storageKey);
+      const parsed = raw ? JSON.parse(raw) : [];
+      setMessages(Array.isArray(parsed) ? parsed : []);
+    } catch {
+      setMessages([]);
+    }
+  }, [storageKey]);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);

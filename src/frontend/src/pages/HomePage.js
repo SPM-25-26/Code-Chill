@@ -394,7 +394,17 @@ export default function HomePage() {
         return sortedContent.slice(start, end);
     }, [sortedContent, page]);
 
-    const handleLogout = () => { localStorage.clear(); navigate('/login'); };
+    const handleLogout = () => {
+        try {
+            const storageKey = username ? `chatbotMessages:${username}` : 'chatbotMessages';
+            sessionStorage.removeItem(storageKey);
+            sessionStorage.removeItem('chatbotSessionUser');
+        } catch {
+            // ignore storage errors
+        }
+        localStorage.clear();
+        navigate('/login');
+    };
     const handleCardClick = (item) => {
         const id = item.id ?? item.Id ?? item.identifier ?? item.taxCode;
         if (!id) return;
@@ -518,6 +528,7 @@ export default function HomePage() {
                 location={userLocation}
                 municipality={selectedCities.length === 1 ? selectedCities[0] : null}
                 language={language}
+                userName={username}
             />
             <Box className="chatbot-launcher">
                 <IconButton color="primary" onClick={toggleChat} className="chatbot-launcher-btn">

@@ -25,9 +25,24 @@ function ChatbotOverlay({ open, onClose, location, municipality, language, userN
     try {
       const raw = sessionStorage.getItem(storageKey);
       const parsed = raw ? JSON.parse(raw) : [];
-      return Array.isArray(parsed) ? parsed : [];
+
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+
+      return [
+        {
+          role: 'assistant',
+          content: t('chat.welcomeMessage'),
+        },
+      ];
     } catch {
-      return [];
+      return [
+        {
+          role: 'assistant',
+          content: t('chat.welcomeMessage'),
+        },
+      ];
     }
   });
   const [input, setInput] = useState('');
@@ -92,9 +107,16 @@ function ChatbotOverlay({ open, onClose, location, municipality, language, userN
 
   const handleReset = () => {
     if (loading) return;
-    setMessages([]);
+
+    const welcome = {
+      role: 'assistant',
+      content: t('chat.welcomeMessage'),
+    };
+
+    setMessages([welcome]);
     setError('');
     setInput('');
+    localStorage.setItem('chatbotMessages', JSON.stringify([welcome]));
     sessionStorage.removeItem(storageKey);
   };
 

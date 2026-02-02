@@ -567,7 +567,10 @@ export default function HomePage() {
             {/* Header */}
             <Box className="page-card-home">
                 <Box className="header">
-                    <IconButton onClick={() => setOpen(true)}><MenuIcon /></IconButton>
+                    <IconButton onClick={() => {
+                        setOpen(true)
+                        setChatOpen(false)
+                    }}><MenuIcon /></IconButton>
                     <img src={logoPng} alt="SPM Logo" className="logo" />
                     <Typography variant="h6">{t('header.welcome')}, {username}</Typography>
                     <Box sx={{ marginLeft: 'auto' }}>

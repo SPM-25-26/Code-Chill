@@ -16,6 +16,18 @@ Run backend tests:
 dotnet test src/backend/chill-code-backend.Tests
 ```
 
+Run backend tests + generate per-class summary (console + Markdown report):
+
+```bash
+# first run on machine
+chmod +x scripts/test-summary.sh
+
+# then only running the script
+./scripts/test-summary.sh
+```
+
+The summary report is written to `src/backend/chill-code-backend.Tests/TestResults/TestSummary.md`.
+
 The API exposes auth endpoints at `/api/auth` (login/register/refresh). Update `appsettings.json` or `appsettings.Development.json` (or env vars/user-secrets) to set JWT/DB/email settings.
 
 Email flows:

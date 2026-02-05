@@ -2,7 +2,7 @@ using ChillCodeBackend.Models.Api;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace chill_code_backend.Tests.Preferences
+namespace ChillCodeBackend.Tests.Preferences
 {
     public class PreferenceValidationTests
     {

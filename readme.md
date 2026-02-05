@@ -10,6 +10,12 @@ dotnet build
 dotnet run
 ```
 
+Run backend tests:
+
+```bash
+dotnet test src/backend/chill-code-backend.Tests
+```
+
 The API exposes auth endpoints at `/api/auth` (login/register/refresh). Update `appsettings.json` or `appsettings.Development.json` (or env vars/user-secrets) to set JWT/DB/email settings.
 
 Email flows:
